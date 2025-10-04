@@ -94,7 +94,19 @@ Write-Host ""
 Write-Host "🌐 La aplicación estará disponible en:" -ForegroundColor Cyan
 Write-Host "   http://localhost:8080 (configuración de oficina)" -ForegroundColor White
 Write-Host ""
-Write-Host "🔄 Para cambiar configuraciones:" -ForegroundColor Cyan
-Write-Host "   Casa:    .\scripts\switch-env.ps1 home" -ForegroundColor White
-Write-Host "   Oficina: .\scripts\switch-env.ps1 office" -ForegroundColor White
+Write-Host "🔄 Para gestión diaria:" -ForegroundColor Cyan
+Write-Host "   Script maestro: .\scripts\work-manager.ps1" -ForegroundColor White
+Write-Host ""
+Write-Host "🔗 Para sincronización automática con GitHub:" -ForegroundColor Magenta
+if (Test-Path ".git") {
+    $hasRemote = git remote -v 2>$null
+    if (![string]::IsNullOrEmpty($hasRemote)) {
+        Write-Host "   ✅ GitHub ya configurado" -ForegroundColor Green
+        git remote -v | Select-Object -First 1
+    } else {
+        Write-Host "   ⚠️ Configurar GitHub: Opción 8 en script maestro" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "   ⚠️ Inicializar Git: Opción 8 en script maestro" -ForegroundColor Yellow
+}
 Write-Host ""

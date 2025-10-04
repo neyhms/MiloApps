@@ -12,6 +12,11 @@ python --version
 git --version
 ```
 
+**Obtener el proyecto:**
+- 🔗 **Repositorio Git**: `https://github.com/neyhms/InfoMilo.git` (una vez configurado)
+- 💾 **Transferencia manual**: USB/OneDrive/carpeta compartida
+- 📖 **Ver guía completa**: `docs/git-setup-guide.md`
+
 ---
 
 ## 🚀 OPCIONES DE SETUP (ELIGE UNA)

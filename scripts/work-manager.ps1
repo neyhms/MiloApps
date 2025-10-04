@@ -35,10 +35,17 @@ Write-Host "⚙️  UTILIDADES:" -ForegroundColor Yellow
 Write-Host "  5. Solo cambiar a configuración casa" -ForegroundColor White
 Write-Host "  6. Solo cambiar a configuración oficina" -ForegroundColor White
 Write-Host "  7. Ver estado del proyecto" -ForegroundColor White
-Write-Host "  8. Salir" -ForegroundColor White
+Write-Host ""
+Write-Host "🔗 GIT & GITHUB:" -ForegroundColor Magenta
+Write-Host "  8. Configurar GitHub (primera vez)" -ForegroundColor White
+Write-Host "  9. Sincronizar con GitHub (pull + push)" -ForegroundColor White
+Write-Host "  10. Solo descargar cambios (pull)" -ForegroundColor White
+Write-Host "  11. Solo subir cambios (push)" -ForegroundColor White
+Write-Host ""
+Write-Host "  12. Salir" -ForegroundColor White
 Write-Host ""
 
-$opcion = Read-Host "Selecciona una opción (1-8)"
+$opcion = Read-Host "Selecciona una opción (1-12)"
 
 switch ($opcion) {
     "1" {
@@ -85,7 +92,23 @@ switch ($opcion) {
         }
     }
     "8" {
-        Write-Host "👋 ¡Hasta luego!" -ForegroundColor Green
+        Write-Host "� Configurando GitHub primera vez..." -ForegroundColor Magenta
+        & .\scripts\setup-github.ps1
+    }
+    "9" {
+        Write-Host "🔄 Sincronizando con GitHub..." -ForegroundColor Magenta
+        & .\scripts\git-sync.ps1
+    }
+    "10" {
+        Write-Host "📥 Descargando cambios de GitHub..." -ForegroundColor Magenta
+        git pull origin main
+    }
+    "11" {
+        Write-Host "📤 Subiendo cambios a GitHub..." -ForegroundColor Magenta
+        & .\scripts\git-push.ps1
+    }
+    "12" {
+        Write-Host "�👋 ¡Hasta luego!" -ForegroundColor Green
         exit 0
     }
     default {

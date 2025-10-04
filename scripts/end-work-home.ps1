@@ -31,12 +31,26 @@ if ($status) {
     Write-Host "✅ No hay cambios pendientes" -ForegroundColor Green
 }
 
-# Paso 3: Subir cambios al repositorio
-Write-Host "📤 3. Subiendo cambios al repositorio..." -ForegroundColor Yellow
-git push origin main
-
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Cambios subidos correctamente" -ForegroundColor Green
+# Paso 3: Subir cambios a GitHub
+Write-Host "📤 3. Subiendo cambios a GitHub..." -ForegroundColor Yellow
+if (Test-Path ".git") {
+    $hasRemote = git remote -v 2>$null
+    if (![string]::IsNullOrEmpty($hasRemote)) {
+        try {
+            git push origin main
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "✅ Cambios subidos a GitHub exitosamente" -ForegroundColor Green
+                Write-Host "   🌐 Disponible para sincronizar en oficina" -ForegroundColor Cyan
+            } else {
+                Write-Host "⚠️ Error subiendo - verificar conexión" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "⚠️ Error de conexión - cambios guardados localmente" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "⚠️ GitHub no configurado - cambios solo guardados localmente" -ForegroundColor Yellow
+        Write-Host "💡 Usa opción 8 del menú principal para configurar GitHub" -ForegroundColor Gray
+    }
 } else {
     Write-Host "❌ Error subiendo cambios - revisar conexión" -ForegroundColor Red
 }

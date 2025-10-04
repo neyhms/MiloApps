@@ -20,14 +20,31 @@ pip --version
 ## 🚀 MÉTODO 1: SETUP AUTOMÁTICO (RECOMENDADO)
 
 ### Paso 1: Obtener el proyecto
-```powershell
-# Opción A: Desde repositorio Git (SI tienes el código en GitHub/GitLab)
-git clone https://github.com/tu-usuario/InfoMilo.git
-cd InfoMilo
 
-# Opción B: Desde USB/OneDrive (SI copias la carpeta manualmente)
-# 1. Copia toda la carpeta InfoMilo al escritorio de la oficina
-# 2. Abre PowerShell en esa carpeta
+**OPCIÓN A: Desde repositorio Git (Recomendado para sincronización)**
+```powershell
+# 1. Crear repositorio en GitHub/GitLab con el nombre: InfoMilo
+# 2. Desde tu ordenador de casa, subir el código:
+#    git remote add origin https://github.com/neyhms/InfoMilo.git
+#    git push -u origin master
+
+# 3. Desde oficina, clonar:
+git clone https://github.com/neyhms/InfoMilo.git
+cd InfoMilo
+```
+
+**OPCIÓN B: Transferencia manual (Más rápido para empezar)**
+```powershell
+# 1. Desde casa: Comprimir carpeta InfoMilo en ZIP
+# 2. Subir a OneDrive/Google Drive/USB
+# 3. En oficina: Descargar y descomprimir
+# 4. Abrir PowerShell en la carpeta InfoMilo
+```
+
+**OPCIÓN C: Network drive/carpeta compartida**
+```powershell
+# Si tienes acceso a carpeta de red entre casa y oficina
+# Copiar carpeta InfoMilo directamente
 ```
 
 ### Paso 2: Ejecutar setup automático
@@ -44,11 +61,22 @@ cd InfoMilo
 - ✅ Configura Git con email corporativo
 - ✅ ¡Listo para trabajar!
 
-### Paso 3: Empezar a trabajar
+### Paso 3: Configurar GitHub (Opcional pero recomendado)
+```powershell
+# Ejecutar el script maestro
+.\scripts\work-manager.ps1
+# Seleccionar: 8 (Configurar GitHub primera vez)
+# Te guiará para conectar con tu repositorio GitHub
+```
+
+### Paso 4: Empezar a trabajar
 ```powershell
 # Ejecutar el script maestro
 .\scripts\work-manager.ps1
 # Seleccionar: 3 (Iniciar trabajo en oficina)
+# ✅ Descarga cambios automáticamente (si GitHub está configurado)
+# ✅ Configura entorno oficina
+# ✅ Inicia servidor en puerto 8080
 ```
 
 ---

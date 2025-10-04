@@ -31,14 +31,28 @@ if ($status) {
     Write-Host "✅ No hay cambios pendientes" -ForegroundColor Green
 }
 
-# Paso 3: Subir cambios al repositorio
-Write-Host "📤 3. Subiendo cambios al repositorio..." -ForegroundColor Yellow
-git push origin main
-
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Cambios subidos correctamente" -ForegroundColor Green
+# Paso 3: Subir cambios a GitHub
+Write-Host "📤 3. Subiendo cambios a GitHub..." -ForegroundColor Yellow
+if (Test-Path ".git") {
+    $hasRemote = git remote -v 2>$null
+    if (![string]::IsNullOrEmpty($hasRemote)) {
+        try {
+            git push origin main
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "✅ Cambios subidos a GitHub exitosamente" -ForegroundColor Green
+                Write-Host "   🌐 Disponible para sincronizar en casa" -ForegroundColor Cyan
+            } else {
+                Write-Host "⚠️ Error subiendo - verificar conexión/proxy corporativo" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "⚠️ Error de conexión - cambios guardados localmente" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "⚠️ GitHub no configurado - cambios solo guardados localmente" -ForegroundColor Yellow
+        Write-Host "💡 Configura GitHub para sincronización automática" -ForegroundColor Gray
+    }
 } else {
-    Write-Host "❌ Error subiendo cambios - revisar conexión/proxy" -ForegroundColor Red
+    Write-Host "⚠️ No es repositorio Git - cambios solo guardados localmente" -ForegroundColor Yellow
 }
 
 # Paso 4: Crear backup en red corporativa (simulado)

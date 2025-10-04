@@ -5,14 +5,31 @@ Write-Host "🏠 INICIANDO TRABAJO DESDE CASA..." -ForegroundColor Green
 Write-Host "=================================" -ForegroundColor Green
 Write-Host ""
 
-# Paso 1: Sincronizar cambios
-Write-Host "📥 1. Sincronizando cambios de la oficina..." -ForegroundColor Yellow
-git pull origin main
-
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Cambios sincronizados correctamente" -ForegroundColor Green
+# Paso 1: Sincronizar cambios desde GitHub
+Write-Host "📥 1. Sincronizando cambios desde GitHub..." -ForegroundColor Yellow
+if (Test-Path ".git") {
+    $hasRemote = git remote -v 2>$null
+    if (![string]::IsNullOrEmpty($hasRemote)) {
+        try {
+            $pullResult = git pull origin main 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "✅ Cambios sincronizados desde GitHub" -ForegroundColor Green
+                if ($pullResult -match "Already up to date") {
+                    Write-Host "   ℹ️ Ya tienes la versión más reciente" -ForegroundColor Gray
+                } else {
+                    Write-Host "   📦 Cambios aplicados desde oficina" -ForegroundColor Cyan
+                }
+            } else {
+                Write-Host "⚠️ Posibles conflictos - revisar manualmente" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "⚠️ Error de conexión - continuando sin sincronizar" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "⚠️ GitHub no configurado - usar opción 8 del menú principal" -ForegroundColor Yellow
+    }
 } else {
-    Write-Host "⚠️  Problemas sincronizando - revisar manualmente" -ForegroundColor Yellow
+    Write-Host "⚠️ No es repositorio Git - usar opción 8 para configurar GitHub" -ForegroundColor Yellow
 }
 
 # Paso 2: Configurar para casa
