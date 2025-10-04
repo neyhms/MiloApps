@@ -35,5 +35,8 @@ Write-Host "   .\.venv\Scripts\python.exe src\app.py" -ForegroundColor White
 Write-Host ""
 Write-Host "🌐 URL: http://localhost:8080" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "🔄 O usa el script maestro:" -ForegroundColor Cyan
+Write-Host "🔄 Script maestro (Recomendado):" -ForegroundColor Cyan
 Write-Host "   .\scripts\work-manager.ps1" -ForegroundColor White
+Write-Host ""
+Write-Host "🔗 Para sincronización automática casa ↔ oficina:" -ForegroundColor Magenta
+Write-Host "   Ejecutar script maestro → Opción 8: Configurar GitHub" -ForegroundColor White
