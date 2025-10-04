@@ -1,0 +1,36 @@
+{
+    "environment": "default",
+    "description": "Configuración por defecto - adaptable a cualquier entorno",
+    "network": {
+        "proxy": false,
+        "vpn": false,
+        "dns": "auto"
+    },
+    "development": {
+        "port": 3000,
+        "host": "localhost",
+        "hot_reload": true,
+        "debug_mode": true
+    },
+    "paths": {
+        "workspace": "./",
+        "temp": "./temp",
+        "logs": "./logs"
+    },
+    "tools": {
+        "git": {
+            "user_name": "Developer",
+            "user_email": "developer@example.com"
+        },
+        "editor": {
+            "theme": "auto",
+            "font_size": 14,
+            "word_wrap": true
+        }
+    },
+    "backup": {
+        "enabled": false,
+        "cloud_sync": false,
+        "local_backup": false
+    }
+}

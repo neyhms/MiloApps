@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfoMilo - Trabajo Remoto Flexible</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 90%;
+        }
+        h1 { 
+            font-size: 2.5em; 
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .status {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .environment {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .commands {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .commands h3 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .command {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            color: #c8e6c9;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 InfoMilo</h1>
+        <p>Proyecto flexible para trabajo remoto</p>
+        
+        <div class="status success">
+            <div class="environment">
+                ✅ PROYECTO CONFIGURADO EXITOSAMENTE
+            </div>
+            <p>Tu workspace está listo para trabajar desde casa o la oficina</p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>🏠 Configuración Casa</strong><br>
+                Puerto: 3000<br>
+                Debug: Habilitado<br>
+                Backup: Cloud
+            </div>
+            <div class="info-item">
+                <strong>🏢 Configuración Oficina</strong><br>
+                Puerto: 8080<br>
+                Proxy: Corporativo<br>
+                VPN: Requerida
+            </div>
+            <div class="info-item">
+                <strong>⚙️ Configuración Default</strong><br>
+                Puerto: 3000<br>
+                Entorno: Genérico<br>
+                Actualmente activa
+            </div>
+        </div>
+
+        <div class="commands">
+            <h3>📋 Comandos Disponibles</h3>
+            <div class="command">
+                <strong>Cambiar a casa:</strong><br>
+                .\scripts\switch-env.ps1 home
+            </div>
+            <div class="command">
+                <strong>Cambiar a oficina:</strong><br>
+                .\scripts\switch-env.ps1 office
+            </div>
+            <div class="command">
+                <strong>Ver configuración activa:</strong><br>
+                Get-Content config\active.json
+            </div>
+            <div class="command">
+                <strong>Ejecutar tests:</strong><br>
+                node scripts\test.js
+            </div>
+        </div>
+
+        <div style="margin: 30px 0;">
+            <a href="file:///C:/Users/neyhm/InfoMilo/docs/setup-guide.md" class="btn">📖 Guía de Setup</a>
+            <a href="file:///C:/Users/neyhm/InfoMilo/docs/development-guide.md" class="btn">🚀 Guía de Desarrollo</a>
+        </div>
+
+        <div class="footer">
+            <p><strong>🎉 ¡Configuración completada!</strong></p>
+            <p>Tu proyecto InfoMilo está listo para desarrollo remoto flexible</p>
+            <small>Generado el: <span id="timestamp"></span></small>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Simular actualizaciones en tiempo real
+        setInterval(() => {
+            document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "name": "infomilo",
+  "version": "1.0.0",
+  "description": "Proyecto flexible para trabajo remoto - casa y oficina",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": ".venv/Scripts/python.exe src/app.py",
+    "start": ".venv/Scripts/python.exe src/app.py",
+    "dev:flask": ".venv/Scripts/flask --app src/app.py run --debug",
+    "build": "echo 'Building Python project...' && .venv/Scripts/python.exe scripts/build.py",
+    "test": "echo 'Running Python tests...' && .venv/Scripts/python.exe -m pytest",
+    "install:deps": ".venv/Scripts/pip.exe install -r requirements.txt",
+    "lint": ".venv/Scripts/python.exe -m flake8 src/",
+    "format": ".venv/Scripts/python.exe -m black src/",
+    "setup": "powershell -ExecutionPolicy Bypass -File ./scripts/setup.ps1",
+    "switch:home": "powershell -ExecutionPolicy Bypass -File ./scripts/switch-env.ps1 home",
+    "switch:office": "powershell -ExecutionPolicy Bypass -File ./scripts/switch-env.ps1 office",
+    "deploy": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1",
+    "work": "powershell -ExecutionPolicy Bypass -File ./scripts/work-manager.ps1",
+    "start:home": "powershell -ExecutionPolicy Bypass -File ./scripts/start-work-home.ps1",
+    "start:office": "powershell -ExecutionPolicy Bypass -File ./scripts/start-work-office.ps1",
+    "end:home": "powershell -ExecutionPolicy Bypass -File ./scripts/end-work-home.ps1",
+    "end:office": "powershell -ExecutionPolicy Bypass -File ./scripts/end-work-office.ps1"
+  },
+  "keywords": [
+    "remote-work",
+    "flexible",
+    "configuration",
+    "development"
+  ],
+  "author": "InfoMilo Team",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usuario/infomilo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/usuario/infomilo/issues"
+  },
+  "homepage": "https://github.com/usuario/infomilo#readme"
+}

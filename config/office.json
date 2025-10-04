@@ -1,0 +1,42 @@
+{
+    "environment": "office",
+    "description": "Configuración para trabajo desde la oficina",
+    "network": {
+        "proxy": true,
+        "proxy_url": "http://proxy.empresa.com:8080",
+        "vpn": true,
+        "dns": "corporate"
+    },
+    "development": {
+        "port": 8080,
+        "host": "0.0.0.0",
+        "hot_reload": true,
+        "debug_mode": false
+    },
+    "paths": {
+        "workspace": "C:/Projects/InfoMilo",
+        "temp": "C:/temp",
+        "logs": "C:/logs"
+    },
+    "tools": {
+        "git": {
+            "user_name": "Tu Nombre",
+            "user_email": "tu.email@empresa.com"
+        },
+        "editor": {
+            "theme": "light",
+            "font_size": 12,
+            "word_wrap": false
+        }
+    },
+    "backup": {
+        "enabled": true,
+        "cloud_sync": false,
+        "local_backup": true,
+        "network_drive": "\\\\servidor\\backup"
+    },
+    "security": {
+        "ssl_verify": true,
+        "corporate_certificates": true
+    }
+}

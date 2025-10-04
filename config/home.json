@@ -1,0 +1,36 @@
+{
+    "environment": "home",
+    "description": "Configuración para trabajo desde casa",
+    "network": {
+        "proxy": false,
+        "vpn": false,
+        "dns": "auto"
+    },
+    "development": {
+        "port": 3000,
+        "host": "localhost",
+        "hot_reload": true,
+        "debug_mode": true
+    },
+    "paths": {
+        "workspace": "~/InfoMilo",
+        "temp": "~/temp",
+        "logs": "~/logs"
+    },
+    "tools": {
+        "git": {
+            "user_name": "Tu Nombre",
+            "user_email": "tu.email@ejemplo.com"
+        },
+        "editor": {
+            "theme": "dark",
+            "font_size": 14,
+            "word_wrap": true
+        }
+    },
+    "backup": {
+        "enabled": true,
+        "cloud_sync": true,
+        "local_backup": true
+    }
+}
