@@ -29,8 +29,8 @@ venv.bak/
 instance/
 .webassets-cache
 
-# Database files (opcional - comentar si quieres incluir la DB)
-# data/*.db
+# Database files (ignorar por defecto en desarrollo)
+data/*.db
 
 # Config files with sensitive data
 config/active.json
