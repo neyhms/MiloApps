@@ -27,7 +27,18 @@ import secrets
 import json
 import os
 
-from models import User, Role, db, log_audit_event, AuditEvents
+from models import (
+    User,
+    Role,
+    Application,
+    Functionality,
+    RoleAppAccess,
+    RoleFunctionality,
+    UserRole,
+    db,
+    log_audit_event,
+    AuditEvents,
+)
 from forms import (
     LoginForm,
     RegisterForm,
@@ -39,6 +50,10 @@ from forms import (
     TwoFactorDisableForm,
     UserManagementForm,
     SearchForm,
+    RoleForm,
+    ApplicationForm,
+    FunctionalityForm,
+    AssignUserRolesForm,
 )
 from email_service import (
     send_password_reset_email,
@@ -618,8 +633,9 @@ def admin_user_detail(user_id):
     """Detalle y edición de usuario (solo admin)"""
     user = User.query.get_or_404(user_id)
     form = UserManagementForm()
+    assign_roles_form = AssignUserRolesForm()
 
-    if form.validate_on_submit():
+    if form.validate_on_submit() and request.form.get('form_name') == 'user_management':
         # Actualizar datos básicos
         user.first_name = form.first_name.data
         user.last_name = form.last_name.data
@@ -678,12 +694,184 @@ def admin_user_detail(user_id):
         form.department.data = user.department
         form.role.data = user.role_id
         form.is_active.data = user.is_active
-        form.is_verified.data = user.is_verified
+    form.is_verified.data = user.is_verified
+    # Inicializar formulario de roles adicionales
+    current_role_ids = {r.id for r in user.roles}
+    assign_roles_form.roles.data = list(current_role_ids)
 
     return render_template(
         "MiloAdmin/admin_user_detail.html",
         user=user,
         form=form,
+        assign_roles_form=assign_roles_form,
+        config=load_app_config(),
+    )
+
+
+@auth.route("/admin/users/<int:user_id>/assign-roles", methods=["POST"])
+@login_required
+@admin_required
+def admin_assign_user_roles(user_id):
+    """Asignar múltiples roles adicionales a un usuario."""
+    user = User.query.get_or_404(user_id)
+    form = AssignUserRolesForm()
+    if form.validate_on_submit():
+        try:
+            # Limpiar roles actuales adicionales (no tocar rol primario role_id)
+            UserRole.query.filter_by(user_id=user.id).delete()
+            db.session.flush()
+
+            for role_id in form.roles.data:
+                db.session.add(UserRole(user_id=user.id, role_id=role_id))
+
+            db.session.commit()
+            flash("Roles adicionales actualizados.", "success")
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error asignando roles: {e}")
+            flash("Error al actualizar los roles.", "danger")
+
+    return redirect(url_for("auth.admin_user_detail", user_id=user.id))
+
+
+# ===== Administración de Roles =====
+@auth.route("/admin/roles", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_roles():
+    form = RoleForm()
+    if form.validate_on_submit():
+        try:
+            role = Role(
+                name=form.name.data.strip(),
+                display_name=form.display_name.data.strip(),
+                description=form.description.data,
+                is_allmilo=form.is_allmilo.data,
+                is_active=form.is_active.data,
+            )
+            db.session.add(role)
+            db.session.commit()
+            flash("Rol creado correctamente.", "success")
+            return redirect(url_for("auth.admin_roles"))
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error creando rol: {e}")
+            flash("Error al crear el rol.", "danger")
+
+    roles = Role.query.order_by(Role.display_name.asc()).all()
+    return render_template(
+        "MiloAdmin/admin_roles.html", form=form, roles=roles, config=load_app_config()
+    )
+
+
+@auth.route("/admin/roles/<int:role_id>/permissions", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_role_permissions(role_id):
+    role = Role.query.get_or_404(role_id)
+    apps = Application.query.order_by(Application.name.asc()).all()
+
+    if request.method == "POST":
+        try:
+            # Limpiar permisos previos
+            RoleAppAccess.query.filter_by(role_id=role.id).delete()
+            RoleFunctionality.query.filter_by(role_id=role.id).delete()
+            db.session.flush()
+
+            for app in apps:
+                full_flag = request.form.get(f"full_access_{app.id}") == "on"
+                if full_flag:
+                    db.session.add(
+                        RoleAppAccess(role_id=role.id, app_id=app.id, full_access=True)
+                    )
+                # funcionalidades
+                for func in app.functionalities:
+                    key = f"func_{app.id}_{func.id}"
+                    if request.form.get(key) == "on":
+                        db.session.add(
+                            RoleFunctionality(role_id=role.id, functionality_id=func.id)
+                        )
+
+            db.session.commit()
+            flash("Permisos actualizados.", "success")
+            return redirect(url_for("auth.admin_role_permissions", role_id=role.id))
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error guardando permisos de rol: {e}")
+            flash("Error al guardar permisos.", "danger")
+
+    # Construir estado actual
+    full_access_map = {a.app_id: a for a in RoleAppAccess.query.filter_by(role_id=role.id).all() if a.full_access}
+    func_ids = {rf.functionality_id for rf in RoleFunctionality.query.filter_by(role_id=role.id).all()}
+
+    return render_template(
+        "MiloAdmin/admin_role_permissions.html",
+        role=role,
+        apps=apps,
+        full_access_map=full_access_map,
+        func_ids=func_ids,
+        config=load_app_config(),
+    )
+
+
+# ===== Administración de Aplicaciones =====
+@auth.route("/admin/apps", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_apps():
+    form = ApplicationForm()
+    if form.validate_on_submit():
+        try:
+            app = Application(
+                key=form.key.data.strip(),
+                name=form.name.data.strip(),
+                description=form.description.data,
+                is_active=form.is_active.data,
+            )
+            db.session.add(app)
+            db.session.commit()
+            flash("Aplicación creada.", "success")
+            return redirect(url_for("auth.admin_apps"))
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error creando aplicación: {e}")
+            flash("Error al crear la aplicación.", "danger")
+
+    apps = Application.query.order_by(Application.created_at.desc()).all()
+    return render_template(
+        "MiloAdmin/admin_apps.html", form=form, apps=apps, config=load_app_config()
+    )
+
+
+@auth.route("/admin/functionalities", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_functionalities():
+    form = FunctionalityForm()
+    if form.validate_on_submit():
+        try:
+            func = Functionality(
+                application_id=form.app_id.data,
+                key=form.key.data.strip(),
+                name=form.name.data.strip(),
+                description=form.description.data,
+                is_active=form.is_active.data,
+            )
+            db.session.add(func)
+            db.session.commit()
+            flash("Funcionalidad creada.", "success")
+            return redirect(url_for("auth.admin_functionalities"))
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error creando funcionalidad: {e}")
+            flash("Error al crear la funcionalidad.", "danger")
+
+    # Listado por aplicación
+    apps = Application.query.order_by(Application.name.asc()).all()
+    return render_template(
+        "MiloAdmin/admin_functionalities.html",
+        form=form,
+        apps=apps,
         config=load_app_config(),
     )
 

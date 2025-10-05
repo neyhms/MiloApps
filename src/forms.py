@@ -4,12 +4,29 @@ Formularios WTF para login, registro, recuperación y configuración
 """
 
 from flask_wtf import FlaskForm
-from wtforms import (StringField, PasswordField, EmailField, BooleanField, 
-                    SelectField, TextAreaField, TelField, SubmitField, HiddenField)
-from wtforms.validators import (DataRequired, Email, Length, EqualTo, 
-                               ValidationError, Optional, Regexp)
-from wtforms.widgets import PasswordInput
-from models import User, Role
+from wtforms import (
+    StringField,
+    PasswordField,
+    EmailField,
+    BooleanField,
+    SelectField,
+    SelectMultipleField,
+    TextAreaField,
+    TelField,
+    SubmitField,
+    HiddenField,
+)
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    Length,
+    EqualTo,
+    ValidationError,
+    Optional,
+    Regexp,
+)
+from models import User, Role, Application
+
 
 class LoginForm(FlaskForm):
     """Formulario de inicio de sesión"""
@@ -22,16 +39,25 @@ class LoginForm(FlaskForm):
         DataRequired(message='La contraseña es requerida')
     ], render_kw={'placeholder': '••••••••', 'class': 'form-control'})
     
-    two_factor_token = StringField('Código 2FA (si está habilitado)', validators=[
-        Optional(),
-        Length(min=6, max=6, message='El código debe tener 6 dígitos'),
-        Regexp(r'^\d{6}$', message='El código debe contener solo números')
-    ], render_kw={'placeholder': '123456', 'class': 'form-control'})
+    two_factor_token = StringField(
+        'Código 2FA (si está habilitado)',
+        validators=[
+            Optional(),
+            Length(min=6, max=6, message='El código debe tener 6 dígitos'),
+            Regexp(r'^\d{6}$', message='El código debe contener solo números'),
+        ],
+        render_kw={'placeholder': '123456', 'class': 'form-control'},
+    )
     
-    remember_me = BooleanField('Recordarme', render_kw={'class': 'form-check-input'})
+    remember_me = BooleanField(
+        'Recordarme', render_kw={'class': 'form-check-input'}
+    )
     
-    submit = SubmitField('Iniciar Sesión', render_kw={'class': 'btn btn-primary w-100'})
+    submit = SubmitField(
+        'Iniciar Sesión', render_kw={'class': 'btn btn-primary w-100'}
+    )
 
+ 
 class RegisterForm(FlaskForm):
     """Formulario de registro de usuario"""
     # Información básica
@@ -87,15 +113,18 @@ class RegisterForm(FlaskForm):
     ], render_kw={'placeholder': '••••••••', 'class': 'form-control'})
     
     # Rol (solo para admins)
-    role = SelectField('Rol', coerce=int, validators=[Optional()], 
-                      render_kw={'class': 'form-select'})
+    role = SelectField(
+        'Rol', coerce=int, validators=[Optional()], render_kw={'class': 'form-select'}
+    )
     
     # Términos y condiciones
     accept_terms = BooleanField('Acepto los términos y condiciones', validators=[
         DataRequired(message='Debes aceptar los términos y condiciones')
     ], render_kw={'class': 'form-check-input'})
     
-    submit = SubmitField('Registrarse', render_kw={'class': 'btn btn-success w-100'})
+    submit = SubmitField(
+        'Registrarse', render_kw={'class': 'btn btn-success w-100'}
+    )
     
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
@@ -116,6 +145,7 @@ class RegisterForm(FlaskForm):
         if user:
             raise ValidationError('Este email ya está registrado. ¿Olvidaste tu contraseña?')
 
+ 
 class ForgotPasswordForm(FlaskForm):
     """Formulario de recuperación de contraseña"""
     email = EmailField('Email', validators=[
@@ -123,8 +153,9 @@ class ForgotPasswordForm(FlaskForm):
         Email(message='Ingresa un email válido')
     ], render_kw={'placeholder': 'tu@email.com', 'class': 'form-control'})
     
-    submit = SubmitField('Enviar enlace de recuperación', 
-                        render_kw={'class': 'btn btn-warning w-100'})
+    submit = SubmitField(
+        'Enviar enlace de recuperación', render_kw={'class': 'btn btn-warning w-100'}
+    )
     
     def validate_email(self, email):
         """Validar que el email exista en el sistema"""
@@ -132,6 +163,7 @@ class ForgotPasswordForm(FlaskForm):
         if not user:
             raise ValidationError('No existe una cuenta con este email.')
 
+ 
 class ResetPasswordForm(FlaskForm):
     """Formulario de restablecimiento de contraseña"""
     password = PasswordField('Nueva contraseña', validators=[
@@ -146,8 +178,11 @@ class ResetPasswordForm(FlaskForm):
         EqualTo('password', message='Las contraseñas deben coincidir')
     ], render_kw={'placeholder': '••••••••', 'class': 'form-control'})
     
-    submit = SubmitField('Cambiar contraseña', render_kw={'class': 'btn btn-success w-100'})
+    submit = SubmitField(
+        'Cambiar contraseña', render_kw={'class': 'btn btn-success w-100'}
+    )
 
+ 
 class ChangePasswordForm(FlaskForm):
     """Formulario de cambio de contraseña (usuario logueado)"""
     current_password = PasswordField('Contraseña actual', validators=[
@@ -338,3 +373,71 @@ class ImportUsersForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(ImportUsersForm, self).__init__(*args, **kwargs)
         self.default_role.choices = [(r.id, r.display_name) for r in Role.query.filter_by(is_active=True).all()]
+
+
+# ========= NUEVOS FORMULARIOS DE ADMINISTRACIÓN =========
+
+class RoleForm(FlaskForm):
+    """Crear/editar roles del sistema"""
+    name = StringField(
+        'Nombre técnico',
+        validators=[DataRequired(), Length(min=2, max=50)],
+        render_kw={'placeholder': 'admin, editor, ALLMILO', 'class': 'form-control'}
+    )
+    display_name = StringField(
+        'Nombre para mostrar',
+        validators=[DataRequired(), Length(min=2, max=100)],
+        render_kw={'placeholder': 'Administrador del sistema', 'class': 'form-control'}
+    )
+    description = TextAreaField(
+        'Descripción', validators=[Optional(), Length(max=500)],
+        render_kw={'class': 'form-control', 'rows': '3'}
+    )
+    is_allmilo = BooleanField('Acceso a todas las aplicaciones (ALLMILO)', render_kw={'class': 'form-check-input'})
+    is_active = BooleanField('Rol activo', default=True, render_kw={'class': 'form-check-input'})
+    submit = SubmitField('Guardar rol', render_kw={'class': 'btn btn-primary'})
+
+
+class ApplicationForm(FlaskForm):
+    """Crear/editar aplicaciones administrables"""
+    key = StringField(
+        'Clave', validators=[DataRequired(), Length(min=2, max=50), Regexp(r'^[a-z0-9_\-]+$')],
+        render_kw={'placeholder': 'milosign, contratacion', 'class': 'form-control'}
+    )
+    name = StringField(
+        'Nombre', validators=[DataRequired(), Length(min=2, max=100)],
+        render_kw={'class': 'form-control'}
+    )
+    description = TextAreaField('Descripción', validators=[Optional(), Length(max=500)], render_kw={'class': 'form-control', 'rows': '3'})
+    is_active = BooleanField('Aplicación activa', default=True, render_kw={'class': 'form-check-input'})
+    submit = SubmitField('Guardar aplicación', render_kw={'class': 'btn btn-primary'})
+
+
+class FunctionalityForm(FlaskForm):
+    """Crear funcionalidades para una aplicación"""
+    app_id = SelectField('Aplicación', coerce=int, render_kw={'class': 'form-select'})
+    key = StringField('Clave', validators=[DataRequired(), Length(min=2, max=100), Regexp(r'^[a-z0-9_\-]+$')], render_kw={'placeholder': 'create, edit, delete', 'class': 'form-control'})
+    name = StringField('Nombre', validators=[DataRequired(), Length(min=2, max=150)], render_kw={'class': 'form-control'})
+    description = TextAreaField('Descripción', validators=[Optional(), Length(max=500)], render_kw={'class': 'form-control', 'rows': '3'})
+    is_active = BooleanField('Funcionalidad activa', default=True, render_kw={'class': 'form-check-input'})
+    submit = SubmitField('Guardar funcionalidad', render_kw={'class': 'btn btn-primary'})
+
+    def __init__(self, *args, **kwargs):
+        super(FunctionalityForm, self).__init__(*args, **kwargs)
+        self.app_id.choices = [(a.id, a.name) for a in Application.query.filter_by(is_active=True).all()]
+        if not self.app_id.choices:
+            self.app_id.choices = [('', 'No hay aplicaciones')]
+
+
+class AssignUserRolesForm(FlaskForm):
+    """Asignar múltiples roles adicionales a un usuario"""
+    roles = SelectMultipleField('Roles adicionales', coerce=int, render_kw={'class': 'form-select', 'multiple': True})
+    submit = SubmitField('Actualizar roles', render_kw={'class': 'btn btn-secondary'})
+
+    def __init__(self, *args, **kwargs):
+        super(AssignUserRolesForm, self).__init__(*args, **kwargs)
+        # Excluir rol ALLMILO de la lista por seguridad; el admin puede asignarlo manualmente si así se requiere
+        self.roles.choices = [
+            (r.id, f"{r.display_name} {'(ALLMILO)' if getattr(r, 'is_allmilo', False) else ''}")
+            for r in Role.query.filter_by(is_active=True).order_by(Role.display_name.asc()).all()
+        ]

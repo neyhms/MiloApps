@@ -1,0 +1,46 @@
+{% extends "MiloBase/base.html" %}
+{% block title %}Aplicaciones - Administración{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-header"><h6 class="mb-0">Nueva aplicación</h6></div>
+        <div class="card-body">
+          <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            {{ form.hidden_tag() }}
+            <div class="mb-3">{{ form.key.label(class='form-label') }}{{ form.key(class='form-control') }}</div>
+            <div class="mb-3">{{ form.name.label(class='form-label') }}{{ form.name(class='form-control') }}</div>
+            <div class="mb-3">{{ form.description.label(class='form-label') }}{{ form.description(class='form-control') }}</div>
+            <div class="form-check form-switch mb-3">{{ form.is_active(class='form-check-input') }}{{ form.is_active.label(class='form-check-label') }}</div>
+            {{ form.submit(class='btn btn-primary') }}
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header"><h6 class="mb-0">Aplicaciones registradas</h6></div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead><tr><th>Clave</th><th>Nombre</th><th>Estado</th></tr></thead>
+              <tbody>
+                {% for a in apps %}
+                <tr>
+                  <td>{{ a.key }}</td>
+                  <td>{{ a.name }}</td>
+                  <td><span class="badge bg-{{ 'success' if a.is_active else 'secondary' }}">{{ 'Activa' if a.is_active else 'Inactiva' }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
