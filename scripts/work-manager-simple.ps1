@@ -16,9 +16,11 @@ if (Test-Path "config\active.json") {
 Write-Host "📍 Configuracion actual: " -NoNewline -ForegroundColor Yellow
 if ($currentConfig -eq "home") {
     Write-Host "🏠 CASA" -ForegroundColor Green
-} elseif ($currentConfig -eq "office") {
+}
+elseif ($currentConfig -eq "office") {
     Write-Host "🏢 OFICINA" -ForegroundColor Blue
-} else {
+}
+else {
     Write-Host "❓ $currentConfig" -ForegroundColor Gray
 }
 
@@ -96,7 +98,8 @@ switch ($opcion) {
         Write-Host "🐍 Entorno Python:" -ForegroundColor Yellow
         if (Test-Path ".venv\Scripts\python.exe") {
             Write-Host "✅ Entorno virtual disponible" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "❌ Entorno virtual no encontrado" -ForegroundColor Red
         }
     }

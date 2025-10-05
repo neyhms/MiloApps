@@ -10,20 +10,20 @@
         align-items: center;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
-    
+
     .login-card {
         background: white;
         border-radius: 15px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         overflow: hidden;
         max-width: 900px;
         width: 100%;
     }
-    
+
     .login-form-side {
         padding: 3rem;
     }
-    
+
     .login-info-side {
         background: linear-gradient(135deg, var(--primary-color) 0%, #004494 100%);
         color: white;
@@ -32,47 +32,47 @@
         flex-direction: column;
         justify-content: center;
     }
-    
+
     .brand-logo {
         font-size: 2.5rem;
         font-weight: 700;
         margin-bottom: 1rem;
     }
-    
+
     .form-floating {
         margin-bottom: 1rem;
     }
-    
-    .form-floating > .form-control {
+
+    .form-floating>.form-control {
         height: calc(3.5rem + 2px);
         padding: 1rem 0.75rem;
     }
-    
+
     .btn-login {
         height: 3.5rem;
         font-size: 1.1rem;
         font-weight: 600;
     }
-    
+
     .feature-item {
         display: flex;
         align-items: center;
         margin-bottom: 1rem;
     }
-    
+
     .feature-item i {
         margin-right: 1rem;
         width: 20px;
         text-align: center;
     }
-    
+
     @media (max-width: 768px) {
         .login-info-side {
             order: -1;
             padding: 2rem;
             text-align: center;
         }
-        
+
         .login-form-side {
             padding: 2rem;
         }
@@ -97,36 +97,36 @@
                                     <h4 class="mb-2">Iniciar Sesión</h4>
                                     <p class="text-muted">Accede a tu cuenta para continuar</p>
                                 </div>
-                                
+
                                 <form method="POST" id="loginForm">
                                     {{ form.hidden_tag() }}
-                                    
+
                                     <!-- Email Field -->
                                     <div class="form-floating">
                                         {{ form.email(class="form-control", placeholder="tu@email.com") }}
                                         {{ form.email.label(class="form-label") }}
                                         {% if form.email.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.email.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.email.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
                                         {% endif %}
                                     </div>
-                                    
+
                                     <!-- Password Field -->
                                     <div class="form-floating">
                                         {{ form.password(class="form-control", placeholder="Contraseña") }}
                                         {{ form.password.label(class="form-label") }}
                                         {% if form.password.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.password.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.password.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
                                         {% endif %}
                                     </div>
-                                    
+
                                     <!-- 2FA Token Field (if needed) -->
                                     {% if show_2fa %}
                                     <div class="form-floating">
@@ -136,35 +136,35 @@
                                             Ingresa el código de 6 dígitos de tu aplicación de autenticación
                                         </small>
                                         {% if form.two_factor_token.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.two_factor_token.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.two_factor_token.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
                                         {% endif %}
                                     </div>
                                     {% endif %}
-                                    
+
                                     <!-- Remember Me -->
                                     <div class="form-check mb-3">
                                         {{ form.remember_me(class="form-check-input") }}
                                         {{ form.remember_me.label(class="form-check-label") }}
                                     </div>
-                                    
+
                                     <!-- Submit Button -->
                                     <div class="d-grid mb-3">
                                         {{ form.submit(class="btn btn-primary btn-login") }}
                                     </div>
-                                    
+
                                     <!-- Links -->
                                     <div class="text-center">
                                         <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none">
                                             ¿Olvidaste tu contraseña?
                                         </a>
                                     </div>
-                                    
+
                                     <hr class="my-4">
-                                    
+
                                     <div class="text-center">
                                         <p class="mb-0">¿No tienes una cuenta?</p>
                                         <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary mt-2">
@@ -174,46 +174,46 @@
                                 </form>
                             </div>
                         </div>
-                        
+
                         <!-- Info Side -->
                         <div class="col-lg-6">
                             <div class="login-info-side">
                                 <div>
                                     <h3 class="mb-4">Bienvenido a MiloApps</h3>
                                     <p class="mb-4">
-                                        Sistema flexible para trabajo remoto que te permite trabajar 
+                                        Sistema flexible para trabajo remoto que te permite trabajar
                                         desde cualquier lugar con la máxima productividad.
                                     </p>
-                                    
+
                                     <div class="feature-item">
                                         <i class="fas fa-shield-alt"></i>
                                         <span>Autenticación segura con 2FA</span>
                                     </div>
-                                    
+
                                     <div class="feature-item">
                                         <i class="fas fa-cloud"></i>
                                         <span>Sincronización en tiempo real</span>
                                     </div>
-                                    
+
                                     <div class="feature-item">
                                         <i class="fas fa-mobile-alt"></i>
                                         <span>Acceso desde cualquier dispositivo</span>
                                     </div>
-                                    
+
                                     <div class="feature-item">
                                         <i class="fas fa-users"></i>
                                         <span>Colaboración en equipo</span>
                                     </div>
-                                    
+
                                     <div class="feature-item">
                                         <i class="fas fa-chart-line"></i>
                                         <span>Reportes y análisis detallados</span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-4">
                                     <small class="opacity-75">
-                                        <i class="fas fa-server"></i> 
+                                        <i class="fas fa-server"></i>
                                         Entorno: {{ config.environment.upper() if config else 'N/A' }}
                                     </small>
                                 </div>
@@ -229,73 +229,73 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('loginForm');
-    const inputs = form.querySelectorAll('input[type="text"], input[type="password"]');
-    
-    // Auto-focus first input
-    if (inputs.length > 0) {
-        inputs[0].focus();
-    }
-    
-    // Handle Enter key navigation
-    inputs.forEach((input, index) => {
-        input.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                if (index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                } else {
-                    form.querySelector('button[type="submit"]').click();
-                }
-            }
-        });
-    });
-    
-    // Form validation feedback
-    form.addEventListener('submit', function(e) {
-        const email = form.querySelector('input[name="email"]');
-        const password = form.querySelector('input[name="password"]');
-        
-        if (!email.value.trim()) {
-            e.preventDefault();
-            email.classList.add('is-invalid');
-            email.focus();
-            return;
-        }
-        
-        if (!password.value.trim()) {
-            e.preventDefault();
-            password.classList.add('is-invalid');
-            password.focus();
-            return;
-        }
-        
-        // Remove invalid classes if values are present
-        email.classList.remove('is-invalid');
-        password.classList.remove('is-invalid');
-    });
-    
-    // Clear invalid state on input
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            this.classList.remove('is-invalid');
-        });
-    });
-});
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('loginForm');
+        const inputs = form.querySelectorAll('input[type="text"], input[type="password"]');
 
-// Show/hide password toggle
-function togglePassword() {
-    const passwordField = document.querySelector('input[name="password"]');
-    const toggleBtn = document.querySelector('.password-toggle');
-    
-    if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
-    } else {
-        passwordField.type = 'password';
-        toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+        // Auto-focus first input
+        if (inputs.length > 0) {
+            inputs[0].focus();
+        }
+
+        // Handle Enter key navigation
+        inputs.forEach((input, index) => {
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    } else {
+                        form.querySelector('button[type="submit"]').click();
+                    }
+                }
+            });
+        });
+
+        // Form validation feedback
+        form.addEventListener('submit', function (e) {
+            const email = form.querySelector('input[name="email"]');
+            const password = form.querySelector('input[name="password"]');
+
+            if (!email.value.trim()) {
+                e.preventDefault();
+                email.classList.add('is-invalid');
+                email.focus();
+                return;
+            }
+
+            if (!password.value.trim()) {
+                e.preventDefault();
+                password.classList.add('is-invalid');
+                password.focus();
+                return;
+            }
+
+            // Remove invalid classes if values are present
+            email.classList.remove('is-invalid');
+            password.classList.remove('is-invalid');
+        });
+
+        // Clear invalid state on input
+        inputs.forEach(input => {
+            input.addEventListener('input', function () {
+                this.classList.remove('is-invalid');
+            });
+        });
+    });
+
+    // Show/hide password toggle
+    function togglePassword() {
+        const passwordField = document.querySelector('input[name="password"]');
+        const toggleBtn = document.querySelector('.password-toggle');
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+            passwordField.type = 'password';
+            toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+        }
     }
-}
 </script>
 {% endblock %}

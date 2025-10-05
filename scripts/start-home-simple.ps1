@@ -14,10 +14,12 @@ if (Test-Path ".git") {
     try {
         git pull origin main
         Write-Host "✅ Cambios sincronizados desde GitHub" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Host "⚠️ Error de conexión - continuando sin sincronizar" -ForegroundColor Yellow
     }
-} else {
+}
+else {
     Write-Host "⚠️ No es repositorio Git" -ForegroundColor Yellow
 }
 
@@ -30,7 +32,8 @@ Write-Host "✅ Configuración de CASA activada" -ForegroundColor Green
 Write-Host "🐍 3. Preparando entorno Python..." -ForegroundColor Yellow
 if (Test-Path ".venv\Scripts\python.exe") {
     Write-Host "✅ Entorno virtual encontrado" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "📦 Creando entorno virtual..." -ForegroundColor Yellow
     python -m venv .venv
     .venv\Scripts\pip.exe install -r requirements.txt

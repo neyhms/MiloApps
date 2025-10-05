@@ -9,10 +9,10 @@
             <!-- Sidebar -->
             <div class="sidebar">
                 <h5 class="mb-3">
-                    <i class="fas fa-user-circle"></i> 
+                    <i class="fas fa-user-circle"></i>
                     Bienvenido, {{ user.username }}
                 </h5>
-                
+
                 <nav class="nav flex-column">
                     <a class="nav-link active" href="#overview" data-section="overview">
                         <i class="fas fa-tachometer-alt"></i> Resumen
@@ -27,14 +27,14 @@
                         <i class="fas fa-history"></i> Actividad
                     </a>
                     {% if user.role and user.role.name == 'admin' %}
-                        <a class="nav-link" href="#admin" data-section="admin">
-                            <i class="fas fa-users-cog"></i> Administración
-                        </a>
+                    <a class="nav-link" href="#admin" data-section="admin">
+                        <i class="fas fa-users-cog"></i> Administración
+                    </a>
                     {% endif %}
                 </nav>
-                
+
                 <hr>
-                
+
                 <!-- Status Card -->
                 <div class="card border-0">
                     <div class="card-body text-center">
@@ -50,7 +50,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-9">
             <!-- Overview Section -->
             <div id="overview-section" class="content-section">
@@ -60,7 +60,7 @@
                         <p class="text-muted">Resumen de tu cuenta y actividad reciente</p>
                     </div>
                 </div>
-                
+
                 <!-- Stats Cards -->
                 <div class="row mb-4">
                     <div class="col-md-3 mb-3">
@@ -78,7 +78,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-3 mb-3">
                         <div class="card bg-success text-white">
                             <div class="card-body">
@@ -94,7 +94,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-3 mb-3">
                         <div class="card bg-info text-white">
                             <div class="card-body">
@@ -110,7 +110,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-3 mb-3">
                         <div class="card bg-warning text-white">
                             <div class="card-body">
@@ -127,7 +127,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- System Status -->
                 <div class="row">
                     <div class="col-md-6 mb-4">
@@ -146,7 +146,8 @@
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span>Debug:</span>
-                                    <span class="badge {{ 'bg-warning' if config.development.debug_mode else 'bg-success' }}">
+                                    <span
+                                        class="badge {{ 'bg-warning' if config.development.debug_mode else 'bg-success' }}">
                                         {{ 'Activado' if config.development.debug_mode else 'Desactivado' }}
                                     </span>
                                 </div>
@@ -159,7 +160,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-6 mb-4">
                         <div class="card">
                             <div class="card-header">
@@ -189,7 +190,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Profile Section -->
             <div id="profile-section" class="content-section d-none">
                 <div class="row mb-4">
@@ -198,7 +199,7 @@
                         <p class="text-muted">Gestiona tu información personal</p>
                     </div>
                 </div>
-                
+
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
@@ -214,7 +215,8 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Nombre de Usuario</label>
-                                            <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                                            <input type="text" class="form-control" value="{{ user.username }}"
+                                                readonly>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Email</label>
@@ -224,20 +226,22 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Fecha de Registro</label>
-                                            <input type="text" class="form-control" 
-                                                   value="{{ user.created_at|datetime('%d/%m/%Y %H:%M') }}" readonly>
+                                            <input type="text" class="form-control"
+                                                value="{{ user.created_at|datetime('%d/%m/%Y %H:%M') }}" readonly>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Último Acceso</label>
-                                            <input type="text" class="form-control" 
-                                                   value="{{ user.last_login|datetime('%d/%m/%Y %H:%M') if user.last_login else 'Nunca' }}" readonly>
+                                            <input type="text" class="form-control"
+                                                value="{{ user.last_login|datetime('%d/%m/%Y %H:%M') if user.last_login else 'Nunca' }}"
+                                                readonly>
                                         </div>
                                     </div>
                                     <div class="d-flex gap-2">
                                         <a href="{{ url_for('auth.profile') }}" class="btn btn-primary">
                                             <i class="fas fa-edit"></i> Editar Perfil
                                         </a>
-                                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-secondary">
+                                        <a href="{{ url_for('auth.change_password') }}"
+                                            class="btn btn-outline-secondary">
                                             <i class="fas fa-key"></i> Cambiar Contraseña
                                         </a>
                                     </div>
@@ -247,7 +251,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Security Section -->
             <div id="security-section" class="content-section d-none">
                 <div class="row mb-4">
@@ -256,7 +260,7 @@
                         <p class="text-muted">Configuración de seguridad de tu cuenta</p>
                     </div>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <div class="card">
@@ -271,7 +275,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-6 mb-4">
                         <div class="card">
                             <div class="card-header">
@@ -284,23 +288,23 @@
                                         {{ 'Activado' if user.two_factor_enabled else 'Desactivado' }}
                                     </span>
                                 </div>
-                                
+
                                 {% if user.two_factor_enabled %}
-                                    <p class="text-muted small">La autenticación en dos pasos está activa.</p>
-                                    <a href="{{ url_for('auth.two_factor_disable') }}" class="btn btn-outline-danger">
-                                        <i class="fas fa-shield-alt"></i> Desactivar 2FA
-                                    </a>
+                                <p class="text-muted small">La autenticación en dos pasos está activa.</p>
+                                <a href="{{ url_for('auth.two_factor_disable') }}" class="btn btn-outline-danger">
+                                    <i class="fas fa-shield-alt"></i> Desactivar 2FA
+                                </a>
                                 {% else %}
-                                    <p class="text-muted small">Agrega una capa extra de seguridad a tu cuenta.</p>
-                                    <a href="{{ url_for('auth.two_factor_setup') }}" class="btn btn-outline-success">
-                                        <i class="fas fa-shield-alt"></i> Activar 2FA
-                                    </a>
+                                <p class="text-muted small">Agrega una capa extra de seguridad a tu cuenta.</p>
+                                <a href="{{ url_for('auth.two_factor_setup') }}" class="btn btn-outline-success">
+                                    <i class="fas fa-shield-alt"></i> Activar 2FA
+                                </a>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Información de Seguridad</h5>
@@ -321,7 +325,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Activity Section -->
             <div id="activity-section" class="content-section d-none">
                 <div class="row mb-4">
@@ -330,7 +334,7 @@
                         <p class="text-muted">Historial de actividad de tu cuenta</p>
                     </div>
                 </div>
-                
+
                 <div class="card">
                     <div class="card-body">
                         <div class="text-center py-5">
@@ -341,7 +345,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Admin Section -->
             {% if user.role and user.role.name == 'admin' %}
             <div id="admin-section" class="content-section d-none">
@@ -351,7 +355,7 @@
                         <p class="text-muted">Panel de administración del sistema</p>
                     </div>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <div class="card">
@@ -365,7 +369,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-6 mb-4">
                         <div class="card">
                             <div class="card-body text-center">
@@ -388,64 +392,64 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Navigation between sections
-    const navLinks = document.querySelectorAll('.sidebar .nav-link');
-    const sections = document.querySelectorAll('.content-section');
-    
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Remove active class from all links
-            navLinks.forEach(l => l.classList.remove('active'));
-            
-            // Add active class to clicked link
-            this.classList.add('active');
-            
-            // Hide all sections
-            sections.forEach(section => section.classList.add('d-none'));
-            
-            // Show target section
-            const targetSection = this.getAttribute('data-section') + '-section';
-            const section = document.getElementById(targetSection);
-            if (section) {
-                section.classList.remove('d-none');
-            }
+    document.addEventListener('DOMContentLoaded', function () {
+        // Navigation between sections
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+        const sections = document.querySelectorAll('.content-section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Remove active class from all links
+                navLinks.forEach(l => l.classList.remove('active'));
+
+                // Add active class to clicked link
+                this.classList.add('active');
+
+                // Hide all sections
+                sections.forEach(section => section.classList.add('d-none'));
+
+                // Show target section
+                const targetSection = this.getAttribute('data-section') + '-section';
+                const section = document.getElementById(targetSection);
+                if (section) {
+                    section.classList.remove('d-none');
+                }
+            });
         });
     });
-});
 
-// Switch environment function for admin
-function switchEnvironment() {
-    const environments = ['home', 'office', 'default'];
-    const currentEnv = '{{ config.environment }}';
-    
-    // Show options
-    const options = environments.filter(env => env !== currentEnv);
-    const newEnv = prompt(`Cambiar entorno actual (${currentEnv}) a:\n${options.join(', ')}`);
-    
-    if (newEnv && environments.includes(newEnv)) {
-        fetch('/api/switch-env', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ environment: newEnv })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`Entorno cambiado a ${newEnv.toUpperCase()}`);
-                location.reload();
-            } else {
-                alert('Error: ' + data.error);
-            }
-        })
-        .catch(error => {
-            alert('Error de conexión: ' + error);
-        });
+    // Switch environment function for admin
+    function switchEnvironment() {
+        const environments = ['home', 'office', 'default'];
+        const currentEnv = '{{ config.environment }}';
+
+        // Show options
+        const options = environments.filter(env => env !== currentEnv);
+        const newEnv = prompt(`Cambiar entorno actual (${currentEnv}) a:\n${options.join(', ')}`);
+
+        if (newEnv && environments.includes(newEnv)) {
+            fetch('/api/switch-env', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({environment: newEnv})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`Entorno cambiado a ${newEnv.toUpperCase()}`);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('Error de conexión: ' + error);
+                });
+        }
     }
-}
 </script>
 {% endblock %}

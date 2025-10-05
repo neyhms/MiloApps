@@ -19,15 +19,18 @@ if ($ghInstalled) {
     try {
         if ($private) {
             gh repo create $repoName --description $description --private
-        } else {
+        }
+        else {
             gh repo create $repoName --description $description --public
         }
         Write-Host "✅ Repositorio creado exitosamente!" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Host "❌ Error creando repositorio con GitHub CLI" -ForegroundColor Red
         Write-Host "💡 Probando método alternativo..." -ForegroundColor Yellow
     }
-} else {
+}
+else {
     Write-Host "⚠️ GitHub CLI no instalado" -ForegroundColor Yellow
     Write-Host "💡 Intentando crear repositorio manualmente..." -ForegroundColor Yellow
 }
@@ -54,7 +57,8 @@ try {
     Write-Host "🎉 ¡CÓDIGO SUBIDO EXITOSAMENTE!" -ForegroundColor Green
     Write-Host ""
     Write-Host "🔗 Tu repositorio: https://github.com/neyhms/MiloApps" -ForegroundColor Cyan
-} catch {
+}
+catch {
     Write-Host "❌ Error al subir código" -ForegroundColor Red
     Write-Host "💡 Asegúrate de haber creado el repositorio en GitHub" -ForegroundColor Yellow
     Write-Host "🔗 https://github.com/new" -ForegroundColor Cyan

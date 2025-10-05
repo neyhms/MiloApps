@@ -43,14 +43,16 @@ while ($retry -lt $maxRetries -and !$success) {
         if ($LASTEXITCODE -eq 0) {
             $success = $true
             Write-Host "🎉 ¡CÓDIGO SUBIDO EXITOSAMENTE!" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "   ⚠️ Error en intento $retry" -ForegroundColor Yellow
             if ($retry -lt $maxRetries) {
                 Write-Host "   ⏳ Esperando 5 segundos..." -ForegroundColor Gray
                 Start-Sleep -Seconds 5
             }
         }
-    } catch {
+    }
+    catch {
         Write-Host "   ❌ Error en intento $retry" -ForegroundColor Red
         if ($retry -lt $maxRetries) {
             Start-Sleep -Seconds 5
@@ -67,7 +69,8 @@ if ($success) {
     Write-Host "   • Sincronización automática configurada" -ForegroundColor White
     Write-Host "   • Scripts de inicio/cierre funcionando" -ForegroundColor White
     Write-Host "   • MiloApps ejecutándose en localhost:3000" -ForegroundColor White
-} else {
+}
+else {
     Write-Host ""
     Write-Host "❌ No se pudo subir automáticamente" -ForegroundColor Red
     Write-Host "🔧 Ejecuta manualmente: git push -u origin main" -ForegroundColor Yellow

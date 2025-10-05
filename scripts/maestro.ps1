@@ -143,7 +143,8 @@ function Execute-Option {
             $gitStatus = git status --porcelain 2>$null
             if ($gitStatus) {
                 Write-Host "   ⚠️ Hay cambios sin commitear" -ForegroundColor Yellow
-            } else {
+            }
+            else {
                 Write-Host "   ✅ Todo commiteado" -ForegroundColor Green
             }
             
@@ -151,7 +152,8 @@ function Execute-Option {
             Write-Host "🐍 Python:" -ForegroundColor Yellow
             if (Test-Path ".venv\Scripts\python.exe") {
                 Write-Host "   ✅ Entorno virtual OK" -ForegroundColor Green
-            } else {
+            }
+            else {
                 Write-Host "   ❌ Problema con entorno" -ForegroundColor Red
             }
         }
@@ -214,7 +216,8 @@ function Execute-Option {
 # Ejecucion principal
 if ($Opcion) {
     Execute-Option -Option $Opcion
-} else {
+}
+else {
     Show-Menu
     $userChoice = Read-Host "Selecciona una opcion (0-12)"
     Execute-Option -Option $userChoice

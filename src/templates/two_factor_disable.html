@@ -20,34 +20,34 @@
                             Solo tu contraseña protegerá tu cuenta.
                         </p>
                     </div>
-                    
+
                     <h5>Confirmar Desactivación</h5>
                     <p class="text-muted">
                         Para confirmar que deseas desactivar 2FA, ingresa tu contraseña actual:
                     </p>
-                    
+
                     <form method="POST">
                         {{ form.hidden_tag() }}
-                        
+
                         <div class="mb-3">
                             {{ form.password.label(class="form-label") }}
                             {{ form.password(class="form-control") }}
                             {% if form.password.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.password.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="confirmDisable" required>
                             <label class="form-check-label" for="confirmDisable">
                                 Entiendo que mi cuenta será menos segura sin 2FA
                             </label>
                         </div>
-                        
+
                         <div class="d-grid gap-2">
                             {{ form.submit(class="btn btn-danger") }}
                             <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-secondary">
@@ -55,7 +55,7 @@
                             </a>
                         </div>
                     </form>
-                    
+
                     <div class="mt-4">
                         <h6><i class="fas fa-info-circle text-info"></i> Alternativas Recomendadas:</h6>
                         <ul class="small text-muted">
@@ -74,25 +74,25 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    const checkbox = document.getElementById('confirmDisable');
-    const submitBtn = form.querySelector('button[type="submit"]');
-    
-    // Initially disable submit button
-    submitBtn.disabled = true;
-    
-    // Enable/disable submit based on checkbox
-    checkbox.addEventListener('change', function() {
-        submitBtn.disabled = !this.checked;
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const checkbox = document.getElementById('confirmDisable');
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        // Initially disable submit button
+        submitBtn.disabled = true;
+
+        // Enable/disable submit based on checkbox
+        checkbox.addEventListener('change', function () {
+            submitBtn.disabled = !this.checked;
+        });
+
+        // Confirmation on submit
+        form.addEventListener('submit', function (e) {
+            if (!confirm('¿Estás seguro de que deseas desactivar la autenticación en dos pasos? Esta acción reducirá la seguridad de tu cuenta.')) {
+                e.preventDefault();
+            }
+        });
     });
-    
-    // Confirmation on submit
-    form.addEventListener('submit', function(e) {
-        if (!confirm('¿Estás seguro de que deseas desactivar la autenticación en dos pasos? Esta acción reducirá la seguridad de tu cuenta.')) {
-            e.preventDefault();
-        }
-    });
-});
 </script>
 {% endblock %}

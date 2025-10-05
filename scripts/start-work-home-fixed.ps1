@@ -19,19 +19,24 @@ if (Test-Path ".git") {
                 Write-Host "✅ Cambios sincronizados desde GitHub" -ForegroundColor Green
                 if ($pullResult -match "Already up to date") {
                     Write-Host "   ℹ️ Ya tienes la versión más reciente" -ForegroundColor Gray
-                } else {
+                }
+                else {
                     Write-Host "   📦 Cambios aplicados desde oficina" -ForegroundColor Cyan
                 }
-            } else {
+            }
+            else {
                 Write-Host "⚠️ Posibles conflictos - revisar manualmente" -ForegroundColor Yellow
             }
-        } catch {
+        }
+        catch {
             Write-Host "⚠️ Error de conexión - continuando sin sincronizar" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         Write-Host "⚠️ GitHub no configurado - usar configuración manual" -ForegroundColor Yellow
     }
-} else {
+}
+else {
     Write-Host "⚠️ No es repositorio Git - usar configuración manual para GitHub" -ForegroundColor Yellow
 }
 
@@ -43,7 +48,8 @@ Copy-Item -Path "config\home.json" -Destination "config\active.json" -Force
 $config = Get-Content "config\active.json" | ConvertFrom-Json
 if ($config.environment -eq "home") {
     Write-Host "✅ Configuración de CASA activada" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "❌ Error en configuración" -ForegroundColor Red
 }
 
@@ -59,7 +65,8 @@ if ($currentEmail -notlike "*personal*" -and $currentEmail -notlike "*gmail*") {
 Write-Host "🐍 4. Preparando entorno Python..." -ForegroundColor Yellow
 if (Test-Path ".venv\Scripts\python.exe") {
     Write-Host "✅ Entorno virtual encontrado" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "📦 Creando entorno virtual..." -ForegroundColor Yellow
     python -m venv .venv
     & .venv\Scripts\pip.exe install -r requirements.txt

@@ -15,7 +15,7 @@
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
-                        
+
                         <div class="row">
                             <div class="col-md-4 text-center">
                                 <!-- Profile Picture -->
@@ -29,7 +29,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- User Stats -->
                                 <div class="card bg-light">
                                     <div class="card-body">
@@ -44,18 +44,20 @@
                                         </div>
                                         <div class="mb-2">
                                             <small class="text-muted">Rol:</small><br>
-                                            <span class="badge bg-primary">{{ current_user.role.name.title() if current_user.role else 'Usuario' }}</span>
+                                            <span class="badge bg-primary">{{ current_user.role.name.title() if
+                                                current_user.role else 'Usuario' }}</span>
                                         </div>
                                         <div>
                                             <small class="text-muted">Estado:</small><br>
-                                            <span class="badge {{ 'bg-success' if current_user.is_active else 'bg-danger' }}">
+                                            <span
+                                                class="badge {{ 'bg-success' if current_user.is_active else 'bg-danger' }}">
                                                 {{ 'Activo' if current_user.is_active else 'Inactivo' }}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-8">
                                 <!-- Profile Form -->
                                 <div class="row">
@@ -66,110 +68,115 @@
                                             El nombre de usuario no se puede cambiar
                                         </small>
                                         {% if form.username.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.username.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.username.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
                                         {% endif %}
                                     </div>
-                                    
+
                                     <div class="col-md-6 mb-3">
                                         <label for="email" class="form-label">Correo Electrónico</label>
                                         {{ form.email(class="form-control") }}
                                         {% if form.email.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.email.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.email.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                
+
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="first_name" class="form-label">Nombre</label>
                                         {{ form.first_name(class="form-control", placeholder="Tu nombre") }}
                                         {% if form.first_name.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.first_name.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.first_name.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
                                         {% endif %}
                                     </div>
-                                    
+
                                     <div class="col-md-6 mb-3">
                                         <label for="last_name" class="form-label">Apellido</label>
                                         {{ form.last_name(class="form-control", placeholder="Tu apellido") }}
                                         {% if form.last_name.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.last_name.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.last_name.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Teléfono</label>
                                     {{ form.phone(class="form-control", placeholder="+1234567890") }}
                                     {% if form.phone.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.phone.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.phone.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
                                     {% endif %}
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <label for="bio" class="form-label">Biografía</label>
-                                    {{ form.bio(class="form-control", rows="3", placeholder="Cuéntanos un poco sobre ti...") }}
+                                    {{ form.bio(class="form-control", rows="3", placeholder="Cuéntanos un poco sobre
+                                    ti...") }}
                                     {% if form.bio.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.bio.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.bio.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
                                     {% endif %}
                                 </div>
-                                
+
                                 <!-- Security Settings -->
                                 <hr>
                                 <h5><i class="fas fa-shield-alt"></i> Configuración de Seguridad</h5>
-                                
+
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Autenticación en Dos Pasos</label>
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <span class="badge {{ 'bg-success' if current_user.two_factor_enabled else 'bg-warning' }}">
+                                            <span
+                                                class="badge {{ 'bg-success' if current_user.two_factor_enabled else 'bg-warning' }}">
                                                 {{ 'Activado' if current_user.two_factor_enabled else 'Desactivado' }}
                                             </span>
                                             {% if current_user.two_factor_enabled %}
-                                                <a href="{{ url_for('auth.two_factor_disable') }}" class="btn btn-outline-danger btn-sm">
-                                                    <i class="fas fa-shield-alt"></i> Desactivar
-                                                </a>
+                                            <a href="{{ url_for('auth.two_factor_disable') }}"
+                                                class="btn btn-outline-danger btn-sm">
+                                                <i class="fas fa-shield-alt"></i> Desactivar
+                                            </a>
                                             {% else %}
-                                                <a href="{{ url_for('auth.two_factor_setup') }}" class="btn btn-outline-success btn-sm">
-                                                    <i class="fas fa-shield-alt"></i> Activar
-                                                </a>
+                                            <a href="{{ url_for('auth.two_factor_setup') }}"
+                                                class="btn btn-outline-success btn-sm">
+                                                <i class="fas fa-shield-alt"></i> Activar
+                                            </a>
                                             {% endif %}
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Cambiar Contraseña</label>
                                         <div>
-                                            <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-primary btn-sm">
+                                            <a href="{{ url_for('auth.change_password') }}"
+                                                class="btn btn-outline-primary btn-sm">
                                                 <i class="fas fa-key"></i> Cambiar Contraseña
                                             </a>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Submit Buttons -->
                                 <div class="d-flex gap-2 mt-4">
                                     {{ form.submit(class="btn btn-primary") }}
@@ -182,7 +189,7 @@
                     </form>
                 </div>
             </div>
-            
+
             <!-- Recent Activity -->
             <div class="card mt-4">
                 <div class="card-header">
@@ -207,7 +214,7 @@
         position: relative;
         display: inline-block;
     }
-    
+
     .profile-picture-container:hover {
         opacity: 0.8;
         cursor: pointer;
@@ -217,63 +224,63 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
-    const form = document.querySelector('form');
-    const emailField = document.querySelector('input[name="email"]');
-    
-    if (emailField) {
-        emailField.addEventListener('input', function() {
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (this.value && !emailPattern.test(this.value)) {
-                this.classList.add('is-invalid');
-            } else {
-                this.classList.remove('is-invalid');
-            }
-        });
-    }
-    
-    // Phone number formatting
-    const phoneField = document.querySelector('input[name="phone"]');
-    if (phoneField) {
-        phoneField.addEventListener('input', function() {
-            // Simple phone number validation
-            const phonePattern = /^[\+]?[0-9\s\-\(\)]+$/;
-            if (this.value && !phonePattern.test(this.value)) {
-                this.classList.add('is-invalid');
-            } else {
-                this.classList.remove('is-invalid');
-            }
-        });
-    }
-    
-    // Character count for bio
-    const bioField = document.querySelector('textarea[name="bio"]');
-    if (bioField) {
-        const maxLength = 500;
-        
-        // Create character counter
-        const counter = document.createElement('small');
-        counter.className = 'form-text text-muted';
-        counter.textContent = `0/${maxLength} caracteres`;
-        bioField.parentNode.appendChild(counter);
-        
-        bioField.addEventListener('input', function() {
-            const length = this.value.length;
-            counter.textContent = `${length}/${maxLength} caracteres`;
-            
-            if (length > maxLength) {
-                this.classList.add('is-invalid');
-                counter.className = 'form-text text-danger';
-            } else {
-                this.classList.remove('is-invalid');
-                counter.className = 'form-text text-muted';
-            }
-        });
-        
-        // Initial count
-        bioField.dispatchEvent(new Event('input'));
-    }
-});
+    document.addEventListener('DOMContentLoaded', function () {
+        // Form validation
+        const form = document.querySelector('form');
+        const emailField = document.querySelector('input[name="email"]');
+
+        if (emailField) {
+            emailField.addEventListener('input', function () {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (this.value && !emailPattern.test(this.value)) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        }
+
+        // Phone number formatting
+        const phoneField = document.querySelector('input[name="phone"]');
+        if (phoneField) {
+            phoneField.addEventListener('input', function () {
+                // Simple phone number validation
+                const phonePattern = /^[\+]?[0-9\s\-\(\)]+$/;
+                if (this.value && !phonePattern.test(this.value)) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        }
+
+        // Character count for bio
+        const bioField = document.querySelector('textarea[name="bio"]');
+        if (bioField) {
+            const maxLength = 500;
+
+            // Create character counter
+            const counter = document.createElement('small');
+            counter.className = 'form-text text-muted';
+            counter.textContent = `0/${maxLength} caracteres`;
+            bioField.parentNode.appendChild(counter);
+
+            bioField.addEventListener('input', function () {
+                const length = this.value.length;
+                counter.textContent = `${length}/${maxLength} caracteres`;
+
+                if (length > maxLength) {
+                    this.classList.add('is-invalid');
+                    counter.className = 'form-text text-danger';
+                } else {
+                    this.classList.remove('is-invalid');
+                    counter.className = 'form-text text-muted';
+                }
+            });
+
+            // Initial count
+            bioField.dispatchEvent(new Event('input'));
+        }
+    });
 </script>
 {% endblock %}
