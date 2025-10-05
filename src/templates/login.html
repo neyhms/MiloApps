@@ -18,6 +18,7 @@
         overflow: hidden;
         max-width: 900px;
         width: 100%;
+        min-height: 500px;
     }
 
     .login-form-side {
@@ -25,12 +26,13 @@
     }
 
     .login-info-side {
-        background: linear-gradient(135deg, var(--primary-color) 0%, #004494 100%);
+        background: linear-gradient(135deg, #667eea 0%, #004494 100%);
         color: white;
         padding: 3rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        min-height: 500px;
     }
 
     .brand-logo {
@@ -115,7 +117,7 @@
         <div class="row justify-content-center">
             <div class="col-12">
                 <div class="login-card">
-                    <div class="row no-gutters">
+                    <div class="row g-0">
                         <!-- Form Side -->
                         <div class="col-lg-6">
                             <div class="login-form-side">
@@ -151,7 +153,6 @@
                                                 <i class="fas fa-eye" id="password-icon"></i>
                                             </button>
                                         </div>
-                                        {{ form.password.label(class="form-label") }}
                                         {% if form.password.errors %}
                                         <div class="invalid-feedback d-block">
                                             {% for error in form.password.errors %}
@@ -192,7 +193,7 @@
 
                                     <!-- Links -->
                                     <div class="text-center">
-                                        <a href="{{ url_for('forgot_password') }}" class="text-decoration-none">
+                                        <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none">
                                             ¿Olvidaste tu contraseña?
                                         </a>
                                     </div>

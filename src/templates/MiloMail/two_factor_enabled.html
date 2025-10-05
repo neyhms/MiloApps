@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA Activado - {{ app_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #28a745; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f8f9fa; }
+        .footer { padding: 10px; text-align: center; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Autenticación de Dos Factores Activada</h1>
+        </div>
+        <div class="content">
+            <p>Hola {{ user.first_name }},</p>
+            <p>Has activado exitosamente la autenticación de dos factores (2FA) en tu cuenta.</p>
+            <p><strong>Detalles:</strong></p>
+            <ul>
+                <li>Fecha: {{ activation_time }}</li>
+                <li>IP: {{ ip_address }}</li>
+                <li>Método: Aplicación autenticadora</li>
+            </ul>
+            <p>Tu cuenta ahora está más segura. Necesitarás tu código de autenticador para futuros inicios de sesión.</p>
+            <p>Si no fuiste tú quien activó esto, contacta inmediatamente al administrador.</p>
+        </div>
+        <div class="footer">
+            <p>© {{ app_name }} - Sistema de Seguridad</p>
+        </div>
+    </div>
+</body>
+</html>

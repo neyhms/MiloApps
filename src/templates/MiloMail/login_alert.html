@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerta de Inicio de Sesión - {{ app_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #ffc107; color: #212529; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f8f9fa; }
+        .footer { padding: 10px; text-align: center; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Nuevo Inicio de Sesión Detectado</h1>
+        </div>
+        <div class="content">
+            <p>Hola {{ user.first_name }},</p>
+            <p>Se ha detectado un nuevo inicio de sesión en tu cuenta.</p>
+            <p><strong>Detalles del acceso:</strong></p>
+            <ul>
+                <li>Fecha y hora: {{ login_time }}</li>
+                <li>Dirección IP: {{ ip_address }}</li>
+                <li>Ubicación: {{ location }}</li>
+                <li>Dispositivo: {{ user_agent }}</li>
+            </ul>
+            <p>Si fuiste tú, puedes ignorar este mensaje.</p>
+            <p><strong>Si no fuiste tú:</strong></p>
+            <ul>
+                <li>Cambia tu contraseña inmediatamente</li>
+                <li>Activa la autenticación de dos factores</li>
+                <li>Contacta al administrador</li>
+            </ul>
+        </div>
+        <div class="footer">
+            <p>© {{ app_name }} - Sistema de Seguridad</p>
+        </div>
+    </div>
+</body>
+</html>

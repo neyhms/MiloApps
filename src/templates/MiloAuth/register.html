@@ -1,4 +1,4 @@
-{% extends "base_auth.html" %}
+{% extends "MiloAuth/base_auth.html" %}
 
 {% block title %}Registro - MiloApps{% endblock %}
 
@@ -19,6 +19,7 @@
         overflow: hidden;
         max-width: 1000px;
         width: 100%;
+        min-height: 500px;
     }
 
     .register-form-side {
@@ -26,12 +27,13 @@
     }
 
     .register-info-side {
-        background: linear-gradient(135deg, var(--primary-color) 0%, #004494 100%);
+        background: linear-gradient(135deg, #667eea 0%, #004494 100%);
         color: white;
         padding: 3rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        min-height: 500px;
     }
 
     .brand-logo {
@@ -124,7 +126,7 @@
         <div class="row justify-content-center">
             <div class="col-12">
                 <div class="register-card">
-                    <div class="row no-gutters">
+                    <div class="row g-0">
                         <!-- Form Side -->
                         <div class="col-lg-7">
                             <div class="register-form-side">

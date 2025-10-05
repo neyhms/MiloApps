@@ -1,1 +1,0 @@
-# Auth App - Sistema de autenticación de MiloApps

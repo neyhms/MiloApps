@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificación Administrativa - {{ app_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #007bff; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f8f9fa; }
+        .footer { padding: 10px; text-align: center; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Notificación Administrativa</h1>
+        </div>
+        <div class="content">
+            <p>Estimado Administrador,</p>
+            <p><strong>{{ notification_title }}</strong></p>
+            <p>{{ message }}</p>
+            <p><strong>Detalles:</strong></p>
+            <ul>
+                <li>Fecha: {{ timestamp }}</li>
+                <li>Usuario afectado: {{ affected_user }}</li>
+                <li>Acción: {{ action }}</li>
+                <li>IP: {{ ip_address }}</li>
+            </ul>
+            <p>Revisa el panel administrativo para más detalles.</p>
+        </div>
+        <div class="footer">
+            <p>© {{ app_name }} - Sistema Administrativo</p>
+        </div>
+    </div>
+</body>
+</html>

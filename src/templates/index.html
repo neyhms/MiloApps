@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "MiloBase/base.html" %}
 
 {% block title %}MiloApps - Trabajo Remoto Flexible{% endblock %}
 
@@ -148,7 +148,7 @@
                     </p>
                     <div class="hero-buttons">
                         <a href="{{ url_for('auth.register') }}" class="btn btn-hero btn-hero-primary">
-                            <i class="fas fa-user-plus"></i> Comenzar Gratis
+                            <i class="fas fa-user-plus"></i> Registrarse
                         </a>
                         <a href="{{ url_for('auth.login') }}" class="btn btn-hero btn-hero-outline">
                             <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
