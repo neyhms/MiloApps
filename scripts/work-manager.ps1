@@ -87,7 +87,8 @@ switch ($opcion) {
         if (Test-Path ".venv\Scripts\python.exe") {
             Write-Host "✅ Entorno virtual disponible" -ForegroundColor Green
             & .venv\Scripts\pip.exe list | Select-String "Flask|python-dotenv|flask-cors"
-        } else {
+        }
+        else {
             Write-Host "❌ Entorno virtual no encontrado" -ForegroundColor Red
         }
     }
@@ -108,7 +109,7 @@ switch ($opcion) {
         & .\scripts\git-push.ps1
     }
     "12" {
-        Write-Host "�👋 ¡Hasta luego!" -ForegroundColor Green
+        Write-Host "�� ¡Hasta luego!" -ForegroundColor Green
         exit 0
     }
     default {

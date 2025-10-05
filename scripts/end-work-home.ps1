@@ -23,11 +23,13 @@ if ($status) {
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ Commit realizado correctamente" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ Error en commit - revisar manualmente" -ForegroundColor Red
         exit 1
     }
-} else {
+}
+else {
     Write-Host "✅ No hay cambios pendientes" -ForegroundColor Green
 }
 
@@ -41,17 +43,21 @@ if (Test-Path ".git") {
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "✅ Cambios subidos a GitHub exitosamente" -ForegroundColor Green
                 Write-Host "   🌐 Disponible para sincronizar en oficina" -ForegroundColor Cyan
-            } else {
+            }
+            else {
                 Write-Host "⚠️ Error subiendo - verificar conexión" -ForegroundColor Yellow
             }
-        } catch {
+        }
+        catch {
             Write-Host "⚠️ Error de conexión - cambios guardados localmente" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         Write-Host "⚠️ GitHub no configurado - cambios solo guardados localmente" -ForegroundColor Yellow
         Write-Host "💡 Usa opción 8 del menú principal para configurar GitHub" -ForegroundColor Gray
     }
-} else {
+}
+else {
     Write-Host "❌ Error subiendo cambios - revisar conexión" -ForegroundColor Red
 }
 
@@ -61,14 +67,15 @@ $commits = git log --oneline --since="today" --author="$(git config user.name)" 
 if ($commits) {
     Write-Host "📈 Commits de hoy:" -ForegroundColor Cyan
     $commits | ForEach-Object { Write-Host "   • $_" -ForegroundColor White }
-} else {
+}
+else {
     Write-Host "📈 No hay commits nuevos hoy" -ForegroundColor Gray
 }
 
 # Paso 5: Limpiar entorno
 Write-Host "🧹 5. Limpiando entorno..." -ForegroundColor Yellow
 # Detener procesos Flask si están corriendo
-Get-Process | Where-Object {$_.ProcessName -like "*python*" -and $_.Path -like "*InfoMilo*"} | Stop-Process -Force -ErrorAction SilentlyContinue
+Get-Process | Where-Object { $_.ProcessName -like "*python*" -and $_.Path -like "*InfoMilo*" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
 Write-Host "🎉 ¡TRABAJO DE CASA TERMINADO!" -ForegroundColor Green

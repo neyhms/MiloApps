@@ -7,7 +7,8 @@ Write-Host "Configurando InfoMilo para trabajo remoto..." -ForegroundColor Green
 try {
     $nodeVersion = node --version 2>$null
     Write-Host "Node.js encontrado: $nodeVersion" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "Error: Node.js no encontrado" -ForegroundColor Red
     exit 1
 }
@@ -26,7 +27,8 @@ $configFile = "config/$Environment.json"
 if (Test-Path $configFile) {
     Copy-Item -Path $configFile -Destination "config/active.json" -Force
     Write-Host "Configuracion '$Environment' activada" -ForegroundColor Cyan
-} else {
+}
+else {
     Copy-Item -Path "config/default.json" -Destination "config/active.json" -Force
     Write-Host "Usando configuracion por defecto" -ForegroundColor Cyan
 }

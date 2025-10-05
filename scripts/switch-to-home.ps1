@@ -18,7 +18,8 @@ git pull origin main
 if ($LASTEXITCODE -ne 0) {
     Write-Host "⚠️ Problemas sincronizando con Git" -ForegroundColor Yellow
     Write-Host "   Revisa si hay conflictos o problemas de red" -ForegroundColor Gray
-} else {
+}
+else {
     Write-Host "✅ Cambios sincronizados correctamente" -ForegroundColor Green
 }
 
@@ -30,7 +31,8 @@ if (Test-Path "config\active.json") {
     $config = Get-Content "config\active.json" | ConvertFrom-Json
     if ($config.environment -eq "home") {
         Write-Host "✅ Configuración de casa activada" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "⚠️ Problema activando configuración de casa" -ForegroundColor Yellow
     }
 }
@@ -41,7 +43,8 @@ $currentEmail = git config user.email 2>$null
 if ($currentEmail -like "*@empresa.com") {
     Write-Host "   Cambiando de email corporativo a personal..." -ForegroundColor Gray
     Write-Host "   Recuerda configurar: git config user.email tu.email@personal.com" -ForegroundColor Gray
-} else {
+}
+else {
     Write-Host "✅ Email de Git configurado para uso personal" -ForegroundColor Green
 }
 
@@ -54,11 +57,13 @@ if (Test-Path ".venv\Scripts\python.exe") {
     $packages = & .venv\Scripts\pip.exe list 2>$null
     if ($packages -match "Flask") {
         Write-Host "✅ Dependencias de Flask disponibles" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "📦 Instalando dependencias..." -ForegroundColor Yellow
         & .venv\Scripts\pip.exe install -r requirements.txt
     }
-} else {
+}
+else {
     Write-Host "❌ Entorno virtual no encontrado" -ForegroundColor Red
     Write-Host "   Crear con: python -m venv .venv" -ForegroundColor Yellow
 }

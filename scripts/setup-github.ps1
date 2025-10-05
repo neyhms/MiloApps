@@ -66,7 +66,8 @@ Write-Host "⚙️ Configurando repositorio remoto..." -ForegroundColor Yellow
 try {
     git remote add origin $repoUrl
     Write-Host "✅ Remote origin configurado" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Error configurando remote: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
 }
@@ -76,7 +77,8 @@ Write-Host "🔄 Cambiando a branch main..." -ForegroundColor Yellow
 try {
     git branch -M main
     Write-Host "✅ Branch main configurado" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "⚠️ Warning al configurar branch main" -ForegroundColor Yellow
 }
 
@@ -85,7 +87,8 @@ Write-Host "📤 Subiendo código a GitHub..." -ForegroundColor Yellow
 try {
     git push -u origin main
     Write-Host "✅ Código subido exitosamente a GitHub!" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Error subiendo a GitHub:" -ForegroundColor Red
     Write-Host "   Posibles causas:" -ForegroundColor Yellow
     Write-Host "   • Repositorio no existe en GitHub" -ForegroundColor Gray
@@ -114,8 +117,8 @@ Write-Host ""
 
 # Guardar configuración para otros scripts
 $gitConfig = @{
-    repository_url = $repoUrl
-    username = $usuario
+    repository_url  = $repoUrl
+    username        = $usuario
     configured_date = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 }
 $gitConfig | ConvertTo-Json | Out-File -FilePath "config\git-config.json" -Encoding UTF8

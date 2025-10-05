@@ -100,7 +100,8 @@ try {
         $response.Close()
         Write-Host "$(Get-Date -Format 'HH:mm:ss') - $($request.HttpMethod) $url"
     }
-} finally {
+}
+finally {
     $listener.Stop()
     Write-Host "📴 Servidor detenido" -ForegroundColor Yellow
 }

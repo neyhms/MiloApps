@@ -1,7 +1,7 @@
 # Script para cambiar entre configuraciones de casa y oficina
 
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateSet("home", "office", "default")]
     [string]$Environment
 )

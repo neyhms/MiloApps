@@ -1,0 +1,537 @@
+{% extends "base.html" %}
+
+{% block title %}Registro - MiloApps{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem 0;
+    }
+    
+    .register-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        overflow: hidden;
+        max-width: 1000px;
+        width: 100%;
+    }
+    
+    .register-form-side {
+        padding: 3rem;
+    }
+    
+    .register-info-side {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #004494 100%);
+        color: white;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .brand-logo {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+    
+    .form-floating > .form-control {
+        height: calc(3.5rem + 2px);
+        padding: 1rem 0.75rem;
+    }
+    
+    .btn-register {
+        height: 3.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .password-strength {
+        margin-top: 0.5rem;
+    }
+    
+    .strength-bar {
+        height: 4px;
+        border-radius: 2px;
+        background-color: #e9ecef;
+        overflow: hidden;
+    }
+    
+    .strength-fill {
+        height: 100%;
+        transition: all 0.3s ease;
+        width: 0%;
+    }
+    
+    .strength-weak .strength-fill {
+        background-color: #dc3545;
+        width: 25%;
+    }
+    
+    .strength-fair .strength-fill {
+        background-color: #fd7e14;
+        width: 50%;
+    }
+    
+    .strength-good .strength-fill {
+        background-color: #ffc107;
+        width: 75%;
+    }
+    
+    .strength-strong .strength-fill {
+        background-color: #198754;
+        width: 100%;
+    }
+    
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .benefit-item i {
+        margin-right: 1rem;
+        width: 20px;
+        text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+        .register-info-side {
+            order: -1;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .register-form-side {
+            padding: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="register-card">
+                    <div class="row no-gutters">
+                        <!-- Form Side -->
+                        <div class="col-lg-7">
+                            <div class="register-form-side">
+                                <div class="text-center mb-4">
+                                    <h2 class="brand-logo text-primary">
+                                        <i class="fas fa-cat"></i> MiloApps
+                                    </h2>
+                                    <h4 class="mb-2">Crear Cuenta</h4>
+                                    <p class="text-muted">Únete a MiloApps y comienza a trabajar de forma flexible</p>
+                                </div>
+                                
+                                <form method="POST" id="registerForm">
+                                    {{ form.hidden_tag() }}
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <!-- Username Field -->
+                                            <div class="form-floating">
+                                                {{ form.username(class="form-control", placeholder="Nombre de usuario") }}
+                                                {{ form.username.label(class="form-label") }}
+                                                {% if form.username.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {% for error in form.username.errors %}
+                                                            {{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <!-- Email Field -->
+                                            <div class="form-floating">
+                                                {{ form.email(class="form-control", placeholder="Correo electrónico") }}
+                                                {{ form.email.label(class="form-label") }}
+                                                {% if form.email.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {% for error in form.email.errors %}
+                                                            {{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <!-- First Name Field -->
+                                            <div class="form-floating">
+                                                {{ form.first_name(class="form-control", placeholder="Nombre") }}
+                                                {{ form.first_name.label(class="form-label") }}
+                                                {% if form.first_name.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {% for error in form.first_name.errors %}
+                                                            {{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <!-- Last Name Field -->
+                                            <div class="form-floating">
+                                                {{ form.last_name(class="form-control", placeholder="Apellido") }}
+                                                {{ form.last_name.label(class="form-label") }}
+                                                {% if form.last_name.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {% for error in form.last_name.errors %}
+                                                            {{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <!-- Password Field -->
+                                            <div class="form-floating">
+                                                {{ form.password(class="form-control", placeholder="Contraseña", id="password") }}
+                                                {{ form.password.label(class="form-label") }}
+                                                {% if form.password.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {% for error in form.password.errors %}
+                                                            {{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <!-- Password Strength Indicator -->
+                                            <div class="password-strength">
+                                                <div class="strength-bar">
+                                                    <div class="strength-fill"></div>
+                                                </div>
+                                                <small class="strength-text text-muted">Ingresa una contraseña</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <!-- Confirm Password Field -->
+                                            <div class="form-floating">
+                                                {{ form.password2(class="form-control", placeholder="Confirmar contraseña") }}
+                                                {{ form.password2.label(class="form-label") }}
+                                                {% if form.password2.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {% for error in form.password2.errors %}
+                                                            {{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Terms and Conditions -->
+                                    <div class="form-check mb-3">
+                                        {{ form.accept_terms(class="form-check-input", id="terms") }}
+                                        <label class="form-check-label" for="terms">
+                                            Acepto los <a href="#" class="text-primary">términos y condiciones</a> 
+                                            y la <a href="#" class="text-primary">política de privacidad</a>
+                                        </label>
+                                        {% if form.accept_terms.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.accept_terms.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Submit Button -->
+                                    <div class="d-grid mb-3">
+                                        {{ form.submit(class="btn btn-primary btn-register") }}
+                                    </div>
+                                    
+                                    <hr class="my-4">
+                                    
+                                    <div class="text-center">
+                                        <p class="mb-0">¿Ya tienes una cuenta?</p>
+                                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary mt-2">
+                                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Side -->
+                        <div class="col-lg-5">
+                            <div class="register-info-side">
+                                <div>
+                                    <h3 class="mb-4">¿Por qué elegir MiloApps?</h3>
+                                    <p class="mb-4">
+                                        Únete a miles de profesionales que ya disfrutan de la 
+                                        flexibilidad y productividad que ofrece MiloApps.
+                                    </p>
+                                    
+                                    <div class="benefit-item">
+                                        <i class="fas fa-rocket"></i>
+                                        <span>Configuración rápida en menos de 5 minutos</span>
+                                    </div>
+                                    
+                                    <div class="benefit-item">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span>Seguridad de nivel empresarial</span>
+                                    </div>
+                                    
+                                    <div class="benefit-item">
+                                        <i class="fas fa-sync-alt"></i>
+                                        <span>Sincronización automática entre dispositivos</span>
+                                    </div>
+                                    
+                                    <div class="benefit-item">
+                                        <i class="fas fa-headset"></i>
+                                        <span>Soporte técnico 24/7</span>
+                                    </div>
+                                    
+                                    <div class="benefit-item">
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span>Analytics y reportes detallados</span>
+                                    </div>
+                                    
+                                    <div class="benefit-item">
+                                        <i class="fas fa-globe"></i>
+                                        <span>Acceso desde cualquier lugar del mundo</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 pt-3 border-top border-light opacity-50">
+                                    <small class="opacity-75">
+                                        <i class="fas fa-users"></i> 
+                                        Más de 10,000 usuarios confían en MiloApps
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registerForm');
+    const passwordField = document.getElementById('password');
+    const confirmPasswordField = document.querySelector('input[name="password2"]');
+    const strengthBar = document.querySelector('.strength-bar');
+    const strengthText = document.querySelector('.strength-text');
+    
+    // Password strength checker
+    passwordField.addEventListener('input', function() {
+        checkPasswordStrength(this.value);
+    });
+    
+    // Confirm password validation
+    confirmPasswordField.addEventListener('input', function() {
+        validatePasswordMatch();
+    });
+    
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        let feedback = '';
+        
+        // Reset classes
+        strengthBar.className = 'strength-bar';
+        
+        if (password.length === 0) {
+            strengthText.textContent = 'Ingresa una contraseña';
+            strengthText.className = 'strength-text text-muted';
+            return;
+        }
+        
+        // Length check
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+        
+        // Character variety checks
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+        
+        // Determine strength level
+        if (strength <= 2) {
+            strengthBar.classList.add('strength-weak');
+            feedback = 'Débil - Necesita más caracteres y variedad';
+            strengthText.className = 'strength-text text-danger';
+        } else if (strength <= 3) {
+            strengthBar.classList.add('strength-fair');
+            feedback = 'Regular - Agrega más variedad de caracteres';
+            strengthText.className = 'strength-text text-warning';
+        } else if (strength <= 4) {
+            strengthBar.classList.add('strength-good');
+            feedback = 'Buena - Casi perfecta';
+            strengthText.className = 'strength-text text-info';
+        } else {
+            strengthBar.classList.add('strength-strong');
+            feedback = 'Excelente - Contraseña muy segura';
+            strengthText.className = 'strength-text text-success';
+        }
+        
+        strengthText.textContent = feedback;
+    }
+    
+    function validatePasswordMatch() {
+        const password = passwordField.value;
+        const confirmPassword = confirmPasswordField.value;
+        
+        if (confirmPassword.length === 0) return;
+        
+        if (password !== confirmPassword) {
+            confirmPasswordField.classList.add('is-invalid');
+            // Show custom validation message
+            let feedback = confirmPasswordField.parentNode.querySelector('.invalid-feedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback d-block';
+                confirmPasswordField.parentNode.appendChild(feedback);
+            }
+            feedback.textContent = 'Las contraseñas no coinciden';
+        } else {
+            confirmPasswordField.classList.remove('is-invalid');
+            const feedback = confirmPasswordField.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.remove();
+            }
+        }
+    }
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        console.log('🔍 Form submit event triggered');
+        let isValid = true;
+        let errors = [];
+        
+        // Validate username
+        const usernameField = form.querySelector('input[name="username"]');
+        if (usernameField && !usernameField.value.trim()) {
+            usernameField.classList.add('is-invalid');
+            errors.push('Nombre de usuario es requerido');
+            isValid = false;
+        } else if (usernameField) {
+            usernameField.classList.remove('is-invalid');
+        }
+        
+        // Validate email
+        const emailField = form.querySelector('input[name="email"]');
+        if (emailField && !emailField.value.trim()) {
+            emailField.classList.add('is-invalid');
+            errors.push('Email es requerido');
+            isValid = false;
+        } else if (emailField) {
+            emailField.classList.remove('is-invalid');
+        }
+        
+        // Validate first name
+        const firstNameField = form.querySelector('input[name="first_name"]');
+        if (firstNameField && !firstNameField.value.trim()) {
+            firstNameField.classList.add('is-invalid');
+            errors.push('Nombre es requerido');
+            isValid = false;
+        } else if (firstNameField) {
+            firstNameField.classList.remove('is-invalid');
+        }
+        
+        // Validate last name
+        const lastNameField = form.querySelector('input[name="last_name"]');
+        if (lastNameField && !lastNameField.value.trim()) {
+            lastNameField.classList.add('is-invalid');
+            errors.push('Apellido es requerido');
+            isValid = false;
+        } else if (lastNameField) {
+            lastNameField.classList.remove('is-invalid');
+        }
+        
+        // Validate password
+        if (!passwordField.value.trim()) {
+            passwordField.classList.add('is-invalid');
+            errors.push('Contraseña es requerida');
+            isValid = false;
+        } else {
+            passwordField.classList.remove('is-invalid');
+        }
+        
+        // Validate password confirmation
+        if (!confirmPasswordField.value.trim()) {
+            confirmPasswordField.classList.add('is-invalid');
+            errors.push('Confirmación de contraseña es requerida');
+            isValid = false;
+        } else if (passwordField.value !== confirmPasswordField.value) {
+            confirmPasswordField.classList.add('is-invalid');
+            errors.push('Las contraseñas no coinciden');
+            isValid = false;
+        } else {
+            confirmPasswordField.classList.remove('is-invalid');
+        }
+        
+        // Check terms acceptance
+        const termsCheckbox = document.getElementById('terms');
+        if (termsCheckbox && !termsCheckbox.checked) {
+            termsCheckbox.classList.add('is-invalid');
+            errors.push('Debes aceptar los términos y condiciones');
+            isValid = false;
+        } else if (termsCheckbox) {
+            termsCheckbox.classList.remove('is-invalid');
+        }
+        
+        console.log('🔍 Validation result:', isValid);
+        console.log('🔍 Errors:', errors);
+        
+        if (!isValid) {
+            e.preventDefault();
+            console.log('🔴 Form submission prevented due to validation errors');
+            
+            // Show alert with errors
+            alert('Por favor corrige los siguientes errores:\n\n' + errors.join('\n'));
+            
+            // Focus first invalid field
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+            }
+        } else {
+            console.log('✅ Form validation passed, submitting...');
+        }
+    });
+    
+    // Clear invalid state on input
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+    });
+    
+    // Terms checkbox validation
+    document.getElementById('terms').addEventListener('change', function() {
+        this.classList.remove('is-invalid');
+    });
+});
+</script>
+{% endblock %}

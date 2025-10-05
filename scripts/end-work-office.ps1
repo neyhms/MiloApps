@@ -23,11 +23,13 @@ if ($status) {
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ Commit realizado correctamente" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ Error en commit - revisar manualmente" -ForegroundColor Red
         exit 1
     }
-} else {
+}
+else {
     Write-Host "✅ No hay cambios pendientes" -ForegroundColor Green
 }
 
@@ -41,17 +43,21 @@ if (Test-Path ".git") {
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "✅ Cambios subidos a GitHub exitosamente" -ForegroundColor Green
                 Write-Host "   🌐 Disponible para sincronizar en casa" -ForegroundColor Cyan
-            } else {
+            }
+            else {
                 Write-Host "⚠️ Error subiendo - verificar conexión/proxy corporativo" -ForegroundColor Yellow
             }
-        } catch {
+        }
+        catch {
             Write-Host "⚠️ Error de conexión - cambios guardados localmente" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         Write-Host "⚠️ GitHub no configurado - cambios solo guardados localmente" -ForegroundColor Yellow
         Write-Host "💡 Configura GitHub para sincronización automática" -ForegroundColor Gray
     }
-} else {
+}
+else {
     Write-Host "⚠️ No es repositorio Git - cambios solo guardados localmente" -ForegroundColor Yellow
 }
 
@@ -72,14 +78,15 @@ $commits = git log --oneline --since="today" --author="$(git config user.name)" 
 if ($commits) {
     Write-Host "📈 Commits de hoy:" -ForegroundColor Cyan
     $commits | ForEach-Object { Write-Host "   • $_" -ForegroundColor White }
-} else {
+}
+else {
     Write-Host "📈 No hay commits nuevos hoy" -ForegroundColor Gray
 }
 
 # Paso 6: Limpiar entorno y procesos
 Write-Host "🧹 6. Limpiando entorno..." -ForegroundColor Yellow
 # Detener procesos Flask
-Get-Process | Where-Object {$_.ProcessName -like "*python*" -and $_.Path -like "*InfoMilo*"} | Stop-Process -Force -ErrorAction SilentlyContinue
+Get-Process | Where-Object { $_.ProcessName -like "*python*" -and $_.Path -like "*InfoMilo*" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
 # Limpiar archivos temporales
 if (Test-Path "temp\*") {

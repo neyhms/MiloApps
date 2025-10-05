@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Error {{ error_code }} - MiloApps{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .error-card {
+        text-align: center;
+        padding: 3rem;
+        max-width: 600px;
+    }
+    
+    .error-icon {
+        font-size: 6rem;
+        margin-bottom: 2rem;
+    }
+    
+    .error-404 .error-icon {
+        color: var(--primary-color);
+    }
+    
+    .error-403 .error-icon {
+        color: var(--warning-color);
+    }
+    
+    .error-500 .error-icon {
+        color: var(--danger-color);
+    }
+    
+    .error-429 .error-icon {
+        color: var(--info-color);
+    }
+    
+    .error-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .error-subtitle {
+        font-size: 1.5rem;
+        color: var(--secondary-color);
+        margin-bottom: 2rem;
+    }
+    
+    .error-description {
+        color: var(--secondary-color);
+        margin-bottom: 3rem;
+        line-height: 1.6;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+        .error-card {
+            padding: 2rem 1rem;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+        }
+        
+        .error-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="error-card error-{{ error_code }}">
+                    {% if error_code == 404 %}
+                        <div class="error-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h1 class="error-title">404</h1>
+                        <h2 class="error-subtitle">Página No Encontrada</h2>
+                        <p class="error-description">
+                            Lo sentimos, la página que estás buscando no existe o ha sido movida.
+                            Puede que hayas escrito mal la URL o que el enlace esté desactualizado.
+                        </p>
+                        
+                    {% elif error_code == 403 %}
+                        <div class="error-icon">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <h1 class="error-title">403</h1>
+                        <h2 class="error-subtitle">Acceso Denegado</h2>
+                        <p class="error-description">
+                            No tienes permisos para acceder a esta página.
+                            Si crees que esto es un error, contacta con el administrador.
+                        </p>
+                        
+                    {% elif error_code == 429 %}
+                        <div class="error-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <h1 class="error-title">429</h1>
+                        <h2 class="error-subtitle">Demasiadas Solicitudes</h2>
+                        <p class="error-description">
+                            Has realizado demasiadas solicitudes en poco tiempo.
+                            Por favor, espera un momento antes de intentar nuevamente.
+                        </p>
+                        
+                    {% elif error_code == 500 %}
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h1 class="error-title">500</h1>
+                        <h2 class="error-subtitle">Error Interno del Servidor</h2>
+                        <p class="error-description">
+                            Ha ocurrido un error interno en el servidor.
+                            Nuestro equipo técnico ha sido notificado y está trabajando para solucionarlo.
+                        </p>
+                        
+                    {% else %}
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <h1 class="error-title">{{ error_code }}</h1>
+                        <h2 class="error-subtitle">{{ error_message or 'Ha ocurrido un error' }}</h2>
+                        <p class="error-description">
+                            Ha ocurrido un error inesperado. Por favor, intenta nuevamente
+                            o contacta con soporte si el problema persiste.
+                        </p>
+                    {% endif %}
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                                <i class="fas fa-tachometer-alt"></i> Ir al Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                <i class="fas fa-home"></i> Ir al Inicio
+                            </a>
+                        {% endif %}
+                        
+                        <button onclick="history.back()" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver Atrás
+                        </button>
+                        
+                        {% if error_code == 429 %}
+                            <button onclick="location.reload()" class="btn btn-outline-primary" id="reloadBtn">
+                                <i class="fas fa-redo"></i> Intentar Nuevamente
+                            </button>
+                        {% endif %}
+                        
+                        {% if error_code in [500, 403] %}
+                            <a href="#" class="btn btn-outline-info" onclick="reportError()">
+                                <i class="fas fa-bug"></i> Reportar Error
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Additional Help -->
+                    <div class="mt-4 pt-3 border-top">
+                        <small class="text-muted">
+                            ¿Necesitas ayuda? 
+                            <a href="#" class="text-primary">Contacta soporte técnico</a>
+                        </small>
+                    </div>
+                    
+                    {% if config and config.environment == 'development' %}
+                        <!-- Debug Info (only in development) -->
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <small class="text-muted">
+                                <strong>Debug Info:</strong><br>
+                                Error {{ error_code }}: {{ error_message or 'No message' }}<br>
+                                Environment: {{ config.environment }}<br>
+                                Timestamp: Error timestamp
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function reportError() {
+    const errorInfo = {
+        code: {{ error_code }},
+        message: '{{ error_message or "No message" }}',
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString()
+    };
+    
+    // In a real application, you would send this to your error reporting service
+    console.log('Error Report:', errorInfo);
+    
+    alert('Gracias por reportar este error. Nuestro equipo ha sido notificado.');
+}
+
+{% if error_code == 429 %}
+// Auto-enable reload button after some time
+document.addEventListener('DOMContentLoaded', function() {
+    const reloadBtn = document.getElementById('reloadBtn');
+    if (reloadBtn) {
+        reloadBtn.disabled = true;
+        reloadBtn.innerHTML = '<i class="fas fa-clock"></i> Espera 30s';
+        
+        let countdown = 30;
+        const interval = setInterval(function() {
+            countdown--;
+            reloadBtn.innerHTML = '<i class="fas fa-clock"></i> Espera ' + countdown + 's';
+            
+            if (countdown <= 0) {
+                clearInterval(interval);
+                reloadBtn.disabled = false;
+                reloadBtn.innerHTML = '<i class="fas fa-redo"></i> Intentar Nuevamente';
+            }
+        }, 1000);
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

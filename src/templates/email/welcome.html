@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta na        <div class="logo">🐱 MiloApps</div>e="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a MiloApps</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px 20px;
+            border-radius: 0 0 8px 8px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .welcome-box {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .features {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .features ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .features li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">� MiloApps</div>
+        <h1>¡Bienvenido a MiloApps!</h1>
+        <p>Tu plataforma de trabajo flexible</p>
+    </div>
+    
+    <div class="content">
+        <div class="welcome-box">
+            <h2>¡Hola {{ user.first_name }}!</h2>
+            <p>Te damos la bienvenida a <strong>MiloApps</strong>, tu nueva plataforma de trabajo flexible que te permite ser productivo desde casa o la oficina.</p>
+        </div>
+        
+        <h3>🎯 Qué puedes hacer ahora:</h3>
+        <div class="features">
+            <ul>
+                <li><strong>🏠 Trabajo desde casa:</strong> Accede a todas tus herramientas desde cualquier lugar</li>
+                <li><strong>🏢 Trabajo en oficina:</strong> Sincronización automática entre ubicaciones</li>
+                <li><strong>🔒 Seguridad avanzada:</strong> Autenticación de dos factores disponible</li>
+                <li><strong>📊 Panel personal:</strong> Gestiona tu perfil y configuraciones</li>
+                <li><strong>👥 Colaboración:</strong> Herramientas para trabajo en equipo</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="{{ login_url }}" class="button">🚀 Comenzar Ahora</a>
+        </div>
+        
+        <div class="welcome-box">
+            <h3>📋 Información de tu cuenta:</h3>
+            <ul>
+                <li><strong>Email:</strong> {{ user.email }}</li>
+                <li><strong>Usuario:</strong> {{ user.username }}</li>
+                <li><strong>Fecha de registro:</strong> {{ user.created_at.strftime('%d/%m/%Y') }}</li>
+            </ul>
+        </div>
+        
+        <p><strong>💡 Próximos pasos:</strong></p>
+        <ol>
+            <li>Inicia sesión en tu cuenta</li>
+            <li>Completa tu perfil personal</li>
+            <li>Configura tus preferencias de trabajo</li>
+            <li>Explora las herramientas disponibles</li>
+        </ol>
+        
+        <p>Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.</p>
+    </div>
+    
+    <div class="footer">
+        <p><strong>MiloApps</strong> - Sistema de trabajo flexible</p>
+        <p>Este email fue enviado automáticamente. No respondas a este mensaje.</p>
+        <p>Si no creaste esta cuenta, ignora este email.</p>
+    </div>
+</body>
+</html>

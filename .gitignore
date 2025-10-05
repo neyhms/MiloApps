@@ -5,6 +5,50 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Python specific
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Flask
+instance/
+.webassets-cache
+
+# Database files (opcional - comentar si quieres incluir la DB)
+# data/*.db
+
+# Config files with sensitive data
+config/active.json
+config/local.json
+
+# VS Code
+.vscode/settings.json
+.vscode/launch.json
+
+# Temporary files
+temp/
+*.tmp
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
 # Runtime data
 pids
 *.pid

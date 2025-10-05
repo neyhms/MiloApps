@@ -12,7 +12,8 @@ if (Test-Path $configPath) {
     $Port = $config.development.port
     Write-Host "🚀 Iniciando InfoMilo Server..." -ForegroundColor Green
     Write-Host "📋 Configuración: $($config.environment.ToUpper())" -ForegroundColor Cyan
-} else {
+}
+else {
     Write-Host "⚠️  Usando configuración por defecto" -ForegroundColor Yellow
 }
 
@@ -183,7 +184,8 @@ try {
                 $response.ContentType = "application/json; charset=utf-8"
                 if ($config) {
                     $json = $config | ConvertTo-Json -Depth 10
-                } else {
+                }
+                else {
                     $json = '{"environment": "default", "note": "No config loaded"}'
                 }
                 $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
@@ -193,9 +195,9 @@ try {
             "/status" {
                 $response.ContentType = "application/json; charset=utf-8"
                 $status = @{
-                    status = "running"
-                    server = "PowerShell"
-                    port = $Port
+                    status    = "running"
+                    server    = "PowerShell"
+                    port      = $Port
                     timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
                 } | ConvertTo-Json
                 $buffer = [System.Text.Encoding]::UTF8.GetBytes($status)
@@ -214,9 +216,11 @@ try {
         $response.Close()
         Write-Host "$(Get-Date -Format 'HH:mm:ss') - $($request.HttpMethod) $url" -ForegroundColor Gray
     }
-} catch {
+}
+catch {
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-} finally {
+}
+finally {
     $listener.Stop()
     Write-Host "📴 Servidor detenido" -ForegroundColor Yellow
 }

@@ -17,7 +17,8 @@ if (![string]::IsNullOrEmpty($hasRemote)) {
     Write-Host "📍 Repositorio remoto:" -ForegroundColor Cyan
     git remote -v | Select-Object -First 1
     Write-Host ""
-} else {
+}
+else {
     Write-Host "❌ No hay repositorio remoto configurado" -ForegroundColor Red
     Write-Host "💡 Ejecuta primero: Opción 8 - Configurar GitHub" -ForegroundColor Yellow
     exit 1
@@ -32,7 +33,8 @@ try {
         if ($pullResult -match "Already up to date") {
             Write-Host "   ℹ️ Ya estás actualizado" -ForegroundColor Gray
         }
-    } else {
+    }
+    else {
         Write-Host "⚠️ Posibles conflictos al descargar:" -ForegroundColor Yellow
         Write-Host $pullResult -ForegroundColor Gray
         Write-Host ""
@@ -40,7 +42,8 @@ try {
         # Intentar merge automático
         git merge --no-edit 2>$null
     }
-} catch {
+}
+catch {
     Write-Host "❌ Error descargando cambios" -ForegroundColor Red
     Write-Host "💡 Verifica tu conexión a internet" -ForegroundColor Yellow
 }
@@ -88,7 +91,8 @@ $location = if (Test-Path "config\active.json") {
         "office" { "🏢 oficina" }
         default { "💻 ubicación" }
     }
-} else { "💻 local" }
+}
+else { "💻 local" }
 
 $commitMessage = "chore: sync from $location - $timestamp"
 if ($newFiles -gt 0) { $commitMessage += " (+$newFiles nuevos)" }
@@ -98,7 +102,8 @@ if ($deletedFiles -gt 0) { $commitMessage += " (-$deletedFiles eliminados)" }
 try {
     git commit -m $commitMessage
     Write-Host "✅ Commit creado: $commitMessage" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Error creando commit" -ForegroundColor Red
     exit 1
 }
@@ -110,7 +115,8 @@ Write-Host "📤 5. Subiendo cambios a GitHub..." -ForegroundColor Yellow
 try {
     git push origin main
     Write-Host "✅ Cambios subidos exitosamente a GitHub!" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Error subiendo a GitHub" -ForegroundColor Red
     Write-Host "💡 Posibles causas:" -ForegroundColor Yellow
     Write-Host "   • Problemas de conexión" -ForegroundColor Gray

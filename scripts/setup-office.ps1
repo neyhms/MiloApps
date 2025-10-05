@@ -8,7 +8,8 @@ Write-Host ""
 try {
     $pythonVersion = python --version 2>$null
     Write-Host "✅ Python encontrado: $pythonVersion" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Python no encontrado. Descargar desde https://python.org" -ForegroundColor Red
     Write-Host "   Reiniciar este script después de instalar Python." -ForegroundColor Yellow
     exit 1
@@ -18,7 +19,8 @@ try {
 try {
     $gitVersion = git --version 2>$null
     Write-Host "✅ Git encontrado: $gitVersion" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Git no encontrado. Descargar desde https://git-scm.com" -ForegroundColor Red
     exit 1
 }
@@ -32,7 +34,8 @@ if (!(Test-Path ".venv")) {
         exit 1
     }
     Write-Host "✅ Entorno virtual creado" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "📦 Entorno virtual ya existe" -ForegroundColor Green
 }
 
@@ -43,7 +46,8 @@ Write-Host "📋 Instalando dependencias Python..." -ForegroundColor Yellow
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "✅ Dependencias instaladas correctamente" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "❌ Error instalando dependencias" -ForegroundColor Red
     Write-Host "   Verificar conexión a internet o configuración de proxy" -ForegroundColor Yellow
 }
@@ -53,7 +57,8 @@ Write-Host "⚙️ Activando configuración de oficina..." -ForegroundColor Yell
 if (Test-Path "config\office.json") {
     Copy-Item -Path "config\office.json" -Destination "config\active.json" -Force
     Write-Host "✅ Configuración de oficina activada" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "⚠️ Archivo config\office.json no encontrado" -ForegroundColor Yellow
 }
 
@@ -103,10 +108,12 @@ if (Test-Path ".git") {
     if (![string]::IsNullOrEmpty($hasRemote)) {
         Write-Host "   ✅ GitHub ya configurado" -ForegroundColor Green
         git remote -v | Select-Object -First 1
-    } else {
+    }
+    else {
         Write-Host "   ⚠️ Configurar GitHub: Opción 8 en script maestro" -ForegroundColor Yellow
     }
-} else {
+}
+else {
     Write-Host "   ⚠️ Inicializar Git: Opción 8 en script maestro" -ForegroundColor Yellow
 }
 Write-Host ""

@@ -32,7 +32,8 @@ if ([string]::IsNullOrEmpty($hasChanges)) {
     if ([string]::IsNullOrEmpty($unpushedCommits)) {
         Write-Host "ℹ️ Todo está sincronizado con GitHub" -ForegroundColor Gray
         exit 0
-    } else {
+    }
+    else {
         Write-Host "📤 Hay commits locales para subir:" -ForegroundColor Yellow
         git log origin/main..HEAD --oneline
         Write-Host ""
@@ -89,13 +90,15 @@ if ([string]::IsNullOrWhiteSpace($mensajeCustom)) {
             "office" { "🏢 oficina" }
             default { "💻 local" }
         }
-    } else { "💻 local" }
+    }
+    else { "💻 local" }
     
     $commitMessage = "update: cambios desde $location - $timestamp"
     if ($newFiles -gt 0) { $commitMessage += " (+$newFiles)" }
     if ($modifiedFiles -gt 0) { $commitMessage += " (~$modifiedFiles)" }
     if ($deletedFiles -gt 0) { $commitMessage += " (-$deletedFiles)" }
-} else {
+}
+else {
     $commitMessage = $mensajeCustom
 }
 
@@ -104,7 +107,8 @@ Write-Host "💾 Creando commit..." -ForegroundColor Yellow
 try {
     git commit -m $commitMessage
     Write-Host "✅ Commit creado: $commitMessage" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Error creando commit" -ForegroundColor Red
     exit 1
 }
@@ -115,7 +119,8 @@ Write-Host "📤 Subiendo a GitHub..." -ForegroundColor Yellow
 try {
     git push origin main
     Write-Host "✅ ¡Cambios subidos exitosamente a GitHub!" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Error subiendo a GitHub" -ForegroundColor Red
     Write-Host "💡 Posibles soluciones:" -ForegroundColor Yellow
     Write-Host "   • Verificar conexión a internet" -ForegroundColor Gray

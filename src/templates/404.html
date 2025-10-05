@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página no encontrada - InfoMilo</title>
+    <title>Página no encontrada - MiloApps</title>
     <style>
         * {
             margin: 0;
@@ -84,12 +85,19 @@
         }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
                 transform: translateY(0);
             }
+
             40% {
                 transform: translateY(-10px);
             }
+
             60% {
                 transform: translateY(-5px);
             }
@@ -105,35 +113,36 @@
             .error-code {
                 font-size: 5rem;
             }
-            
+
             .error-title {
                 font-size: 2rem;
             }
-            
+
             .error-message {
                 font-size: 1rem;
             }
-            
+
             .error-container {
                 padding: 30px 20px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="error-container">
         <div class="emoji">🔍</div>
         <div class="error-code">404</div>
         <h1 class="error-title">Oops! Página no encontrada</h1>
         <p class="error-message">
-            La página que buscas no existe o ha sido movida. 
-            <br>No te preocupes, puedes volver al inicio de InfoMilo.
+            La página que buscas no existe o ha sido movida.
+            <br>No te preocupes, puedes volver al inicio de MiloApps.
         </p>
-        
+
         <a href="/" class="home-button">
             🏠 Volver al inicio
         </a>
-        
+
         <div class="info-text">
             <p>📍 Proyecto InfoMilo - Trabajo Remoto Flexible</p>
             <p>Si el problema persiste, revisa la configuración del servidor</p>
@@ -142,20 +151,21 @@
 
     <script>
         // Agregar un poco de interactividad
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Efecto de parallax suave en el mouse
-            document.addEventListener('mousemove', function(e) {
+            document.addEventListener('mousemove', function (e) {
                 const container = document.querySelector('.error-container');
                 const x = e.clientX / window.innerWidth;
                 const y = e.clientY / window.innerHeight;
-                
+
                 container.style.transform = `translate(${x * 10}px, ${y * 10}px)`;
             });
-            
+
             // Log para debugging (opcional)
             console.log('🔍 InfoMilo - Página 404 cargada');
             console.log('💡 URL solicitada:', window.location.pathname);
         });
     </script>
 </body>
+
 </html>

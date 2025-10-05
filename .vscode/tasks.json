@@ -5,7 +5,12 @@
             "label": "Setup Development Environment",
             "type": "shell",
             "command": "powershell",
-            "args": ["-ExecutionPolicy", "Bypass", "-File", "./scripts/setup.ps1"],
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "./scripts/setup.ps1"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -19,7 +24,9 @@
             "label": "Start Development Server",
             "type": "shell",
             "command": ".venv/Scripts/python.exe",
-            "args": ["src/app.py"],
+            "args": [
+                "src/app.py"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -37,7 +44,10 @@
             "label": "Build Project",
             "type": "shell",
             "command": "npm",
-            "args": ["run", "build"],
+            "args": [
+                "run",
+                "build"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -51,7 +61,9 @@
             "label": "Run Tests",
             "type": "shell",
             "command": "npm",
-            "args": ["test"],
+            "args": [
+                "test"
+            ],
             "group": "test",
             "presentation": {
                 "echo": true,
@@ -65,7 +77,10 @@
             "label": "Switch to Home Config",
             "type": "shell",
             "command": "powershell",
-            "args": ["-Command", "Copy-Item -Path './config/home.json' -Destination './config/active.json' -Force; Write-Host 'Switched to HOME configuration'"],
+            "args": [
+                "-Command",
+                "Copy-Item -Path './config/home.json' -Destination './config/active.json' -Force; Write-Host 'Switched to HOME configuration'"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -78,7 +93,10 @@
             "label": "Switch to Office Config",
             "type": "shell",
             "command": "powershell",
-            "args": ["-Command", "Copy-Item -Path './config/office.json' -Destination './config/active.json' -Force; Write-Host 'Switched to OFFICE configuration'"],
+            "args": [
+                "-Command",
+                "Copy-Item -Path './config/office.json' -Destination './config/active.json' -Force; Write-Host 'Switched to OFFICE configuration'"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,

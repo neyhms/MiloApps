@@ -12,7 +12,8 @@ Write-Host ""
 try {
     $nodeVersion = node --version 2>$null
     Write-Host "✅ Node.js encontrado: $nodeVersion" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Node.js no encontrado. Por favor instalalo desde https://nodejs.org/" -ForegroundColor Red
     exit 1
 }
@@ -21,7 +22,8 @@ try {
 try {
     $gitVersion = git --version 2>$null
     Write-Host "✅ Git encontrado: $gitVersion" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Git no encontrado. Por favor instalalo desde https://git-scm.com/" -ForegroundColor Red
     exit 1
 }
@@ -40,7 +42,8 @@ $configFile = "config/$Environment.json"
 if (Test-Path $configFile) {
     Copy-Item -Path $configFile -Destination "config/active.json" -Force
     Write-Host "⚙️  Configuración '$Environment' activada" -ForegroundColor Cyan
-} else {
+}
+else {
     Copy-Item -Path "config/default.json" -Destination "config/active.json" -Force
     Write-Host "⚙️  Usando configuración por defecto" -ForegroundColor Cyan
 }
@@ -59,7 +62,8 @@ if (Test-Path "package.json") {
     npm install
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ Dependencias instaladas correctamente" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ Error al instalar dependencias" -ForegroundColor Red
     }
 }

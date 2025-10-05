@@ -1,10 +1,10 @@
-# InfoMilo - Proyecto Flexible para Trabajo Remoto
+# MiloApps - Proyecto Flexible para Trabajo Remoto
 
 Un proyecto diseñado para facilitar el desarrollo tanto desde casa como desde la oficina, con configuraciones flexibles y herramientas de colaboración.
 
 ## 🏠🏢 **Trabajo Multi-Ubicación**
 
-InfoMilo está específicamente diseñado para trabajar seamlessly desde diferentes ubicaciones:
+MiloApps está específicamente diseñado para trabajar seamlessly desde diferentes ubicaciones:
 
 ### **🏠 Desde Casa:**
 - Puerto: 3000

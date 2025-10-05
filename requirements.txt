@@ -7,3 +7,27 @@ Jinja2==3.1.2
 click==8.1.7
 itsdangerous==2.1.2
 MarkupSafe==2.1.3
+
+# Autenticación y Seguridad
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+WTForms==3.1.0
+email_validator==2.3.0
+bcrypt==4.0.1
+cryptography==41.0.7
+
+# Base de datos
+SQLAlchemy==2.0.23
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+
+# Email y 2FA
+Flask-Mail==0.9.1
+pyotp==2.9.0
+qrcode==7.4.2
+Pillow==10.1.0
+
+# Validación y utilidades
+phonenumbers==8.13.27
+user-agents==2.2.0
+geoip2==4.7.0

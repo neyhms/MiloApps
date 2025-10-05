@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Detalles de Usuario - InfoMilo{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6>Detalles del Usuario</h6>
+                        <a href="{{ url_for('auth.admin_users') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Volver
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- User Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Información Personal</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-borderless mb-0">
+                                        <tr>
+                                            <td><strong>Nombre:</strong></td>
+                                            <td>{{ user.first_name }} {{ user.last_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Email:</strong></td>
+                                            <td>{{ user.email }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Username:</strong></td>
+                                            <td>{{ user.username or 'No definido' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Rol:</strong></td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if user.role.name == 'admin' else 'primary' }}">
+                                                    {{ user.role.name.title() }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Estado:</strong></td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                                                    {{ 'Activo' if user.is_active else 'Inactivo' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Seguridad</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-borderless mb-0">
+                                        <tr>
+                                            <td><strong>Email Verificado:</strong></td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if user.email_verified else 'warning' }}">
+                                                    {{ 'Sí' if user.email_verified else 'No' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>2FA Activado:</strong></td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if user.two_factor_enabled else 'secondary' }}">
+                                                    {{ 'Sí' if user.two_factor_enabled else 'No' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Cuenta Bloqueada:</strong></td>
+                                            <td>
+                                                <span class="badge bg-{{ 'danger' if user.is_locked() else 'success' }}">
+                                                    {{ 'Sí' if user.is_locked() else 'No' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Intentos Fallidos:</strong></td>
+                                            <td>{{ user.failed_login_attempts }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Creado:</strong></td>
+                                            <td>{{ user.created_at | datetime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Último Login:</strong></td>
+                                            <td>{{ user.last_login | datetime if user.last_login else 'Nunca' }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Management Form -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Gestión de Usuario</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form method="POST">
+                                        {{ form.hidden_tag() }}
+                                        
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                {{ form.role.label(class="form-label") }}
+                                                {{ form.role(class="form-select") }}
+                                                {% if form.role.errors %}
+                                                    <div class="text-danger small">
+                                                        {% for error in form.role.errors %}
+                                                            <div>{{ error }}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="form-check form-switch mt-4">
+                                                    {{ form.is_active(class="form-check-input") }}
+                                                    {{ form.is_active.label(class="form-check-label") }}
+                                                </div>
+                                                {% if form.is_active.errors %}
+                                                    <div class="text-danger small">
+                                                        {% for error in form.is_active.errors %}
+                                                            <div>{{ error }}</div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-3">
+                                            <div class="col-12">
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit" name="action" value="update" class="btn btn-primary">
+                                                        <i class="fas fa-save me-1"></i>Guardar Cambios
+                                                    </button>
+                                                    
+                                                    {% if user.is_locked() %}
+                                                        <button type="submit" name="action" value="unlock" class="btn btn-success">
+                                                            <i class="fas fa-unlock me-1"></i>Desbloquear Cuenta
+                                                        </button>
+                                                    {% endif %}
+                                                    
+                                                    {% if user.two_factor_enabled %}
+                                                        <button type="submit" name="action" value="disable_2fa" class="btn btn-warning">
+                                                            <i class="fas fa-shield-alt me-1"></i>Deshabilitar 2FA
+                                                        </button>
+                                                    {% endif %}
+                                                    
+                                                    <button type="submit" name="action" value="reset_password" class="btn btn-info">
+                                                        <i class="fas fa-key me-1"></i>Resetear Contraseña
+                                                    </button>
+                                                    
+                                                    {% if user.id != current_user.id %}
+                                                        <button type="submit" name="action" value="delete" class="btn btn-danger" 
+                                                                onclick="return confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')">
+                                                            <i class="fas fa-trash me-1"></i>Eliminar Usuario
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    {% if user.audit_logs %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Actividad Reciente</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Evento</th>
+                                                    <th>Descripción</th>
+                                                    <th>IP</th>
+                                                    <th>Navegador</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for log in user.audit_logs[:10] %}
+                                                <tr>
+                                                    <td>{{ log.timestamp | datetime }}</td>
+                                                    <td>
+                                                        <span class="badge bg-{{ 'success' if 'SUCCESS' in log.event_type else ('danger' if 'FAILED' in log.event_type else 'info') }}">
+                                                            {{ log.event_type.replace('_', ' ').title() }}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ log.description }}</td>
+                                                    <td>{{ log.ip_address or 'N/A' }}</td>
+                                                    <td>{{ log.user_agent[:50] + '...' if log.user_agent and log.user_agent|length > 50 else (log.user_agent or 'N/A') }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.table-borderless td {
+    border: none;
+    padding: 0.5rem 0;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.btn {
+    border-radius: 0.375rem;
+}
+
+.form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.025);
+}
+</style>
+{% endblock %}
