@@ -21,8 +21,8 @@ MiloApps está específicamente diseñado para trabajar seamlessly desde diferen
 ### **🚀 Setup Rápido en Nuevo Ordenador:**
 ```bash
 # 1. Clonar proyecto
-git clone https://github.com/tu-usuario/InfoMilo.git
-cd InfoMilo
+git clone https://github.com/neyhms/MiloApps.git
+cd MiloApps
 
 # 2. Setup automático para oficina
 .\scripts\setup-office.ps1

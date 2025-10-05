@@ -1,5 +1,12 @@
 ﻿{
-    "username":  null,
-    "configured_date":  "2025-10-04 22:25:08",
-    "repository_url":  null
+  "repository_url": "https://github.com/neyhms/MiloApps.git",
+  "username": "neyhms",
+  "repository_name": "MiloApps",
+  "configured_date": "2025-10-04 22:25:08",
+  "description": "🐱 MiloApps - Sistema de autenticación avanzado con Flask para Milo el gato",
+  "private": true,
+  "default_branch": "main",
+  "casa_configurado": true,
+  "oficina_configurado": false,
+  "sync_enabled": true
 }
