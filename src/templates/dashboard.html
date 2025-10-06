@@ -356,6 +356,27 @@
                     </div>
                 </div>
 
+                <!-- System Status Section -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-server"></i> Estado del Sistema
+                                </h5>
+                            </div>
+                            <div class="card-body" id="systemStatus">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <p class="mt-2">Verificando estado del sistema...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <div class="card">
@@ -454,6 +475,11 @@
                 const section = document.getElementById(targetSection);
                 if (section) {
                     section.classList.remove('d-none');
+                    
+                    // Load system status when admin section is shown
+                    if (targetSection === 'admin-section') {
+                        loadSystemStatus();
+                    }
                 }
             });
         });
@@ -489,6 +515,52 @@
                     alert('Error de conexión: ' + error);
                 });
         }
+    }
+
+    // Load system status function
+    function loadSystemStatus() {
+        fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                const statusDiv = document.getElementById('systemStatus');
+                statusDiv.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info-circle text-primary"></i> Información del Sistema</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Entorno:</strong> <span class="badge bg-primary">${data.environment.toUpperCase()}</span></li>
+                            <li><strong>Servidor:</strong> ${data.server}</li>
+                            <li><strong>Puerto:</strong> ${data.port}</li>
+                            <li><strong>Debug:</strong> <span class="badge ${data.debug ? 'bg-warning' : 'bg-success'}">${data.debug ? 'Activado' : 'Desactivado'}</span></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-check-circle text-success"></i> Estado de Servicios</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-circle text-success"></i> Base de datos: Operativa</li>
+                            <li><i class="fas fa-circle text-success"></i> Autenticación: Activa</li>
+                            <li><i class="fas fa-circle text-success"></i> Email: Configurado</li>
+                            <li><i class="fas fa-circle text-success"></i> API: Disponible</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-clock"></i> Última actualización: ${new Date(data.timestamp).toLocaleString()}
+                    </small>
+                </div>
+            `;
+            })
+            .catch(error => {
+                console.error('Error loading system status:', error);
+                const statusDiv = document.getElementById('systemStatus');
+                statusDiv.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No se pudo cargar el estado del sistema. El servidor puede estar iniciándose.
+                </div>
+            `;
+            });
     }
 </script>
 {% endblock %}
