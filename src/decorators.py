@@ -32,15 +32,27 @@ def permission_required(permission):
             if not current_user.is_authenticated:
                 return redirect(url_for('auth.login', next=request.url))
             
-            if not current_user.role or not current_user.role.has_permission(permission):
-                flash('No tienes permisos suficientes para esta acción.', 'danger')
-                log_audit_event(current_user.id, AuditEvents.PERMISSION_DENIED, 
-                              f'Permiso requerido: {permission}', request=request)
+            # Permisos legacy por rol simple (compatibilidad)
+            if (
+                not current_user.role
+                or not current_user.role.has_permission(permission)
+            ):
+                flash(
+                    'No tienes permisos suficientes para esta acción.',
+                    'danger',
+                )
+                log_audit_event(
+                    current_user.id,
+                    AuditEvents.PERMISSION_DENIED,
+                    f'Permiso requerido: {permission}',
+                    request=request,
+                )
                 abort(403)
             
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
 
 def role_required(role_name):
     """Decorador que requiere un rol específico"""
@@ -49,16 +61,80 @@ def role_required(role_name):
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
                 return redirect(url_for('auth.login', next=request.url))
-            
-            if not current_user.role or current_user.role.name != role_name:
-                flash(f'Se requiere rol de {role_name} para acceder.', 'danger')
-                log_audit_event(current_user.id, AuditEvents.PERMISSION_DENIED, 
-                              f'Rol requerido: {role_name}', request=request)
+
+            # Verificar rol primario o roles múltiples (nuevo modelo)
+            has_role_method = getattr(
+                current_user, 'has_role', lambda *_: False
+            )
+            base_check = (
+                not current_user.role or current_user.role.name != role_name
+            )
+            if base_check and not has_role_method(role_name):
+                flash(
+                    f'Se requiere rol de {role_name} para acceder.',
+                    'danger',
+                )
+                log_audit_event(
+                    current_user.id,
+                    AuditEvents.PERMISSION_DENIED,
+                    f'Rol requerido: {role_name}',
+                    request=request,
+                )
                 abort(403)
             
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+
+def app_access_required(app_key):
+    """Requiere acceso a una aplicación (considera ALLMILO y full_access)."""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('auth.login', next=request.url))
+
+            checker = getattr(current_user, 'has_app_access', None)
+            if not checker or not checker(app_key):
+                flash('No tienes acceso a esta aplicación.', 'danger')
+                log_audit_event(
+                    current_user.id,
+                    AuditEvents.PERMISSION_DENIED,
+                    f'Acceso a app denegado: {app_key}',
+                    request=request,
+                )
+                abort(403)
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
+def functionality_required(app_key, functionality_key):
+    """Requiere permiso granular a una funcionalidad de una app."""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('auth.login', next=request.url))
+
+            checker = getattr(current_user, 'has_functionality', None)
+            if not checker or not checker(app_key, functionality_key):
+                flash(
+                    'No tienes permisos para esta acción en la aplicación.',
+                    'danger',
+                )
+                log_audit_event(
+                    current_user.id,
+                    AuditEvents.PERMISSION_DENIED,
+                    f'Funcionalidad denegada: {app_key}.{functionality_key}',
+                    request=request,
+                )
+                abort(403)
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
 
 def verified_required(f):
     """Decorador que requiere cuenta verificada"""
@@ -68,11 +144,15 @@ def verified_required(f):
             return redirect(url_for('auth.login', next=request.url))
         
         if not current_user.is_verified:
-            flash('Debes verificar tu cuenta para acceder a esta sección.', 'warning')
+            flash(
+                'Debes verificar tu cuenta para acceder a esta sección.',
+                'warning',
+            )
             return redirect(url_for('auth.profile'))
         
         return f(*args, **kwargs)
     return decorated_function
+
 
 def active_required(f):
     """Decorador que requiere cuenta activa"""
@@ -82,11 +162,15 @@ def active_required(f):
             return redirect(url_for('auth.login', next=request.url))
         
         if not current_user.is_active:
-            flash('Tu cuenta está desactivada. Contacta al administrador.', 'danger')
+            flash(
+                'Tu cuenta está desactivada. Contacta al administrador.',
+                'danger',
+            )
             return redirect(url_for('auth.logout'))
         
         return f(*args, **kwargs)
     return decorated_function
+
 
 def ajax_required(f):
     """Decorador para rutas que solo aceptan peticiones AJAX"""

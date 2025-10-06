@@ -112,7 +112,7 @@
 
                     <!-- Management Form -->
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-lg-7">
                             <div class="card">
                                 <div class="card-header">
                                     <h6 class="mb-0">Gestión de Usuario</h6>
@@ -120,6 +120,7 @@
                                 <div class="card-body">
                                     <form method="POST">
                                         {{ form.hidden_tag() }}
+                                        <input type="hidden" name="form_name" value="user_management" />
 
                                         <div class="row">
                                             <div class="col-md-4">
@@ -184,6 +185,41 @@
                                                     {% endif %}
                                                 </div>
                                             </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="card h-100">
+                                <div class="card-header d-flex align-items-center justify-content-between">
+                                    <h6 class="mb-0">Roles adicionales</h6>
+                                    <a href="{{ url_for('auth.admin_roles') }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-cog me-1"></i>Gestionar roles
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="small text-muted mb-2">Roles actuales (además del rol principal):</div>
+                                        {% set extra_roles = user.roles %}
+                                        {% if extra_roles %}
+                                            {% for r in extra_roles %}
+                                                <span class="badge bg-secondary me-1 mb-1">{{ r.display_name }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="text-muted">Sin roles adicionales asignados</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <form method="POST" action="{{ url_for('auth.admin_assign_user_roles', user_id=user.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                                        {{ assign_roles_form.hidden_tag() }}
+                                        <div class="mb-3">
+                                            {{ assign_roles_form.roles.label(class="form-label") }}
+                                            {{ assign_roles_form.roles(class="form-select", size=8) }}
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            {{ assign_roles_form.submit(class="btn btn-secondary") }}
                                         </div>
                                     </form>
                                 </div>

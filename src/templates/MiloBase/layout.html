@@ -137,6 +137,19 @@
                 
                 <!-- Usuario -->
                 <ul class="navbar-nav">
+                    {% if current_user.is_admin() %}
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle text-white" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-tools"></i> Admin
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.admin_users') }}"><i class="fas fa-users"></i> Usuarios</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.admin_roles') }}"><i class="fas fa-user-shield"></i> Roles</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.admin_apps') }}"><i class="fas fa-th-large"></i> Aplicaciones</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.admin_functionalities') }}"><i class="fas fa-list-check"></i> Funcionalidades</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                             <div class="user-avatar me-2">

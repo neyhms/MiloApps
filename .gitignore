@@ -29,7 +29,7 @@ venv.bak/
 instance/
 .webassets-cache
 
-# Database files (opcional - comentar si quieres incluir la DB)
+# Database files (ignorar por defecto en desarrollo)
 data/*.db
 data/*.sqlite
 

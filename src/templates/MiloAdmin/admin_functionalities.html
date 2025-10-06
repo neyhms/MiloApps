@@ -1,0 +1,47 @@
+{% extends "MiloBase/base.html" %}
+{% block title %}Funcionalidades - Administración{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-header"><h6 class="mb-0">Nueva funcionalidad</h6></div>
+        <div class="card-body">
+          <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            {{ form.hidden_tag() }}
+            <div class="mb-3">{{ form.app_id.label(class='form-label') }}{{ form.app_id(class='form-select') }}</div>
+            <div class="mb-3">{{ form.key.label(class='form-label') }}{{ form.key(class='form-control') }}</div>
+            <div class="mb-3">{{ form.name.label(class='form-label') }}{{ form.name(class='form-control') }}</div>
+            <div class="mb-3">{{ form.description.label(class='form-label') }}{{ form.description(class='form-control') }}</div>
+            <div class="form-check form-switch mb-3">{{ form.is_active(class='form-check-input') }}{{ form.is_active.label(class='form-check-label') }}</div>
+            {{ form.submit(class='btn btn-primary') }}
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header"><h6 class="mb-0">Funcionalidades por aplicación</h6></div>
+        <div class="card-body">
+          {% for app in apps %}
+            <div class="mb-3">
+              <h6 class="mb-1">{{ app.name }} <span class="text-muted small">({{ app.key }})</span></h6>
+              {% if app.functionalities %}
+                <div class="d-flex flex-wrap gap-2">
+                  {% for f in app.functionalities %}
+                    <span class="badge bg-secondary">{{ f.name }} <span class="text-muted">{{ f.key }}</span></span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="text-muted">Sin funcionalidades registradas.</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

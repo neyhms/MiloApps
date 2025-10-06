@@ -8,6 +8,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_cors import CORS
 from flask_login import LoginManager, login_required, current_user
 from flask_moment import Moment
+from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 import secrets
 
@@ -25,6 +26,7 @@ class MiloAppsApp:
     def __init__(self):
         self.app = Flask(__name__)
         self.setup_config()
+        self.setup_csrf()
         self.setup_database()
         self.setup_auth()
         self.setup_email()
@@ -68,6 +70,17 @@ class MiloAppsApp:
         self.app.config["REGISTRATION_ENABLED"] = True
 
         print("✅ Configuración Flask establecida")
+
+    def setup_csrf(self):
+        """Habilitar CSRF global para formularios y endpoints POST."""
+        CSRFProtect(self.app)
+        # Excepciones específicas (si en el futuro hay endpoints API JSON)
+        # from flask_wtf.csrf import CSRFError
+        # @self.app.errorhandler(CSRFError)
+        # def handle_csrf_error(e):
+        #     return render_template('error.html', message=e.description), 400
+        
+        print("✅ CSRF Protection habilitado")
 
     def setup_database(self):
         """Configurar base de datos"""
