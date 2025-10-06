@@ -292,8 +292,17 @@ class AuditLog(db.Model):
         return f"<AuditLog {self.event_type} by User {self.user_id}>"
 
     def set_additional_data(self, data_dict):
-        """Establece datos adicionales como JSON"""
-        self.additional_data = json.dumps(data_dict)
+        """Establece datos adicionales como JSON, serializando datetimes"""
+        def _default(o):
+            try:
+                # datetime y otros tipos comunes
+                if hasattr(o, "isoformat"):
+                    return o.isoformat()
+            except Exception:
+                pass
+            return str(o)
+
+        self.additional_data = json.dumps(data_dict, default=_default)
 
     def get_additional_data(self):
         """Obtiene datos adicionales como diccionario"""

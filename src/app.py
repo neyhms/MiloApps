@@ -88,7 +88,10 @@ class MiloAppsApp:
 
         @login_manager.user_loader
         def load_user(user_id):
-            return User.query.get(int(user_id))
+            try:
+                return db.session.get(User, int(user_id))
+            except Exception:
+                return None
 
         # Registrar blueprint de autenticación
         self.app.register_blueprint(auth)

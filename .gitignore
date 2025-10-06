@@ -30,7 +30,8 @@ instance/
 .webassets-cache
 
 # Database files (opcional - comentar si quieres incluir la DB)
-# data/*.db
+data/*.db
+data/*.sqlite
 
 # Config files with sensitive data
 config/active.json
