@@ -212,9 +212,20 @@
                     <h5 class="mb-0"><i class="fas fa-history"></i> Actividad Reciente</h5>
                 </div>
                 <div class="card-body">
-                    <div id="profile-activity-content" style="border:2px dashed #007bff; background:#e9f7fe; padding:12px;">
-                        <div style="color:#007bff; font-weight:bold;">[DEBUG] Bloque de actividad SI está visible (profile)</div>
-                        <pre id="profile-activity-pre" style="background:#f8f9fa;border:1px solid #ccc;padding:8px;">Esperando datos...</pre>
+                    <div id="profile-activity-content">
+                        <div id="activity-loading" class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-2">Cargando actividad reciente...</p>
+                        </div>
+                        <div id="activity-list" class="d-none">
+                            <!-- Las actividades se cargarán aquí -->
+                        </div>
+                        <div id="activity-empty" class="d-none text-center text-muted">
+                            <i class="fas fa-history fa-2x mb-2"></i>
+                            <p>No hay actividad reciente</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -300,6 +311,9 @@
         // Profile picture upload functionality
         setupProfilePictureUpload();
         
+        // Load user activity
+        loadProfileActivity();
+        
         // Update relative times
         updateRelativeTimes();
         // Update every minute
@@ -326,105 +340,167 @@
                 return;
             }
 
-            {% block extra_js %}
-            <script>
-            function loadProfileActivity() {
-                alert('DEBUG: loadProfileActivity() ejecutada al cargar la página');
-                // Datos de prueba
-                const activities = [
-                    {
-                        "id": 1,
-                        "event_type": "login",
-                        "event_description": "Inicio de sesión exitoso",
-                        "success": true,
-                        "ip_address": "192.168.1.10",
-                        "browser": "Chrome",
-                        "created_at": "2025-10-05T10:00:00"
-                    },
-                    {
-                        "id": 2,
-                        "event_type": "profile_update",
-                        "event_description": "Actualización de perfil",
-                        "success": true,
-                        "ip_address": "192.168.1.10",
-                        "browser": "Firefox",
-                        "created_at": "2025-10-04T18:30:00"
-                    }
-                ];
-                document.getElementById('profile-activity-pre').textContent = JSON.stringify(activities, null, 2);
+            // Validar tamaño (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Archivo muy grande. Máximo 5MB.');
+                return;
             }
-            document.addEventListener('DOMContentLoaded', function () {
-                // Form validation
-                const form = document.querySelector('form');
-                const emailField = document.querySelector('input[name="email"]');
 
-                if (emailField) {
-                    emailField.addEventListener('input', function () {
-                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (this.value && !emailPattern.test(this.value)) {
-                            this.classList.add('is-invalid');
-                        } else {
-                            this.classList.remove('is-invalid');
-                        }
-                    });
+            // Mostrar progreso
+            progress.classList.remove('d-none');
+            progressBar.style.width = '0%';
+
+            // Crear FormData
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+
+            // Obtener CSRF Token del formulario
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+            formData.append('csrf_token', csrfToken);
+
+            // Subir archivo
+            fetch('/auth/upload-profile-picture', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar imagen de perfil
+                    const profileContainer = document.querySelector('.profile-picture-container');
+                    if (profileContainer) {
+                        profileContainer.innerHTML = `
+                            <img src="${data.profile_picture_url}?t=${new Date().getTime()}" 
+                                 alt="Foto de perfil" 
+                                 class="rounded-circle" 
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                        `;
+                    }
+                    
+                    // Mostrar mensaje de éxito
+                    showAlert('Foto de perfil actualizada exitosamente', 'success');
+                } else {
+                    showAlert(data.message || 'Error al subir la foto', 'danger');
                 }
-
-                // Phone number formatting
-                const phoneField = document.querySelector('input[name="phone"]');
-                if (phoneField) {
-                    phoneField.addEventListener('input', function () {
-                        // Simple phone number validation
-                        const phonePattern = /^[\+]?[	\s\-\(\)]+$/;
-                        if (this.value && !phonePattern.test(this.value)) {
-                            this.classList.add('is-invalid');
-                        } else {
-                            this.classList.remove('is-invalid');
-                        }
-                    });
-                }
-
-                // Character count for bio
-                const bioField = document.querySelector('textarea[name="bio"]');
-                if (bioField) {
-                    const maxLength = 500;
-
-                    // Create character counter
-                    const counter = document.createElement('small');
-                    counter.className = 'form-text text-muted';
-                    counter.textContent = `0/${maxLength} caracteres`;
-                    bioField.parentNode.appendChild(counter);
-
-                    bioField.addEventListener('input', function () {
-                        const length = this.value.length;
-                        counter.textContent = `${length}/${maxLength} caracteres`;
-
-                        if (length > maxLength) {
-                            this.classList.add('is-invalid');
-                            counter.className = 'form-text text-danger';
-                        } else {
-                            this.classList.remove('is-invalid');
-                            counter.className = 'form-text text-muted';
-                        }
-                    });
-
-                    // Initial count
-                    bioField.dispatchEvent(new Event('input'));
-                }
-    
-                // Profile picture upload functionality
-                setupProfilePictureUpload();
-    
-                // Update relative times
-                updateRelativeTimes();
-                // Update every minute
-                setInterval(updateRelativeTimes, 60000);
-
-                // Ejecutar actividad mock
-                loadProfileActivity();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error al subir la foto', 'danger');
+            })
+            .finally(() => {
+                // Ocultar progreso
+                progress.classList.add('d-none');
+                progressBar.style.width = '0%';
             });
-            </script>
-            {% endblock %}
-            alertDiv.remove();
+        });
+    }
+
+    function loadProfileActivity() {
+        const loadingDiv = document.getElementById('activity-loading');
+        const listDiv = document.getElementById('activity-list');
+        const emptyDiv = document.getElementById('activity-empty');
+
+        // Mostrar loading
+        loadingDiv.classList.remove('d-none');
+        listDiv.classList.add('d-none');
+        emptyDiv.classList.add('d-none');
+
+        // Hacer petición al API
+        fetch('/api/activity')
+            .then(response => response.json())
+            .then(data => {
+                // Ocultar loading
+                loadingDiv.classList.add('d-none');
+
+                if (data.activities && data.activities.length > 0) {
+                    // Mostrar actividades
+                    listDiv.innerHTML = generateActivityHTML(data.activities);
+                    listDiv.classList.remove('d-none');
+                } else {
+                    // Mostrar mensaje vacío
+                    emptyDiv.classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading activities:', error);
+                loadingDiv.classList.add('d-none');
+                
+                // Mostrar mensaje de error
+                listDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error al cargar las actividades recientes
+                    </div>
+                `;
+                listDiv.classList.remove('d-none');
+            });
+    }
+
+    function generateActivityHTML(activities) {
+        return activities.map(activity => {
+            const eventIcon = getEventIcon(activity.event_type);
+            const statusBadge = activity.success ? 
+                '<span class="badge bg-success">Exitoso</span>' : 
+                '<span class="badge bg-danger">Fallido</span>';
+            
+            const date = new Date(activity.created_at);
+            const relativeTime = formatRelativeTime(date);
+
+            return `
+                <div class="d-flex align-items-start mb-3 p-3 border rounded">
+                    <div class="me-3">
+                        <i class="${eventIcon} fa-lg text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">${activity.event_description}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-globe-americas"></i> ${activity.ip_address || 'N/A'}
+                                    <i class="fas fa-browser ms-2"></i> ${activity.browser || 'N/A'}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                ${statusBadge}
+                                <br>
+                                <small class="text-muted">${relativeTime}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function getEventIcon(eventType) {
+        const icons = {
+            'login': 'fas fa-sign-in-alt',
+            'logout': 'fas fa-sign-out-alt',
+            'profile_update': 'fas fa-user-edit',
+            'password_change': 'fas fa-key',
+            'two_factor_enabled': 'fas fa-shield-alt',
+            'two_factor_disabled': 'fas fa-shield-alt',
+            'login_failed': 'fas fa-exclamation-triangle'
+        };
+        return icons[eventType] || 'fas fa-info-circle';
+    }
+
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
         }, 5000);
     }
 

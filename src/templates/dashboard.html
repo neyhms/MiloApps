@@ -378,8 +378,7 @@
                         </div>
                         
                         <!-- Activity content -->
-                        <div id="activity-content" style="border:2px dashed #007bff; background:#e9f7fe; padding:12px;">
-                            <div style="color:#007bff; font-weight:bold;">[DEBUG] Bloque de actividad SI está visible</div>
+                        <div id="activity-content" class="d-none">
                             <!-- Activities will be loaded here -->
                         </div>
                         
@@ -576,7 +575,6 @@
 
     // Load user activity function
     function loadUserActivity() {
-        alert('DEBUG: loadUserActivity() ejecutada al cargar la página');
         console.log('🔄 loadUserActivity() called');
         const loadingDiv = document.getElementById('activity-loading');
         const contentDiv = document.getElementById('activity-content');
@@ -601,45 +599,11 @@
             .then(data => {
                 console.log('Activity API data:', data);
                 loadingDiv.classList.add('d-none');
-                // Mensaje extra de depuración
-                if (!data.activities) {
-                    console.warn('⚠️ No se recibió el campo activities en la respuesta:', data);
-                } else {
-                    console.info('✅ activities:', data.activities);
-                }
-                // Forzar renderizado aunque el array esté vacío
-            // Forzar visibilidad del bloque de actividad
-            contentDiv.style.display = 'block';
-            contentDiv.classList.remove('d-none');
-                contentDiv.innerHTML = `<pre style='background:#f8f9fa;border:1px solid #ccc;padding:8px;'>${JSON.stringify(data.activities, null, 2)}</pre>`;
-                // Render normal si hay datos
+                
                 if (data.activities && data.activities.length > 0) {
-                    contentDiv.innerHTML += data.activities.map(activity => {
-                        const eventIcon = getEventIcon(activity.event_type);
-                        const statusBadge = activity.success ? 
-                            '<span class="badge bg-success ms-2">Exitoso</span>' : 
-                            '<span class="badge bg-danger ms-2">Fallido</span>';
-                        return `
-                        <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
-                            <div class="me-3">
-                                <i class="${eventIcon} ${activity.success ? 'text-success' : 'text-danger'}"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1">${activity.event_description || activity.event_type}</h6>
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock"></i> ${formatRelativeTime(activity.created_at)}
-                                            ${activity.browser ? `• <i class="fas fa-browser"></i> ${activity.browser}` : ''}
-                                            ${activity.ip_address ? `• <i class="fas fa-map-marker-alt"></i> ${activity.ip_address}` : ''}
-                                        </small>
-                                    </div>
-                                    ${statusBadge}
-                                </div>
-                            </div>
-                        </div>
-                        `;
-                    }).join('');
+                    // Show activities
+                    contentDiv.innerHTML = generateDashboardActivityHTML(data.activities);
+                    contentDiv.classList.remove('d-none');
                 } else {
                     // Show empty state
                     emptyDiv.classList.remove('d-none');
@@ -659,6 +623,41 @@
             });
     }
     
+    // Generate HTML for dashboard activities
+    function generateDashboardActivityHTML(activities) {
+        return activities.map(activity => {
+            const eventIcon = getEventIcon(activity.event_type);
+            const statusBadge = activity.success ? 
+                '<span class="badge bg-success ms-2">Exitoso</span>' : 
+                '<span class="badge bg-danger ms-2">Fallido</span>';
+            
+            const relativeTime = formatRelativeTime(activity.created_at);
+            
+            return `
+                <div class="d-flex align-items-start mb-3 p-3 border rounded">
+                    <div class="me-3">
+                        <i class="${eventIcon} fa-lg ${activity.success ? 'text-success' : 'text-danger'}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">${activity.event_description || activity.event_type}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock"></i> ${relativeTime}
+                                    ${activity.browser ? `<i class="fas fa-browser ms-2"></i> ${activity.browser}` : ''}
+                                    ${activity.ip_address ? `<i class="fas fa-globe-americas ms-2"></i> ${activity.ip_address}` : ''}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                ${statusBadge}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
     // Helper function to get icon for event types
     function getEventIcon(eventType) {
         const icons = {
