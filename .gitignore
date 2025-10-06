@@ -33,6 +33,9 @@ instance/
 data/*.db
 data/*.sqlite
 
+# User uploads (profile pictures, documents, etc.)
+src/static/uploads/
+
 # Config files with sensitive data
 config/active.json
 config/local.json
