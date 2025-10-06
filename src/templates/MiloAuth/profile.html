@@ -21,12 +21,26 @@
                                 <!-- Profile Picture -->
                                 <div class="mb-3">
                                     <div class="profile-picture-container">
-                                        <i class="fas fa-user-circle fa-5x text-muted"></i>
+                                        {% if current_user.has_profile_picture() %}
+                                            <img src="{{ current_user.get_profile_picture_url() }}" 
+                                                 alt="Foto de perfil" 
+                                                 class="rounded-circle" 
+                                                 style="width: 150px; height: 150px; object-fit: cover;">
+                                        {% else %}
+                                            <i class="fas fa-user-circle fa-5x text-muted"></i>
+                                        {% endif %}
                                     </div>
                                     <div class="mt-2">
-                                        <button type="button" class="btn btn-outline-primary btn-sm">
+                                        <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectProfilePicture()">
                                             <i class="fas fa-camera"></i> Cambiar Foto
                                         </button>
+                                        <div id="uploadProgress" class="mt-2 d-none">
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                            <small class="text-muted">Subiendo foto...</small>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -39,8 +53,10 @@
                                             <strong>{{ current_user.created_at|datetime('%d/%m/%Y') }}</strong>
                                         </div>
                                         <div class="mb-2">
-                                            <small class="text-muted">Último acceso:</small><br>
-                                            <strong>{{ current_user.last_login|timeago }}</strong>
+                                            <small class="text-muted">Última actividad:</small><br>
+                                            <strong id="profile-activity-time" data-time="{{ current_user.get_last_activity().isoformat() }}">
+                                                Cargando...
+                                            </strong>
                                         </div>
                                         <div class="mb-2">
                                             <small class="text-muted">Rol:</small><br>
@@ -196,10 +212,9 @@
                     <h5 class="mb-0"><i class="fas fa-history"></i> Actividad Reciente</h5>
                 </div>
                 <div class="card-body">
-                    <div class="text-center py-4">
-                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
-                        <h6>Sin actividad reciente</h6>
-                        <p class="text-muted">El historial de actividad se mostrará aquí cuando esté disponible.</p>
+                    <div id="profile-activity-content" style="border:2px dashed #007bff; background:#e9f7fe; padding:12px;">
+                        <div style="color:#007bff; font-weight:bold;">[DEBUG] Bloque de actividad SI está visible (profile)</div>
+                        <pre id="profile-activity-pre" style="background:#f8f9fa;border:1px solid #ccc;padding:8px;">Esperando datos...</pre>
                     </div>
                 </div>
             </div>
@@ -281,6 +296,169 @@
             // Initial count
             bioField.dispatchEvent(new Event('input'));
         }
+        
+        // Profile picture upload functionality
+        setupProfilePictureUpload();
+        
+        // Update relative times
+        updateRelativeTimes();
+        // Update every minute
+        setInterval(updateRelativeTimes, 60000);
     });
+
+    function selectProfilePicture() {
+        document.getElementById('profilePictureInput').click();
+    }
+
+    function setupProfilePictureUpload() {
+        const input = document.getElementById('profilePictureInput');
+        const progress = document.getElementById('uploadProgress');
+        const progressBar = progress.querySelector('.progress-bar');
+
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validar tipo de archivo
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Tipo de archivo no permitido. Use JPG, PNG o GIF.');
+                return;
+            }
+
+            {% block extra_js %}
+            <script>
+            function loadProfileActivity() {
+                alert('DEBUG: loadProfileActivity() ejecutada al cargar la página');
+                // Datos de prueba
+                const activities = [
+                    {
+                        "id": 1,
+                        "event_type": "login",
+                        "event_description": "Inicio de sesión exitoso",
+                        "success": true,
+                        "ip_address": "192.168.1.10",
+                        "browser": "Chrome",
+                        "created_at": "2025-10-05T10:00:00"
+                    },
+                    {
+                        "id": 2,
+                        "event_type": "profile_update",
+                        "event_description": "Actualización de perfil",
+                        "success": true,
+                        "ip_address": "192.168.1.10",
+                        "browser": "Firefox",
+                        "created_at": "2025-10-04T18:30:00"
+                    }
+                ];
+                document.getElementById('profile-activity-pre').textContent = JSON.stringify(activities, null, 2);
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+                // Form validation
+                const form = document.querySelector('form');
+                const emailField = document.querySelector('input[name="email"]');
+
+                if (emailField) {
+                    emailField.addEventListener('input', function () {
+                        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (this.value && !emailPattern.test(this.value)) {
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Phone number formatting
+                const phoneField = document.querySelector('input[name="phone"]');
+                if (phoneField) {
+                    phoneField.addEventListener('input', function () {
+                        // Simple phone number validation
+                        const phonePattern = /^[\+]?[	\s\-\(\)]+$/;
+                        if (this.value && !phonePattern.test(this.value)) {
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+
+                // Character count for bio
+                const bioField = document.querySelector('textarea[name="bio"]');
+                if (bioField) {
+                    const maxLength = 500;
+
+                    // Create character counter
+                    const counter = document.createElement('small');
+                    counter.className = 'form-text text-muted';
+                    counter.textContent = `0/${maxLength} caracteres`;
+                    bioField.parentNode.appendChild(counter);
+
+                    bioField.addEventListener('input', function () {
+                        const length = this.value.length;
+                        counter.textContent = `${length}/${maxLength} caracteres`;
+
+                        if (length > maxLength) {
+                            this.classList.add('is-invalid');
+                            counter.className = 'form-text text-danger';
+                        } else {
+                            this.classList.remove('is-invalid');
+                            counter.className = 'form-text text-muted';
+                        }
+                    });
+
+                    // Initial count
+                    bioField.dispatchEvent(new Event('input'));
+                }
+    
+                // Profile picture upload functionality
+                setupProfilePictureUpload();
+    
+                // Update relative times
+                updateRelativeTimes();
+                // Update every minute
+                setInterval(updateRelativeTimes, 60000);
+
+                // Ejecutar actividad mock
+                loadProfileActivity();
+            });
+            </script>
+            {% endblock %}
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Update relative times function
+    function updateRelativeTimes() {
+        const elements = document.querySelectorAll('[data-time]');
+        elements.forEach(element => {
+            const timeStr = element.getAttribute('data-time');
+            if (timeStr) {
+                const date = new Date(timeStr);
+                const relativeTime = formatRelativeTime(date);
+                
+                // Si es un input, usar value; si no, usar textContent
+                if (element.tagName.toLowerCase() === 'input') {
+                    element.value = relativeTime;
+                } else {
+                    element.textContent = relativeTime;
+                }
+            }
+        });
+    }
+    
+    // Helper function to format relative time
+    function formatRelativeTime(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        if (diffInSeconds < 60) return 'hace unos segundos';
+        if (diffInSeconds < 3600) return `hace ${Math.floor(diffInSeconds / 60)} minutos`;
+        if (diffInSeconds < 86400) return `hace ${Math.floor(diffInSeconds / 3600)} horas`;
+        if (diffInSeconds < 2592000) return `hace ${Math.floor(diffInSeconds / 86400)} días`;
+        
+        return date.toLocaleDateString();
+    }
 </script>
 {% endblock %}

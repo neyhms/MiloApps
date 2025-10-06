@@ -55,12 +55,16 @@
                 <div class="card border-0">
                     <div class="card-body text-center">
                         <div class="status-badge status-online mb-2">
-                            <i class="fas fa-circle"></i>
+                            <i class="fas fa-circle status-indicator-online"></i>
                             En línea
                         </div>
                         <small class="text-muted">
                             Última actividad:<br>
-                            {{ user.last_login|timeago }}
+                            <span id="last-activity-time" data-time="{{ user.get_last_activity().isoformat() }}">
+                                Cargando...
+                            </span>
+                            <!-- Debug RAW: {{ user.get_last_activity() }} -->
+                            <!-- Debug LOGIN: {{ user.last_login }} -->
                         </small>
                     </div>
                 </div>
@@ -170,7 +174,7 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span>Estado:</span>
                                     <div class="status-badge status-online">
-                                        <i class="fas fa-circle"></i> En línea
+                                        <i class="fas fa-circle status-indicator-online"></i> En línea
                                     </div>
                                 </div>
                             </div>
@@ -196,9 +200,11 @@
                                     <span class="text-muted">{{ user.created_at|datetime('%d/%m/%Y') }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span>Último acceso:</span>
+                                    <span>Última actividad:</span>
                                     <span class="text-muted">
-                                        {{ user.last_login|timeago }}
+                                        <span id="account-activity-time" data-time="{{ user.get_last_activity().isoformat() }}">
+                                            Cargando...
+                                        </span>
                                     </span>
                                 </div>
                             </div>
@@ -221,7 +227,14 @@
                         <div class="row">
                             <div class="col-md-4 text-center">
                                 <div class="mb-3">
-                                    <i class="fas fa-user-circle fa-5x text-muted"></i>
+                                    {% if user.has_profile_picture() %}
+                                        <img src="{{ user.get_profile_picture_url() }}" 
+                                             alt="Foto de perfil" 
+                                             class="rounded-circle" 
+                                             style="width: 120px; height: 120px; object-fit: cover;">
+                                    {% else %}
+                                        <i class="fas fa-user-circle fa-5x text-muted"></i>
+                                    {% endif %}
                                 </div>
                                 <h4>{{ user.username }}</h4>
                                 <p class="text-muted">{{ user.role.name.title() if user.role else 'Usuario' }}</p>
@@ -246,10 +259,10 @@
                                                 value="{{ user.created_at|datetime('%d/%m/%Y %H:%M') }}" readonly>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Último Acceso</label>
-                                            <input type="text" class="form-control"
-                                                value="{{ user.last_login|datetime('%d/%m/%Y %H:%M') if user.last_login else 'Nunca' }}"
-                                                readonly>
+                                            <label class="form-label">Última Actividad</label>
+                                            <input type="text" class="form-control" id="profile-last-activity"
+                                                data-time="{{ user.get_last_activity().isoformat() }}"
+                                                value="Cargando..." readonly>
                                         </div>
                                     </div>
                                     <div class="d-flex gap-2">
@@ -352,11 +365,29 @@
                 </div>
 
                 <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-history"></i> Actividad Reciente</h5>
+                    </div>
                     <div class="card-body">
-                        <div class="text-center py-5">
+                        <!-- Loading state -->
+                        <div id="activity-loading" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="text-muted mt-2">Cargando actividad reciente...</p>
+                        </div>
+                        
+                        <!-- Activity content -->
+                        <div id="activity-content" style="border:2px dashed #007bff; background:#e9f7fe; padding:12px;">
+                            <div style="color:#007bff; font-weight:bold;">[DEBUG] Bloque de actividad SI está visible</div>
+                            <!-- Activities will be loaded here -->
+                        </div>
+                        
+                        <!-- No activity state -->
+                        <div id="activity-empty" class="text-center py-4 d-none">
                             <i class="fas fa-history fa-3x text-muted mb-3"></i>
-                            <h5>Actividad Reciente</h5>
-                            <p class="text-muted">El historial de actividad se mostrará aquí cuando esté disponible.</p>
+                            <h6>Sin actividad reciente</h6>
+                            <p class="text-muted">No hay registros de actividad disponibles.</p>
                         </div>
                     </div>
                 </div>
@@ -469,6 +500,11 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Update relative times
+        updateRelativeTimes();
+        // Update every minute
+        setInterval(updateRelativeTimes, 60000);
+        
         // Navigation between sections
         const navLinks = document.querySelectorAll('.sidebar .nav-link');
         const sections = document.querySelectorAll('.content-section');
@@ -495,6 +531,11 @@
                     // Load system status when admin section is shown
                     if (targetSection === 'admin-section') {
                         loadSystemStatus();
+                    }
+                    
+                    // Load user activity when activity section is shown
+                    if (targetSection === 'activity-section') {
+                        loadUserActivity();
                     }
                 }
             });
@@ -533,6 +574,126 @@
         }
     }
 
+    // Load user activity function
+    function loadUserActivity() {
+        alert('DEBUG: loadUserActivity() ejecutada al cargar la página');
+        console.log('🔄 loadUserActivity() called');
+        const loadingDiv = document.getElementById('activity-loading');
+        const contentDiv = document.getElementById('activity-content');
+        const emptyDiv = document.getElementById('activity-empty');
+        
+        console.log('Elements found:', {
+            loading: !!loadingDiv,
+            content: !!contentDiv,
+            empty: !!emptyDiv
+        });
+        
+        // Show loading state
+        loadingDiv.classList.remove('d-none');
+        contentDiv.classList.add('d-none');
+        emptyDiv.classList.add('d-none');
+        
+        fetch('/api/activity')
+            .then(response => {
+                console.log('Activity API response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Activity API data:', data);
+                loadingDiv.classList.add('d-none');
+                // Mensaje extra de depuración
+                if (!data.activities) {
+                    console.warn('⚠️ No se recibió el campo activities en la respuesta:', data);
+                } else {
+                    console.info('✅ activities:', data.activities);
+                }
+                // Forzar renderizado aunque el array esté vacío
+            // Forzar visibilidad del bloque de actividad
+            contentDiv.style.display = 'block';
+            contentDiv.classList.remove('d-none');
+                contentDiv.innerHTML = `<pre style='background:#f8f9fa;border:1px solid #ccc;padding:8px;'>${JSON.stringify(data.activities, null, 2)}</pre>`;
+                // Render normal si hay datos
+                if (data.activities && data.activities.length > 0) {
+                    contentDiv.innerHTML += data.activities.map(activity => {
+                        const eventIcon = getEventIcon(activity.event_type);
+                        const statusBadge = activity.success ? 
+                            '<span class="badge bg-success ms-2">Exitoso</span>' : 
+                            '<span class="badge bg-danger ms-2">Fallido</span>';
+                        return `
+                        <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
+                            <div class="me-3">
+                                <i class="${eventIcon} ${activity.success ? 'text-success' : 'text-danger'}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">${activity.event_description || activity.event_type}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i> ${formatRelativeTime(activity.created_at)}
+                                            ${activity.browser ? `• <i class="fas fa-browser"></i> ${activity.browser}` : ''}
+                                            ${activity.ip_address ? `• <i class="fas fa-map-marker-alt"></i> ${activity.ip_address}` : ''}
+                                        </small>
+                                    </div>
+                                    ${statusBadge}
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                } else {
+                    // Show empty state
+                    emptyDiv.classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading activity:', error);
+                console.log('Full error details:', error);
+                loadingDiv.classList.add('d-none');
+                contentDiv.classList.remove('d-none');
+                contentDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No se pudo cargar la actividad reciente.
+                    </div>
+                `;
+            });
+    }
+    
+    // Helper function to get icon for event types
+    function getEventIcon(eventType) {
+        const icons = {
+            'login': 'fas fa-sign-in-alt',
+            'logout': 'fas fa-sign-out-alt',
+            'password_change': 'fas fa-key',
+            'profile_update': 'fas fa-user-edit',
+            'role_change': 'fas fa-user-tag',
+            'permission_granted': 'fas fa-unlock',
+            'permission_denied': 'fas fa-lock',
+            'data_access': 'fas fa-database',
+            'admin_action': 'fas fa-user-shield',
+            'system_access': 'fas fa-desktop'
+        };
+        return icons[eventType] || 'fas fa-info-circle';
+    }
+    
+    // Helper function to format relative time
+    function formatRelativeTime(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        if (diffInSeconds < 60) return 'hace unos segundos';
+        if (diffInSeconds < 3600) return `hace ${Math.floor(diffInSeconds / 60)} minutos`;
+        if (diffInSeconds < 86400) return `hace ${Math.floor(diffInSeconds / 3600)} horas`;
+        if (diffInSeconds < 2592000) return `hace ${Math.floor(diffInSeconds / 86400)} días`;
+        
+        return date.toLocaleDateString();
+    }
+
+    // Ejecutar siempre al cargar la página
+    window.addEventListener('DOMContentLoaded', function() {
+        loadUserActivity();
+    });
     // Load system status function
     function loadSystemStatus() {
         fetch('/api/status')
@@ -577,6 +738,25 @@
                 </div>
             `;
             });
+    }
+    
+    // Update relative times function
+    function updateRelativeTimes() {
+        const elements = document.querySelectorAll('[data-time]');
+        elements.forEach(element => {
+            const timeStr = element.getAttribute('data-time');
+            if (timeStr) {
+                const date = new Date(timeStr);
+                const relativeTime = formatRelativeTime(date);
+                
+                // Si es un input, usar value; si no, usar textContent
+                if (element.tagName.toLowerCase() === 'input') {
+                    element.value = relativeTime;
+                } else {
+                    element.textContent = relativeTime;
+                }
+            }
+        });
     }
 </script>
 {% endblock %}

@@ -275,6 +275,51 @@ class MiloAppsApp:
                 }
 
             return jsonify(status_data)
+        
+            @self.app.route("/api/activity")
+            @login_required
+            def get_user_activity():
+                """API para obtener actividad reciente del usuario"""
+                # MOCK DATA PARA PRUEBA DE FRONTEND
+                print("⚡ Enviando datos de prueba de actividad reciente (mock)")
+                activities = [
+                    {
+                        "id": 1,
+                        "event_type": "login",
+                        "event_description": "Inicio de sesión exitoso",
+                        "success": True,
+                        "ip_address": "192.168.1.10",
+                        "browser": "Chrome",
+                        "created_at": "2025-10-05T10:00:00",
+                        "relative_time": "2025-10-05T10:00:00"
+                    },
+                    {
+                        "id": 2,
+                        "event_type": "profile_update",
+                        "event_description": "Actualización de perfil",
+                        "success": True,
+                        "ip_address": "192.168.1.10",
+                        "browser": "Firefox",
+                        "created_at": "2025-10-04T18:30:00",
+                        "relative_time": "2025-10-04T18:30:00"
+                    },
+                    {
+                        "id": 3,
+                        "event_type": "password_change",
+                        "event_description": "Cambio de contraseña",
+                        "success": True,
+                        "ip_address": "192.168.1.10",
+                        "browser": "Edge",
+                        "created_at": "2025-10-03T09:15:00",
+                        "relative_time": "2025-10-03T09:15:00"
+                    }
+                ]
+                return jsonify({
+                    "activities": activities,
+                    "total": len(activities),
+                    "user_id": current_user.id,
+                    "mock": True
+                })
 
         @self.app.route("/api/switch-env", methods=["POST"])
         @login_required

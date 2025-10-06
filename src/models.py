@@ -53,6 +53,7 @@ class User(UserMixin, db.Model):
     company = db.Column(db.String(100), nullable=True)
     department = db.Column(db.String(100), nullable=True)
     bio = db.Column(db.Text, nullable=True)  # Biografía del usuario
+    profile_picture = db.Column(db.String(255), nullable=True)  # Ruta de la foto de perfil
 
     # Rol y permisos
     # Mantener role_id para compatibilidad con plantillas existentes
@@ -352,6 +353,52 @@ class User(UserMixin, db.Model):
                 ):
                     return True
         return False
+
+    def get_last_activity(self):
+        """Obtiene la fecha de la última actividad real del usuario"""
+        # Usar consulta SQL directa para evitar problemas de imports circulares
+        result = db.session.execute(
+            db.text("""
+                SELECT MAX(created_at) 
+                FROM audit_logs 
+                WHERE user_id = :user_id
+            """), 
+            {"user_id": self.id}
+        ).scalar()
+        
+        if result:
+            # Asegurarse de que result es un datetime object
+            if isinstance(result, str):
+                from datetime import datetime
+                return datetime.fromisoformat(result.replace('Z', '+00:00'))
+            return result
+        
+        # Si no hay actividad en el log, usar last_activity del modelo
+        if self.last_activity:
+            return self.last_activity
+            
+        # Si no hay last_activity, usar last_login como fallback  
+        if self.last_login:
+            return self.last_login
+            
+        # Como último recurso, usar la fecha de creación de la cuenta
+        return self.created_at
+
+    def get_profile_picture_url(self):
+        """Obtiene la URL de la foto de perfil del usuario"""
+        try:
+            if self.profile_picture:
+                return f"/static/uploads/profiles/{self.profile_picture}"
+            return None
+        except AttributeError:
+            return None
+
+    def has_profile_picture(self):
+        """Verifica si el usuario tiene foto de perfil"""
+        try:
+            return self.profile_picture is not None
+        except AttributeError:
+            return False
 
 
 class Role(db.Model):
