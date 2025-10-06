@@ -2,6 +2,22 @@
 
 {% block title %}Dashboard - MiloApps{% endblock %}
 
+{% block extra_css %}
+<style>
+    .status-indicator-online {
+        color: #28a745 !important; /* Verde para servicios en línea */
+    }
+    
+    .status-indicator-offline {
+        color: #dc3545 !important; /* Rojo para servicios offline */
+    }
+    
+    .status-indicator-warning {
+        color: #ffc107 !important; /* Amarillo para advertencias */
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row">
@@ -537,10 +553,10 @@
                     <div class="col-md-6">
                         <h6><i class="fas fa-check-circle text-success"></i> Estado de Servicios</h6>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-circle text-success"></i> Base de datos: Operativa</li>
-                            <li><i class="fas fa-circle text-success"></i> Autenticación: Activa</li>
-                            <li><i class="fas fa-circle text-success"></i> Email: Configurado</li>
-                            <li><i class="fas fa-circle text-success"></i> API: Disponible</li>
+                            <li><i class="fas fa-circle status-indicator-online"></i> Base de datos: Operativa</li>
+                            <li><i class="fas fa-circle status-indicator-online"></i> Autenticación: Activa</li>
+                            <li><i class="fas fa-circle status-indicator-online"></i> Email: Configurado</li>
+                            <li><i class="fas fa-circle status-indicator-online"></i> API: Disponible</li>
                         </ul>
                     </div>
                 </div>
