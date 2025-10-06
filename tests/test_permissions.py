@@ -1,7 +1,6 @@
 import os
 import sys
 import unittest
-from flask import Flask
 
 # Ensure 'src' is on the Python path when running tests from repo root
 CURRENT_DIR = os.path.dirname(__file__)
@@ -10,7 +9,9 @@ SRC_PATH = os.path.join(PROJECT_ROOT, 'src')
 if SRC_PATH not in sys.path:
     sys.path.insert(0, SRC_PATH)
 
-from models import (
+from flask import Flask  # noqa: E402
+
+from models import (  # noqa: E402
     db,
     User,
     Role,

@@ -21,8 +21,8 @@ from flask_login import (
     current_user,
     fresh_login_required,
 )
-from urllib.parse import urlparse, urljoin
-from datetime import datetime, timedelta
+from urllib.parse import urlparse
+from datetime import datetime
 import secrets
 import json
 import os
@@ -63,7 +63,7 @@ from email_service import (
     send_two_factor_enabled_email,
     send_login_alert_email,
 )
-from decorators import admin_required, permission_required
+from decorators import admin_required
 from utils import get_client_info, is_suspicious_login
 
 
@@ -228,13 +228,19 @@ def login():
                 if user.is_locked():
                     send_account_locked_email(user)
                     flash(
-                        "Demasiados intentos fallidos. Tu cuenta ha sido bloqueada temporalmente.",
+                        (
+                            "Demasiados intentos fallidos. "
+                            "Tu cuenta ha sido bloqueada temporalmente."
+                        ),
                         "danger",
                     )
                 else:
                     remaining = 3 - user.failed_login_attempts
                     flash(
-                        f"Email o contraseña incorrectos. Te quedan {remaining} intentos.",
+                        (
+                            "Email o contraseña incorrectos. "
+                            f"Te quedan {remaining} intentos."
+                        ),
                         "danger",
                     )
 
@@ -341,8 +347,8 @@ def forgot_password():
         user = User.query.filter_by(email=form.email.data).first()
 
         if user:
-            # Generar token de reset
-            token = user.generate_reset_token()
+            # Generar token de reset (guardado en el usuario)
+            user.generate_reset_token()
             db.session.commit()
 
             # Enviar email
@@ -604,9 +610,9 @@ def admin_users():
         query = query.filter(User.role_id == request.args.get("role"))
 
     if request.args.get("status") == "active":
-        query = query.filter(User.is_active == True)
+        query = query.filter(User.is_active.is_(True))
     elif request.args.get("status") == "inactive":
-        query = query.filter(User.is_active == False)
+        query = query.filter(User.is_active.is_(False))
     elif request.args.get("status") == "locked":
         query = query.filter(User.locked_until.isnot(None))
 
@@ -635,7 +641,7 @@ def admin_user_detail(user_id):
     form = UserManagementForm()
     assign_roles_form = AssignUserRolesForm()
 
-    if form.validate_on_submit() and request.form.get('form_name') == 'user_management':
+    if form.validate_on_submit() and request.form.get("form_name") == "user_management":
         # Actualizar datos básicos
         user.first_name = form.first_name.data
         user.last_name = form.last_name.data
@@ -665,14 +671,10 @@ def admin_user_detail(user_id):
         try:
             db.session.commit()
 
-            log_audit_event(
-                current_user.id,
-                AuditEvents.USER_UPDATED,
-                f"Usuario {user.email} actualizado por admin",
-                request=request,
-                resource_type="user",
-                resource_id=str(user.id),
-            )
+            log_audit_event(current_user.id, AuditEvents.USER_UPDATED,
+                            f"Usuario {user.email} actualizado por admin",
+                            request=request, resource_type="user",
+                            resource_id=str(user.id))
 
             flash("Usuario actualizado exitosamente.", "success")
             return redirect(url_for("auth.admin_user_detail", user_id=user.id))
@@ -801,8 +803,15 @@ def admin_role_permissions(role_id):
             flash("Error al guardar permisos.", "danger")
 
     # Construir estado actual
-    full_access_map = {a.app_id: a for a in RoleAppAccess.query.filter_by(role_id=role.id).all() if a.full_access}
-    func_ids = {rf.functionality_id for rf in RoleFunctionality.query.filter_by(role_id=role.id).all()}
+    full_access_map = {
+        a.app_id: a
+        for a in RoleAppAccess.query.filter_by(role_id=role.id).all()
+        if a.full_access
+    }
+    func_ids = {
+        rf.functionality_id
+        for rf in RoleFunctionality.query.filter_by(role_id=role.id).all()
+    }
 
     return render_template(
         "MiloAdmin/admin_role_permissions.html",

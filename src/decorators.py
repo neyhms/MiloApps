@@ -14,13 +14,17 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login', next=request.url))
-        
+
         if not current_user.is_admin():
             flash('No tienes permisos para acceder a esta sección.', 'danger')
-            log_audit_event(current_user.id, AuditEvents.PERMISSION_DENIED, 
-                          f'Acceso denegado a {request.endpoint}', request=request)
+            log_audit_event(
+                current_user.id,
+                AuditEvents.PERMISSION_DENIED,
+                f'Acceso denegado a {request.endpoint}',
+                request=request,
+            )
             abort(403)
-        
+
         return f(*args, **kwargs)
     return decorated_function
 
@@ -31,7 +35,7 @@ def permission_required(permission):
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
                 return redirect(url_for('auth.login', next=request.url))
-            
+
             # Permisos legacy por rol simple (compatibilidad)
             if (
                 not current_user.role
@@ -48,7 +52,7 @@ def permission_required(permission):
                     request=request,
                 )
                 abort(403)
-            
+
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -81,7 +85,7 @@ def role_required(role_name):
                     request=request,
                 )
                 abort(403)
-            
+
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -142,14 +146,14 @@ def verified_required(f):
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login', next=request.url))
-        
+
         if not current_user.is_verified:
             flash(
                 'Debes verificar tu cuenta para acceder a esta sección.',
                 'warning',
             )
             return redirect(url_for('auth.profile'))
-        
+
         return f(*args, **kwargs)
     return decorated_function
 
@@ -160,14 +164,14 @@ def active_required(f):
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login', next=request.url))
-        
+
         if not current_user.is_active:
             flash(
                 'Tu cuenta está desactivada. Contacta al administrador.',
                 'danger',
             )
             return redirect(url_for('auth.logout'))
-        
+
         return f(*args, **kwargs)
     return decorated_function
 

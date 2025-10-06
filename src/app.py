@@ -3,23 +3,23 @@
 
 import json
 import os
+import secrets
 from datetime import datetime
+
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_cors import CORS
 from flask_login import LoginManager, login_required, current_user
 from flask_moment import Moment
 from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
-import secrets
-
-# Cargar variables de entorno
-load_dotenv()
 
 # Importar módulos de autenticación
 from models import db, User, init_db, cleanup_old_audit_logs
 from auth_routes import auth
 from email_service import init_mail
-from utils import get_client_info
+
+# Cargar variables de entorno
+load_dotenv()
 
 
 class MiloAppsApp:
@@ -75,12 +75,12 @@ class MiloAppsApp:
         """Habilitar CSRF global para formularios y endpoints POST."""
         CSRFProtect(self.app)
         # Excepciones específicas (si en el futuro hay endpoints API JSON)
-        # from flask_wtf.csrf import CSRFError
+    # from flask_wtf.csrf import CSRFError
         # @self.app.errorhandler(CSRFError)
         # def handle_csrf_error(e):
         #     return render_template('error.html', message=e.description), 400
         
-        print("✅ CSRF Protection habilitado")
+    print("✅ CSRF Protection habilitado")
 
     def setup_database(self):
         """Configurar base de datos"""
@@ -136,8 +136,6 @@ class MiloAppsApp:
                     return redirect(url_for("auth.login"))
 
                 # Actualizar actividad del usuario
-                from datetime import datetime
-
                 current_user.update_activity()
                 db.session.commit()
 

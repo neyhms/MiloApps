@@ -1,10 +1,7 @@
 # MiloSign App - Modelos de datos
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from core.models import db
 from datetime import datetime
+
+from core.models import db
 
 
 class Document(db.Model):

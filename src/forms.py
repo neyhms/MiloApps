@@ -1,6 +1,8 @@
 """
 MiloApps - Formularios de Autenticación
 Formularios WTF para login, registro, recuperación y configuración
+
+# flake8: noqa: E501,E128
 """
 
 from flask_wtf import FlaskForm

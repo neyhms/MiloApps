@@ -66,10 +66,13 @@ def send_email(to, subject, template, **kwargs):
         # Renderizar plantilla de texto plano (opcional)
         try:
             msg.body = render_template(f"MiloMail/{template}.txt", **kwargs)
-        except:
+        except Exception:
             # Si no existe plantilla .txt, crear versión básica
             msg.body = f"InfoMilo - {subject}\n\n"
-            msg.body += "Este es un email de InfoMilo. Por favor, usa un cliente de email que soporte HTML para ver el contenido completo.\n\n"
+            msg.body += (
+                "Este es un email de InfoMilo. Por favor, usa un cliente de "
+                "email que soporte HTML para ver el contenido completo.\n\n"
+            )
             msg.body += "Si tienes problemas, contacta con el administrador."
 
         mail.send(msg)

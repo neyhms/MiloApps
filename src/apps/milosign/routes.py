@@ -7,14 +7,15 @@ from flask import (
     url_for,
     flash,
     jsonify,
-    send_file,
 )
 from flask_login import login_required, current_user
-from ..core.utils import require_app_permission, log_audit
+from core.utils import require_app_permission, log_audit
+from core.models import db
 from .models import Document, Signature
 from .forms import DocumentUploadForm, SignatureForm
 import os
 from datetime import datetime
+from werkzeug.utils import secure_filename
 
 # Crear blueprint para MiloSign
 milosign_bp = Blueprint(
@@ -71,8 +72,6 @@ def upload_document():
                 owner_id=current_user.id,
                 status="draft",
             )
-
-            from ..core.models import db
 
             db.session.add(document)
             db.session.commit()
@@ -139,8 +138,6 @@ def sign_document(document_id):
         signature.signed_at = datetime.utcnow()
         signature.signature_data = form.signature_data.data
         signature.ip_address = request.remote_addr
-
-        from ..core.models import db
 
         db.session.commit()
 

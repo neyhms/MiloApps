@@ -3,7 +3,7 @@ InfoMilo - Utilidades de Autenticación
 Funciones auxiliares para seguridad y análisis de sesiones
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask import request
 from user_agents import parse
 import re
@@ -157,7 +157,6 @@ def sanitize_input(text, max_length=None):
 def is_safe_url(target):
     """Verifica si una URL es segura para redirección"""
     from urllib.parse import urlparse, urljoin
-    from flask import request
     
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
@@ -276,7 +275,13 @@ def generate_username_suggestions(first_name, last_name, existing_usernames=None
     
     return suggestions[:5]  # Máximo 5 sugerencias
 
-def log_security_event(event_type, description, user_id=None, ip_address=None, additional_data=None):
+def log_security_event(
+    event_type,
+    description,
+    user_id=None,
+    ip_address=None,
+    additional_data=None,
+):
     """Log eventos de seguridad críticos"""
     from .models import log_audit_event
     
@@ -291,7 +296,10 @@ def log_security_event(event_type, description, user_id=None, ip_address=None, a
     # También log en archivo si es crítico
     import logging
     security_logger = logging.getLogger('security')
-    security_logger.warning(f"{event_type}: {description} - User: {user_id} - IP: {ip_address}")
+    security_logger.warning(
+        f"{event_type}: {description} - User: {user_id} - IP: {ip_address}"
+    )
+
 
 def check_rate_limit(key, limit=5, window=300):
     """Implementación básica de rate limiting"""
@@ -307,7 +315,7 @@ def check_rate_limit(key, limit=5, window=300):
     
     # Limpiar entradas antiguas
     check_rate_limit.cache = {
-        k: v for k, v in check_rate_limit.cache.items() 
+        k: v for k, v in check_rate_limit.cache.items()
         if now - v['first_attempt'] < window
     }
     

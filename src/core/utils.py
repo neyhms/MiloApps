@@ -1,7 +1,7 @@
 # Core MiloApps - Utilidades compartidas
 from flask import request, session, current_app
 from functools import wraps
-from .models import AuditLog, User, UserAppPermission, db
+from .models import AuditLog, UserAppPermission, db
 import json
 from datetime import datetime
 from user_agents import parse

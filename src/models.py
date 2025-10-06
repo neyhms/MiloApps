@@ -19,13 +19,15 @@ db = SQLAlchemy()
 
 """Tablas y modelos de dominio
 
-- User mantiene role_id para compatibilidad, pero ahora soporta múltiples roles vía user_roles
-- Application y Functionality permiten permisos granulares por aplicación
+- User mantiene role_id para compatibilidad, pero ahora soporta
+    múltiples roles vía user_roles
+- Application y Functionality permiten permisos granulares por
+    aplicación
 - Role incluye bandera is_allmilo para acceso total a todas las apps
 - Mapas:
-    - RoleAppAccess: acceso de rol a una app (full_access opcional)
-    - RoleFunctionality: permisos granulares por funcionalidad
-    - UserRole: asignación de múltiples roles al usuario
+        - RoleAppAccess: acceso de rol a una app (full_access opcional)
+        - RoleFunctionality: permisos granulares por funcionalidad
+        - UserRole: asignación de múltiples roles al usuario
 """
 
 
@@ -36,8 +38,12 @@ class User(UserMixin, db.Model):
 
     # Campos principales
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
-    username = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    email = db.Column(
+        db.String(120), unique=True, nullable=False, index=True
+    )
+    username = db.Column(
+        db.String(80), unique=True, nullable=False, index=True
+    )
     password_hash = db.Column(db.String(255), nullable=False)
 
     # Información personal
@@ -49,7 +55,8 @@ class User(UserMixin, db.Model):
     bio = db.Column(db.Text, nullable=True)  # Biografía del usuario
 
     # Rol y permisos
-    # Mantener role_id para compatibilidad con plantillas existentes (rol primario)
+    # Mantener role_id para compatibilidad con plantillas existentes
+    # (rol primario)
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     is_verified = db.Column(db.Boolean, default=False, nullable=False)
@@ -75,9 +82,14 @@ class User(UserMixin, db.Model):
     reset_token_expires = db.Column(db.DateTime, nullable=True)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(
+        db.DateTime, default=datetime.utcnow, nullable=False
+    )
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
     )
 
     # Relaciones
@@ -107,7 +119,9 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def is_admin(self):
-        """Verifica si el usuario es administrador (por rol primario o asignado)"""
+        """Verifica si el usuario es administrador
+        (por rol primario o asignado)
+        """
         if self.role and self.role.name == "admin":
             return True
         return self.has_role("admin")
@@ -200,7 +214,8 @@ class User(UserMixin, db.Model):
         return f"{self.first_name} {self.last_name}"
 
     def get_full_name(self):
-        """Método para obtener nombre completo (compatibilidad con templates)"""
+        """Método para obtener nombre completo
+        (compatibilidad con templates)"""
         return self.full_name
 
     def to_dict(self):
@@ -213,11 +228,15 @@ class User(UserMixin, db.Model):
             "company": self.company,
             "department": self.department,
             # mantener compatibilidad con clientes actuales
-            "role": self.role.name if self.role else (self.get_primary_role_name()),
+            "role": (
+                self.role.name if self.role else self.get_primary_role_name()
+            ),
             "is_active": self.is_active,
             "is_verified": self.is_verified,
             "two_factor_enabled": self.two_factor_enabled,
-            "last_login": self.last_login.isoformat() if self.last_login else None,
+            "last_login": (
+                self.last_login.isoformat() if self.last_login else None
+            ),
             "created_at": self.created_at.isoformat(),
         }
 
@@ -248,7 +267,9 @@ class User(UserMixin, db.Model):
 
     # ====== NUEVAS UTILIDADES DE ROLES Y PERMISOS ======
     def get_primary_role(self):
-        """Devuelve el rol primario (compatibilidad). Si no hay role_id, retorna el primer rol asignado."""
+        """Devuelve el rol primario (compatibilidad).
+        Si no hay role_id, retorna el primer rol asignado.
+        """
         if self.role:
             return self.role
         return self.roles.first()
@@ -276,7 +297,8 @@ class User(UserMixin, db.Model):
         """
         if self.has_allmilo():
             return True
-        # roles asignados (incluye rol primario implícitamente vía relationship roles)
+    # roles asignados (incluye rol primario implícitamente
+    # vía relationship roles)
         user_roles = list(self.roles)
         if self.role and self.role not in user_roles:
             user_roles.append(self.role)
@@ -290,7 +312,11 @@ class User(UserMixin, db.Model):
                     return True
             # permisos granulares
             for rf in r.functionalities:
-                if rf.functionality and rf.functionality.application and rf.functionality.application.key == app_key:
+                if (
+                    rf.functionality
+                    and rf.functionality.application
+                    and rf.functionality.application.key == app_key
+                ):
                     return True
         return False
 
@@ -343,17 +369,28 @@ class Role(db.Model):
     # Nuevo: acceso global a todas las apps
     is_allmilo = db.Column(db.Boolean, default=False, nullable=False)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(
+        db.DateTime, default=datetime.utcnow, nullable=False
+    )
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
     )
 
     # Relaciones hacia aplicaciones/funcionalidades
     app_access = db.relationship(
-        "RoleAppAccess", backref="role", lazy=True, cascade="all, delete-orphan"
+        "RoleAppAccess",
+        backref="role",
+        lazy=True,
+        cascade="all, delete-orphan",
     )
     functionalities = db.relationship(
-        "RoleFunctionality", backref="role", lazy=True, cascade="all, delete-orphan"
+        "RoleFunctionality",
+        backref="role",
+        lazy=True,
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self):
@@ -378,17 +415,28 @@ class Application(db.Model):
     __tablename__ = "applications"
 
     id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String(50), unique=True, nullable=False, index=True)  # ej: milosign
+    # ej: milosign
+    key = db.Column(
+        db.String(50), unique=True, nullable=False, index=True
+    )
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(
+        db.DateTime, default=datetime.utcnow, nullable=False
+    )
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
     )
 
     functionalities = db.relationship(
-        "Functionality", backref="application", lazy=True, cascade="all, delete-orphan"
+        "Functionality",
+        backref="application",
+        lazy=True,
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self):
@@ -399,17 +447,33 @@ class Functionality(db.Model):
     __tablename__ = "functionalities"
 
     id = db.Column(db.Integer, primary_key=True)
-    application_id = db.Column(db.Integer, db.ForeignKey("applications.id"), nullable=False)
-    key = db.Column(db.String(100), nullable=False, index=True)  # ej: create_document
+    application_id = db.Column(
+        db.Integer,
+        db.ForeignKey("applications.id"),
+        nullable=False,
+    )
+    # ej: create_document
+    key = db.Column(
+        db.String(100), nullable=False, index=True
+    )
     name = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(
+        db.DateTime, default=datetime.utcnow, nullable=False
+    )
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
     )
 
-    __table_args__ = (db.UniqueConstraint("application_id", "key", name="uq_func_app_key"),)
+    __table_args__ = (
+        db.UniqueConstraint(
+            "application_id", "key", name="uq_func_app_key"
+        ),
+    )
 
     def __repr__(self):
         return f"<Functionality {self.key} of app {self.application_id}>"
@@ -419,37 +483,66 @@ class Functionality(db.Model):
 class UserRole(db.Model):
     __tablename__ = "user_roles"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
-    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False, index=True)
-    granted_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    granted_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
-    __table_args__ = (db.UniqueConstraint("user_id", "role_id", name="uq_user_role"),)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=False, index=True
+    )
+    role_id = db.Column(
+        db.Integer, db.ForeignKey("roles.id"), nullable=False, index=True
+    )
+    granted_at = db.Column(
+        db.DateTime, default=datetime.utcnow, nullable=False
+    )
+    granted_by = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=True
+    )
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "role_id", name="uq_user_role"),
+    )
 
 
 class RoleAppAccess(db.Model):
     __tablename__ = "role_app_access"
     id = db.Column(db.Integer, primary_key=True)
-    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False, index=True)
-    app_id = db.Column(db.Integer, db.ForeignKey("applications.id"), nullable=False, index=True)
+    role_id = db.Column(
+        db.Integer, db.ForeignKey("roles.id"), nullable=False, index=True
+    )
+    app_id = db.Column(
+        db.Integer,
+        db.ForeignKey("applications.id"),
+        nullable=False,
+        index=True,
+    )
     full_access = db.Column(db.Boolean, default=False, nullable=False)
-    __table_args__ = (db.UniqueConstraint("role_id", "app_id", name="uq_role_app"),)
+    __table_args__ = (
+        db.UniqueConstraint("role_id", "app_id", name="uq_role_app"),
+    )
 
-    app = db.relationship("Application", backref=db.backref("role_access", lazy=True))
+    app = db.relationship(
+        "Application", backref=db.backref("role_access", lazy=True)
+    )
 
 
 class RoleFunctionality(db.Model):
     __tablename__ = "role_functionalities"
     id = db.Column(db.Integer, primary_key=True)
-    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False, index=True)
+    role_id = db.Column(
+        db.Integer, db.ForeignKey("roles.id"), nullable=False, index=True
+    )
     functionality_id = db.Column(
-        db.Integer, db.ForeignKey("functionalities.id"), nullable=False, index=True
+        db.Integer,
+        db.ForeignKey("functionalities.id"),
+        nullable=False,
+        index=True,
     )
     __table_args__ = (
-        db.UniqueConstraint("role_id", "functionality_id", name="uq_role_functionality"),
+        db.UniqueConstraint(
+            "role_id", "functionality_id", name="uq_role_functionality"
+        ),
     )
 
     functionality = db.relationship(
-        "Functionality", backref=db.backref("role_permissions", lazy=True)
+        "Functionality",
+        backref=db.backref("role_permissions", lazy=True),
     )
 
 
