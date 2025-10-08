@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Administración de Municipios - MiloTalent{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0">🏛️ Administración de Municipios</h2>
+                    <p class="text-muted mb-0">Gestión de municipios de Colombia</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('municipios.crear_municipio') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Nuevo Municipio
+                    </a>
+                    <a href="{{ url_for('milotalent.dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="buscar" class="form-label">Buscar</label>
+                            <input type="text" class="form-control" id="buscar" name="buscar" 
+                                   value="{{ filtros.buscar }}" placeholder="Nombre o municipio">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="departamento" class="form-label">Departamento</label>
+                            <select class="form-select" id="departamento" name="departamento">
+                                <option value="">Todos los departamentos</option>
+                                {% for dept in departamentos %}
+                                <option value="{{ dept }}" {% if filtros.departamento == dept %}selected{% endif %}>
+                                    {{ dept }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="activo" class="form-label">Estado</label>
+                            <select class="form-select" id="activo" name="activo">
+                                <option value="">Todos</option>
+                                <option value="true" {% if filtros.activo == 'true' %}selected{% endif %}>Activos</option>
+                                <option value="false" {% if filtros.activo == 'false' %}selected{% endif %}>Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search me-1"></i>Filtrar
+                            </button>
+                            <a href="{{ url_for('municipios.admin_municipios') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-0">Total Municipios</h5>
+                            <h3 class="mb-0">{{ municipios.total }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-city fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-0">Activos</h5>
+                            <h3 class="mb-0">{{ municipios.items | selectattr('activo') | list | length }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-0">Inactivos</h5>
+                            <h3 class="mb-0">{{ municipios.items | rejectattr('activo') | list | length }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-0">Departamentos</h5>
+                            <h3 class="mb-0">{{ departamentos | length }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-map fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de municipios -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Lista de Municipios</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if municipios.items %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Municipio</th>
+                                    <th>Departamento</th>
+                                    <th>Código DANE</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for municipio in municipios.items %}
+                                <tr class="{% if not municipio.activo %}table-warning{% endif %}">
+                                    <td>{{ municipio.id }}</td>
+                                    <td>
+                                        <strong>{{ municipio.nombre }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ municipio.nombre_completo }}</small>
+                                    </td>
+                                    <td>{{ municipio.departamento }}</td>
+                                    <td>
+                                        {% if municipio.codigo_dane %}
+                                            <span class="badge bg-info">{{ municipio.codigo_dane }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Sin código</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if municipio.activo %}
+                                            <span class="badge bg-success">Activo</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Inactivo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if municipio.fecha_creacion %}
+                                            {{ municipio.fecha_creacion.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ url_for('municipios.editar_municipio', municipio_id=municipio.id) }}" 
+                                               class="btn btn-outline-primary" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ url_for('municipios.toggle_municipio', municipio_id=municipio.id) }}" 
+                                               class="btn btn-outline-{% if municipio.activo %}warning{% else %}success{% endif %}"
+                                               title="{% if municipio.activo %}Desactivar{% else %}Activar{% endif %}"
+                                               onclick="return confirm('¿Está seguro de {% if municipio.activo %}desactivar{% else %}activar{% endif %} este municipio?')">
+                                                <i class="fas fa-{% if municipio.activo %}ban{% else %}check{% endif %}"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-city fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No se encontraron municipios</h5>
+                        <p class="text-muted">No hay municipios que coincidan con los filtros aplicados.</p>
+                        <a href="{{ url_for('municipios.crear_municipio') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Crear Primer Municipio
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Paginación -->
+                {% if municipios.pages > 1 %}
+                <div class="card-footer">
+                    <nav aria-label="Navegación de municipios">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if municipios.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('municipios.admin_municipios', page=municipios.prev_num, **filtros) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in municipios.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != municipios.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('municipios.admin_municipios', page=page_num, **filtros) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">…</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if municipios.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('municipios.admin_municipios', page=municipios.next_num, **filtros) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            Mostrando {{ ((municipios.page - 1) * municipios.per_page + 1) }} - 
+                            {{ min(municipios.page * municipios.per_page, municipios.total) }} 
+                            de {{ municipios.total }} municipios
+                        </small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

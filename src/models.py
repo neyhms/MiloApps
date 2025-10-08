@@ -1,6 +1,7 @@
 """
 MiloApps - Modelos de Base de Datos
 Sistema de autenticación con usuarios, roles y auditoría
+Sistema de entidades administrativas genéricas para Talent
 """
 
 from datetime import datetime, timedelta
@@ -903,3 +904,234 @@ def cleanup_old_audit_logs(months=6):
         print(f"Error cleaning up audit logs: {e}")
         db.session.rollback()
         return 0
+
+
+# =====================================
+# SISTEMA TALENT - ENTIDADES GENÉRICAS
+# =====================================
+
+class TalentEntidad(db.Model):
+    """
+    Tabla genérica para manejar todas las entidades administrativas
+    de Talent: Profesiones, Bancos, EPS, AFP, ARL, Cajas de Compensación,
+    Operadores Seguridad Social, Areas de Personal, Municipios
+    """
+    __tablename__ = 'talent_entidades'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tipo_entidad = db.Column(db.String(50), nullable=False, index=True)  
+    # profesion, banco, eps, afp, arl, caja_compensacion, 
+    # operador_ss, area_personal, municipio
+    
+    codigo = db.Column(db.String(20), nullable=True, index=True)  # Para códigos oficiales
+    nombre = db.Column(db.String(200), nullable=False, index=True)
+    descripcion = db.Column(db.Text, nullable=True)
+    
+    # Campos específicos por tipo
+    departamento = db.Column(db.String(100), nullable=True)  # Para municipios
+    codigo_dane = db.Column(db.String(10), nullable=True)    # Para municipios
+    nit = db.Column(db.String(20), nullable=True)           # Para empresas
+    telefono = db.Column(db.String(20), nullable=True)      # Para contacto
+    email = db.Column(db.String(100), nullable=True)        # Para contacto
+    direccion = db.Column(db.String(200), nullable=True)    # Para ubicación
+    
+    # Configuración por tipo
+    es_obligatorio = db.Column(db.Boolean, default=True)  # Si es campo requerido
+    permite_otros = db.Column(db.Boolean, default=False)  # Si permite "Otros"
+    orden = db.Column(db.Integer, default=0)              # Para ordenamiento
+    
+    # Control
+    activo = db.Column(db.Boolean, default=True, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, 
+                          onupdate=datetime.utcnow, nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    updated_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    
+    # Relaciones
+    creator = db.relationship('User', foreign_keys=[created_by], backref='entidades_creadas')
+    updater = db.relationship('User', foreign_keys=[updated_by], backref='entidades_actualizadas')
+    
+    # Índices compuestos
+    __table_args__ = (
+        db.Index('idx_entidad_tipo_activo', 'tipo_entidad', 'activo'),
+        db.Index('idx_entidad_tipo_codigo', 'tipo_entidad', 'codigo'),
+        db.Index('idx_entidad_tipo_nombre', 'tipo_entidad', 'nombre'),
+        db.UniqueConstraint('tipo_entidad', 'codigo', name='uk_entidad_tipo_codigo'),
+        db.UniqueConstraint('tipo_entidad', 'nombre', name='uk_entidad_tipo_nombre'),
+    )
+    
+    def __repr__(self):
+        return f'<TalentEntidad {self.tipo_entidad}: {self.nombre}>'
+    
+    def to_dict(self):
+        """Convierte el objeto a diccionario"""
+        return {
+            'id': self.id,
+            'tipo_entidad': self.tipo_entidad,
+            'codigo': self.codigo,
+            'nombre': self.nombre,
+            'descripcion': self.descripcion,
+            'departamento': self.departamento,
+            'codigo_dane': self.codigo_dane,
+            'nit': self.nit,
+            'telefono': self.telefono,
+            'email': self.email,
+            'direccion': self.direccion,
+            'es_obligatorio': self.es_obligatorio,
+            'permite_otros': self.permite_otros,
+            'orden': self.orden,
+            'activo': self.activo,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class PrestadorServicio(db.Model):
+    """
+    Modelo actualizado para prestadores de servicio
+    Usando referencias a TalentEntidad para todos los campos administrativos
+    """
+    __tablename__ = 'talent_prestadores'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Información personal básica
+    tipo_documento = db.Column(db.String(10), nullable=False)  # CC, CE, PP, etc
+    numero_documento = db.Column(db.String(20), nullable=False, unique=True, index=True)
+    nombres = db.Column(db.String(100), nullable=False)
+    apellidos = db.Column(db.String(100), nullable=False)
+    fecha_nacimiento = db.Column(db.Date, nullable=False)
+    
+    # Referencias a entidades (FK a talent_entidades)
+    municipio_nacimiento_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    municipio_residencia_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    profesion_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    banco_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    eps_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    afp_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    arl_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    caja_compensacion_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    operador_ss_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    area_personal_id = db.Column(db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True)
+    
+    # Campos de texto directo (mantenidos como string por simplicidad)
+    sexo = db.Column(db.String(1), nullable=False)  # M, F
+    estado_civil = db.Column(db.String(20), nullable=False)  # Soltero, Casado, etc
+    identidad_genero = db.Column(db.String(30), nullable=True)
+    orientacion_sexual = db.Column(db.String(30), nullable=True)
+    rh = db.Column(db.String(3), nullable=False)  # O+, A-, etc
+    
+    # Información de contacto
+    telefono = db.Column(db.String(20), nullable=True)
+    celular = db.Column(db.String(20), nullable=True)
+    email = db.Column(db.String(100), nullable=True)
+    direccion = db.Column(db.String(200), nullable=True)
+    
+    # Información bancaria
+    numero_cuenta = db.Column(db.String(50), nullable=True)
+    tipo_cuenta = db.Column(db.String(20), nullable=True)  # Ahorros, Corriente
+    
+    # Control de estado
+    estado = db.Column(db.String(1), default='A', nullable=False)  # A=Activo, I=Inactivo
+    nuevo_viejo = db.Column(db.String(1), default='N', nullable=False)  # N=Nuevo, V=Viejo
+    
+    # Auditoría
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    updated_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    
+    # Relaciones con entidades
+    municipio_nacimiento = db.relationship('TalentEntidad', foreign_keys=[municipio_nacimiento_id], 
+                                          backref='prestadores_nacimiento')
+    municipio_residencia = db.relationship('TalentEntidad', foreign_keys=[municipio_residencia_id], 
+                                         backref='prestadores_residencia')
+    profesion = db.relationship('TalentEntidad', foreign_keys=[profesion_id], 
+                               backref='prestadores_profesion')
+    banco = db.relationship('TalentEntidad', foreign_keys=[banco_id], 
+                           backref='prestadores_banco')
+    eps = db.relationship('TalentEntidad', foreign_keys=[eps_id], 
+                         backref='prestadores_eps')
+    afp = db.relationship('TalentEntidad', foreign_keys=[afp_id], 
+                         backref='prestadores_afp')
+    arl = db.relationship('TalentEntidad', foreign_keys=[arl_id], 
+                         backref='prestadores_arl')
+    caja_compensacion = db.relationship('TalentEntidad', foreign_keys=[caja_compensacion_id], 
+                                       backref='prestadores_caja')
+    operador_ss = db.relationship('TalentEntidad', foreign_keys=[operador_ss_id], 
+                                 backref='prestadores_operador')
+    area_personal = db.relationship('TalentEntidad', foreign_keys=[area_personal_id], 
+                                   backref='prestadores_area')
+    
+    # Relaciones con usuarios
+    creator = db.relationship('User', foreign_keys=[created_by], backref='prestadores_creados')
+    updater = db.relationship('User', foreign_keys=[updated_by], backref='prestadores_actualizados')
+    
+    def __repr__(self):
+        return f'<PrestadorServicio {self.numero_documento}: {self.nombres} {self.apellidos}>'
+    
+    def to_dict(self):
+        """Convierte el objeto a diccionario para JSON"""
+        return {
+            'id': self.id,
+            'tipo_documento': self.tipo_documento,
+            'numero_documento': self.numero_documento,
+            'nombres': self.nombres,
+            'apellidos': self.apellidos,
+            'fecha_nacimiento': self.fecha_nacimiento.isoformat() if self.fecha_nacimiento else None,
+            'sexo': self.sexo,
+            'estado_civil': self.estado_civil,
+            'identidad_genero': self.identidad_genero,
+            'orientacion_sexual': self.orientacion_sexual,
+            'rh': self.rh,
+            'telefono': self.telefono,
+            'celular': self.celular,
+            'email': self.email,
+            'direccion': self.direccion,
+            'numero_cuenta': self.numero_cuenta,
+            'tipo_cuenta': self.tipo_cuenta,
+            'estado': self.estado,
+            'nuevo_viejo': self.nuevo_viejo,
+            # Entidades relacionadas
+            'municipio_nacimiento': self.municipio_nacimiento.nombre if self.municipio_nacimiento else None,
+            'municipio_residencia': self.municipio_residencia.nombre if self.municipio_residencia else None,
+            'profesion': self.profesion.nombre if self.profesion else None,
+            'banco': self.banco.nombre if self.banco else None,
+            'eps': self.eps.nombre if self.eps else None,
+            'afp': self.afp.nombre if self.afp else None,
+            'arl': self.arl.nombre if self.arl else None,
+            'caja_compensacion': self.caja_compensacion.nombre if self.caja_compensacion else None,
+            'operador_ss': self.operador_ss.nombre if self.operador_ss else None,
+            'area_personal': self.area_personal.nombre if self.area_personal else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+# Funciones de utilidad para entidades
+
+def get_entidades_por_tipo(tipo_entidad, activos_solo=True):
+    """Obtiene todas las entidades de un tipo específico"""
+    query = TalentEntidad.query.filter_by(tipo_entidad=tipo_entidad)
+    if activos_solo:
+        query = query.filter_by(activo=True)
+    return query.order_by(TalentEntidad.orden, TalentEntidad.nombre).all()
+
+def crear_entidad_inicial(tipo_entidad, nombre, codigo=None, **kwargs):
+    """Crea una entidad si no existe"""
+    existente = TalentEntidad.query.filter_by(
+        tipo_entidad=tipo_entidad, 
+        nombre=nombre
+    ).first()
+    
+    if not existente:
+        entidad = TalentEntidad(
+            tipo_entidad=tipo_entidad,
+            nombre=nombre,
+            codigo=codigo,
+            **kwargs
+        )
+        db.session.add(entidad)
+        return entidad
+    return existente

@@ -1,0 +1,209 @@
+{% extends "admin/base.html" %}
+{% block title %}Crear {{ config.singular }} - Gestión de Entidades{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-1">
+                <i class="fas fa-plus me-2"></i>Crear {{ config.singular }}
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('entidades.admin_entidades') }}">Entidades</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('entidades.listar_entidades', tipo=tipo) }}">{{ config.nombre }}</a>
+                    </li>
+                    <li class="breadcrumb-item active">Crear</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Nueva {{ config.singular }}</h5>
+                </div>
+                
+                <form method="POST" class="needs-validation" novalidate>
+                    {{ csrf_token() }}
+                    
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Nombre (requerido) -->
+                            <div class="col-md-8 mb-3">
+                                <label for="nombre" class="form-label">
+                                    Nombre <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" 
+                                       value="{{ request.form.get('nombre', '') }}" required>
+                                <div class="invalid-feedback">
+                                    El nombre es requerido.
+                                </div>
+                            </div>
+                            
+                            <!-- Código -->
+                            <div class="col-md-4 mb-3">
+                                <label for="codigo" class="form-label">Código</label>
+                                <input type="text" class="form-control" id="codigo" name="codigo" 
+                                       value="{{ request.form.get('codigo', '') }}" 
+                                       placeholder="Ej: COD001">
+                                <div class="form-text">Código único identificador (opcional)</div>
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" 
+                                          rows="3" placeholder="Información adicional...">{{ request.form.get('descripcion', '') }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Campos específicos según el tipo -->
+                        {% if 'departamento' in config.campos_especiales %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="departamento" class="form-label">Departamento</label>
+                                <input type="text" class="form-control" id="departamento" name="departamento" 
+                                       value="{{ request.form.get('departamento', '') }}"
+                                       placeholder="Ej: Cundinamarca">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="codigo_dane" class="form-label">Código DANE</label>
+                                <input type="text" class="form-control" id="codigo_dane" name="codigo_dane" 
+                                       value="{{ request.form.get('codigo_dane', '') }}"
+                                       placeholder="Ej: 11001">
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if 'nit' in config.campos_especiales %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nit" class="form-label">NIT</label>
+                                <input type="text" class="form-control" id="nit" name="nit" 
+                                       value="{{ request.form.get('nit', '') }}"
+                                       placeholder="Ej: 890903938-8">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" id="telefono" name="telefono" 
+                                       value="{{ request.form.get('telefono', '') }}"
+                                       placeholder="Ej: +57 1 234-5678">
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Email y Dirección -->
+                        {% if 'telefono' in config.campos_especiales %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ request.form.get('email', '') }}"
+                                       placeholder="contacto@empresa.com">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" name="direccion" 
+                                       value="{{ request.form.get('direccion', '') }}"
+                                       placeholder="Dirección completa">
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Configuración -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="orden" class="form-label">Orden</label>
+                                <input type="number" class="form-control" id="orden" name="orden" 
+                                       value="{{ request.form.get('orden', '0') }}" min="0" max="999">
+                                <div class="form-text">Orden de aparición en las listas</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="permite_otros" 
+                                           name="permite_otros" {{ 'checked' if request.form.get('permite_otros') }}>
+                                    <label class="form-check-label" for="permite_otros">
+                                        Permite valor "Otros"
+                                    </label>
+                                    <div class="form-text">
+                                        Permite que el usuario ingrese un valor personalizado
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información adicional -->
+                        <div class="alert alert-info">
+                            <strong>Información:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Los campos marcados con <span class="text-danger">*</span> son obligatorios.</li>
+                                <li>El código debe ser único dentro del tipo de entidad.</li>
+                                <li>La nueva entidad se creará como <strong>activa</strong> por defecto.</li>
+                                {% if not config.obligatorio %}
+                                <li>Este tipo de entidad es <strong>opcional</strong> en los formularios.</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('entidades.listar_entidades', tipo=tipo) }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i>Crear {{ config.singular }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validación del formulario
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Auto-generar código a partir del nombre
+document.getElementById('nombre').addEventListener('input', function() {
+    const codigo = document.getElementById('codigo');
+    if (!codigo.value) {
+        let suggested = this.value.toUpperCase()
+            .replace(/[ÁÀÄÂ]/g, 'A')
+            .replace(/[ÉÈËÊ]/g, 'E')
+            .replace(/[ÍÌÏÎ]/g, 'I')
+            .replace(/[ÓÒÖÔ]/g, 'O')
+            .replace(/[ÚÙÜÛ]/g, 'U')
+            .replace(/Ñ/g, 'N')
+            .replace(/[^A-Z0-9]/g, '')
+            .substring(0, 10);
+        codigo.value = suggested;
+    }
+});
+</script>
+{% endblock %}

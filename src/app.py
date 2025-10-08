@@ -10,7 +10,6 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_cors import CORS
 from flask_login import LoginManager, login_required, current_user
 from flask_moment import Moment
-from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 
 # Importar módulos de autenticación
@@ -42,7 +41,7 @@ class MiloAppsApp:
         self.app.config["SECRET_KEY"] = os.environ.get(
             "SECRET_KEY"
         ) or secrets.token_hex(32)
-        self.app.config["WTF_CSRF_ENABLED"] = True
+        # CSRF se configurará en setup_csrf()
         self.app.config["WTF_CSRF_TIME_LIMIT"] = 3600  # 1 hora
 
         # Base de datos SQLite
@@ -72,15 +71,18 @@ class MiloAppsApp:
         print("✅ Configuración Flask establecida")
 
     def setup_csrf(self):
-        """Habilitar CSRF global para formularios y endpoints POST."""
-        CSRFProtect(self.app)
-        # Excepciones específicas (si en el futuro hay endpoints API JSON)
-    # from flask_wtf.csrf import CSRFError
-        # @self.app.errorhandler(CSRFError)
-        # def handle_csrf_error(e):
-        #     return render_template('error.html', message=e.description), 400
-        
-    print("✅ CSRF Protection habilitado")
+        """Configurar CSRF Protection con excepción correcta para MiloTalent"""
+        from flask_wtf.csrf import CSRFProtect
+
+        # Habilitar CSRF pero exentar MiloTalent correctamente
+        self.app.config["WTF_CSRF_ENABLED"] = True
+        csrf = CSRFProtect(self.app)
+
+        # Método alternativo: Exentar por ruta directamente
+        from apps.milotalent.routes_new import milotalent_bp
+        csrf.exempt(milotalent_bp)
+
+        print("✅ CSRF Protection habilitado con excepción correcta para MiloTalent")
 
     def setup_database(self):
         """Configurar base de datos"""
@@ -223,6 +225,47 @@ class MiloAppsApp:
     def setup_routes(self):
         """Configurar rutas de la aplicación"""
 
+        # MiloTalent integrado - nueva estructura de PS
+        try:
+            from apps.milotalent.routes_new import milotalent_bp
+
+            self.app.register_blueprint(milotalent_bp)
+            
+            # Registrar también el blueprint de municipios (con nombre diferente)
+            from apps.milotalent import milotalent_bp as municipios_bp
+            # Cambiar el nombre del blueprint para evitar conflicto
+            municipios_bp.name = "municipios"
+            self.app.register_blueprint(municipios_bp)
+            
+            # Registrar blueprint de entidades administrativas
+            try:
+                from entidades_simple import entidades_simple_bp
+                self.app.register_blueprint(entidades_simple_bp)
+                print("✅ Blueprint de entidades simple registrado")
+            except ImportError as e:
+                print(f"⚠️  Error importando entidades: {e}")
+
+            # Deshabilitar CSRF específicamente para MiloTalent
+            @self.app.before_request
+            def disable_csrf_for_milotalent():
+                # Debug: Log TODAS las peticiones para investigar
+                print(f"🔍 PETICIÓN: {request.method} -> {request.endpoint} -> {request.url}")
+                
+                if request.endpoint and request.endpoint.startswith("milotalent."):
+                    # Debug: Log todas las peticiones a MiloTalent
+                    print(f"🔍 Petición MiloTalent: {request.method} {request.endpoint}")
+                    print(f"🔍 URL: {request.url}")
+                    if request.method == 'POST':
+                        print(f"🔍 Form data: {dict(request.form)}")
+                    
+                    # Deshabilitar CSRF para todas las rutas de MiloTalent
+                    from flask import g
+                    g._csrf_token = False
+
+            print("✅ MiloTalent integrado exitosamente (nueva estructura PS)")
+        except Exception as e:
+            print(f"⚠️  Error integrando MiloTalent: {e}")
+
         @self.app.route("/")
         def index():
             """Página principal"""
@@ -291,7 +334,7 @@ class MiloAppsApp:
                     "ip_address": "192.168.1.10",
                     "browser": "Chrome",
                     "created_at": "2025-10-05T10:00:00",
-                    "relative_time": "2025-10-05T10:00:00"
+                    "relative_time": "2025-10-05T10:00:00",
                 },
                 {
                     "id": 2,
@@ -301,7 +344,7 @@ class MiloAppsApp:
                     "ip_address": "192.168.1.10",
                     "browser": "Firefox",
                     "created_at": "2025-10-04T18:30:00",
-                    "relative_time": "2025-10-04T18:30:00"
+                    "relative_time": "2025-10-04T18:30:00",
                 },
                 {
                     "id": 3,
@@ -311,15 +354,17 @@ class MiloAppsApp:
                     "ip_address": "192.168.1.10",
                     "browser": "Edge",
                     "created_at": "2025-10-03T09:15:00",
-                    "relative_time": "2025-10-03T09:15:00"
-                }
+                    "relative_time": "2025-10-03T09:15:00",
+                },
             ]
-            return jsonify({
-                "activities": activities,
-                "total": len(activities),
-                "user_id": current_user.id,
-                "mock": True
-            })
+            return jsonify(
+                {
+                    "activities": activities,
+                    "total": len(activities),
+                    "user_id": current_user.id,
+                    "mock": True,
+                }
+            )
 
         @self.app.route("/api/switch-env", methods=["POST"])
         @login_required
@@ -374,9 +419,20 @@ class MiloAppsApp:
 
         @self.app.errorhandler(400)
         def bad_request(error):
+            # DEBUG: Error 400 - vamos a investigar
+            print(f"❌ ERROR 400 CAPTURADO!")
+            print(f"URL: {request.url}")
+            print(f"Method: {request.method}")
+            print(f"Endpoint: {request.endpoint}")
+            print(f"Error: {error}")
+            print(f"Form: {dict(request.form)}")
+            print("=" * 50)
+            
             return (
                 render_template(
-                    "error.html", error_code=400, error_message="Solicitud incorrecta"
+                    "error_simple.html",
+                    error_code=400,
+                    error_message="Solicitud incorrecta",
                 ),
                 400,
             )

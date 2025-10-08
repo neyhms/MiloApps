@@ -1,0 +1,366 @@
+{% extends "MiloAuth/base_auth.html" %}
+
+{% block title %}MiloTalent - Sistema de Contratación de PS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-card.success {
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    }
+    
+    .stat-card.warning {
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    }
+    
+    .stat-card.danger {
+        background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    }
+    
+    .stat-card.info {
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .alert-card {
+        border-left: 4px solid #ff9800;
+        background: #fff3e0;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .alert-card.urgent {
+        border-left-color: #f44336;
+        background: #ffebee;
+    }
+    
+    .ps-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .ps-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    
+    .estado-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .estado-registro { background: #e3f2fd; color: #1976d2; }
+    .estado-validacion { background: #fff3e0; color: #f57c00; }
+    .estado-diagnostico { background: #f3e5f5; color: #7b1fa2; }
+    .estado-activo { background: #e8f5e8; color: #2e7d32; }
+    .estado-finalizado { background: #f5f5f5; color: #616161; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">MiloTalent</li>
+    </ol>
+</nav>
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-users-cog me-2"></i>
+                MiloTalent - Dashboard
+            </h1>
+            <p class="text-muted">Sistema de Contratación de Prestadores de Servicios</p>
+        </div>
+        <div>
+            <a href="{{ url_for('milotalent.registro_ps') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Nuevo PS
+            </a>
+        </div>
+    </div>
+    
+    <!-- Estadísticas Generales -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_ps }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-users me-1"></i>Total PS Registrados
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card success">
+                <div class="stat-value">{{ ps_activos }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-check-circle me-1"></i>Contratos Activos
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card warning">
+                <div class="stat-value">{{ ps_en_proceso }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-clock me-1"></i>En Proceso
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card info">
+                <div class="stat-value">${{ "{:,.0f}".format(cdp_disponible) }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-dollar-sign me-1"></i>CDP Disponible
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alertas y Seguimiento -->
+    {% if alertas_urgentes > 0 %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger" role="alert">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Alertas Urgentes</h5>
+                <p class="mb-0">Tienes {{ alertas_urgentes }} alertas que requieren atención inmediata.</p>
+                <a href="{{ url_for('milotalent.alertas_lista') }}" class="btn btn-outline-danger btn-sm mt-2">
+                    Ver Alertas
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Accesos Rápidos a Módulos -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4><i class="fas fa-th-large me-2"></i>Módulos del Sistema</h4>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                    <h6>Registro y Validación</h6>
+                    <p class="text-muted small">Capturar datos del PS y validar requisitos</p>
+                    <a href="{{ url_for('milotalent.registro_ps') }}" class="btn btn-outline-primary btn-sm">
+                        Acceder
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-search-dollar fa-3x text-success mb-3"></i>
+                    <h6>Diagnóstico y Ubicación</h6>
+                    <p class="text-muted small">Determinar idoneidad y tabla GVAL</p>
+                    <a href="{{ url_for('milotalent.diagnostico_lista') }}" class="btn btn-outline-success btn-sm">
+                        Acceder
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave fa-3x text-warning mb-3"></i>
+                    <h6>Gestión Presupuestal</h6>
+                    <p class="text-muted small">Controlar CDP y disponibilidad</p>
+                    <a href="{{ url_for('milotalent.gestion_cdp') }}" class="btn btn-outline-warning btn-sm">
+                        Acceder
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-folder-open fa-3x text-info mb-3"></i>
+                    <h6>Expedientes</h6>
+                    <p class="text-muted small">Generar expediente precontractual</p>
+                    <a href="{{ url_for('milotalent.expedientes_lista') }}" class="btn btn-outline-info btn-sm">
+                        Acceder
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-database fa-3x text-secondary mb-3"></i>
+                    <h6>Base de Datos</h6>
+                    <p class="text-muted small">Consultar PS institucional</p>
+                    <a href="{{ url_for('milotalent.base_datos_ps') }}" class="btn btn-outline-secondary btn-sm">
+                        Acceder
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-bell fa-3x text-danger mb-3"></i>
+                    <h6>Alertas</h6>
+                    <p class="text-muted small">Seguimiento y vencimientos</p>
+                    <a href="{{ url_for('milotalent.alertas_lista') }}" class="btn btn-outline-danger btn-sm">
+                        Acceder
+                        {% if alertas_activas > 0 %}
+                        <span class="badge bg-danger ms-1">{{ alertas_activas }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PS Recientes y Alertas -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>PS Registrados Recientemente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if ps_recientes %}
+                        {% for ps in ps_recientes %}
+                        <div class="ps-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <a href="{{ url_for('milotalent.ver_prestador', ps_id=ps.id_ps) }}" 
+                                           class="text-decoration-none">
+                                            {{ ps.nombre_completo }}
+                                        </a>
+                                    </h6>
+                                    <p class="text-muted small mb-1">{{ ps.perfil_profesional }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ ps.fecha_registro.strftime('%d/%m/%Y') }}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="estado-badge estado-{{ ps.estado.value }}">
+                                        {{ ps.estado_legible }}
+                                    </span>
+                                    {% if ps.dependencia_asignada %}
+                                    <br><small class="text-muted">{{ ps.dependencia_asignada }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('milotalent.base_datos_ps') }}" class="btn btn-outline-primary">
+                                Ver Todos los PS
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No hay PS registrados aún</p>
+                            <a href="{{ url_for('milotalent.registro_ps') }}" class="btn btn-primary">
+                                Registrar Primer PS
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-circle me-2"></i>Alertas Recientes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if alertas_recientes %}
+                        {% for alerta in alertas_recientes %}
+                        <div class="alert-card {{ 'urgent' if alerta.es_urgente else '' }}">
+                            <h6 class="mb-1">{{ alerta.titulo }}</h6>
+                            <p class="text-muted small mb-1">{{ alerta.descripcion[:100] }}...</p>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                {% if alerta.dias_restantes > 0 %}
+                                    {{ alerta.dias_restantes }} días restantes
+                                {% else %}
+                                    Vencida
+                                {% endif %}
+                            </small>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('milotalent.alertas_lista') }}" class="btn btn-outline-warning">
+                                Ver Todas las Alertas
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <p class="text-muted">No hay alertas pendientes</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Actualizar estadísticas cada 30 segundos
+    setInterval(function() {
+        fetch('{{ url_for("milotalent.api_stats") }}')
+            .then(response => response.json())
+            .then(data => {
+                // Actualizar estadísticas en tiempo real
+                document.querySelector('.stat-card .stat-value').textContent = data.total_ps;
+                document.querySelector('.stat-card.success .stat-value').textContent = data.ps_activos;
+                document.querySelector('.stat-card.info .stat-value').textContent = 
+                    '$' + new Intl.NumberFormat().format(data.cdp_disponible);
+            })
+            .catch(error => console.log('Error actualizando stats:', error));
+    }, 30000);
+</script>
+{% endblock %}

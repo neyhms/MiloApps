@@ -1,0 +1,245 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ config.nombre }} - Gestión de Entidades{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-list me-2"></i>{{ config.nombre }}
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ url_for('entidades.admin_entidades') }}">Entidades</a>
+                            </li>
+                            <li class="breadcrumb-item active">{{ config.nombre }}</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    <a href="{{ url_for('entidades.crear_entidad', tipo=tipo) }}" 
+                       class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>Nueva {{ config.singular }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card border-light">
+                <div class="card-body py-3">
+                    <form method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="buscar" class="form-label">Buscar</label>
+                            <input type="text" class="form-control" id="buscar" name="buscar" 
+                                   value="{{ buscar }}" placeholder="Nombre o código...">
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="activos" 
+                                       name="activos" value="1" {{ 'checked' if solo_activos }}>
+                                <label class="form-check-label" for="activos">
+                                    Solo activos
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <select class="form-select" name="per_page">
+                                <option value="20" {{ 'selected' if request.args.get('per_page', '20') == '20' }}>20 por página</option>
+                                <option value="50" {{ 'selected' if request.args.get('per_page') == '50' }}>50 por página</option>
+                                <option value="100" {{ 'selected' if request.args.get('per_page') == '100' }}>100 por página</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search me-1"></i>Buscar
+                            </button>
+                            <a href="{{ url_for('entidades.listar_entidades', tipo=tipo) }}" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de entidades -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Lista de {{ config.nombre }}</h5>
+                    <small class="text-muted">
+                        Mostrando {{ entidades.items|length }} de {{ entidades.total }} registros
+                    </small>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 60px;">ID</th>
+                                <th style="width: 100px;">Código</th>
+                                <th>Nombre</th>
+                                {% if 'departamento' in config.campos_especiales %}
+                                <th>Departamento</th>
+                                {% endif %}
+                                {% if 'nit' in config.campos_especiales %}
+                                <th>NIT</th>
+                                {% endif %}
+                                <th style="width: 80px;">Orden</th>
+                                <th style="width: 100px;">Estado</th>
+                                <th style="width: 150px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if entidades.items %}
+                                {% for entidad in entidades.items %}
+                                <tr>
+                                    <td>{{ entidad.id }}</td>
+                                    <td>
+                                        {% if entidad.codigo %}
+                                            <code class="text-primary">{{ entidad.codigo }}</code>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong>{{ entidad.nombre }}</strong>
+                                        {% if entidad.permite_otros %}
+                                            <span class="badge bg-info ms-1">Permite Otros</span>
+                                        {% endif %}
+                                    </td>
+                                    {% if 'departamento' in config.campos_especiales %}
+                                    <td>{{ entidad.departamento or '-' }}</td>
+                                    {% endif %}
+                                    {% if 'nit' in config.campos_especiales %}
+                                    <td>{{ entidad.nit or '-' }}</td>
+                                    {% endif %}
+                                    <td>
+                                        <span class="badge bg-secondary">{{ entidad.orden }}</span>
+                                    </td>
+                                    <td>
+                                        {% if entidad.activo %}
+                                            <span class="badge bg-success">Activo</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactivo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('entidades.editar_entidad', tipo=tipo, entidad_id=entidad.id) }}" 
+                                               class="btn btn-outline-primary" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if entidad.activo %}
+                                            <button class="btn btn-outline-danger" 
+                                                    onclick="eliminarEntidad({{ entidad.id }}, '{{ entidad.nombre }}')"
+                                                    title="Desactivar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                        No se encontraron {{ config.nombre.lower() }}
+                                        {% if buscar %}con el criterio "{{ buscar }}"{% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                {% if entidades.pages > 1 %}
+                <div class="card-footer">
+                    <nav aria-label="Paginación">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if entidades.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('entidades.listar_entidades', tipo=tipo, page=entidades.prev_num, buscar=buscar, activos=request.args.get('activos'), per_page=request.args.get('per_page')) }}">
+                                    Anterior
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in entidades.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != entidades.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('entidades.listar_entidades', tipo=tipo, page=page_num, buscar=buscar, activos=request.args.get('activos'), per_page=request.args.get('per_page')) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">…</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if entidades.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('entidades.listar_entidades', tipo=tipo, page=entidades.next_num, buscar=buscar, activos=request.args.get('activos'), per_page=request.args.get('per_page')) }}">
+                                    Siguiente
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function eliminarEntidad(id, nombre) {
+    if (confirm(`¿Está seguro de que desea desactivar "${nombre}"?`)) {
+        fetch(`/admin/entidades/{{ tipo }}/${id}/eliminar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error de conexión');
+            console.error('Error:', error);
+        });
+    }
+}
+</script>
+{% endblock %}

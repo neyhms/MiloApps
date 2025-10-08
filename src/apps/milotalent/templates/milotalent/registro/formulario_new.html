@@ -1,0 +1,505 @@
+{% extends "MiloAuth/base_auth.html" %}
+
+{% block title %}Registro de Prestador de Servicios{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-group-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 0;
+        font-weight: 600;
+    }
+    
+    .form-group-content {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .btn-group-custom {
+        gap: 10px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .section-divider {
+        height: 2px;
+        background: linear-gradient(to right, #667eea, #764ba2);
+        margin: 30px 0;
+        border-radius: 1px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="form-container">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h2>
+                        <i class="fas fa-user-plus me-3"></i>Registro de Prestador de Servicios
+                    </h2>
+                    <p class="text-muted">Complete toda la información requerida para el registro en SAP y sistemas de nómina</p>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('milotalent.crear_ps') }}" id="registroForm" novalidate>
+                    
+                    <!-- GRUPO 1: IDENTIFICACIÓN -->
+                    <div class="form-group-header">
+                        <i class="fas fa-id-card me-2"></i>Información de Identificación
+                    </div>
+                    <div class="form-group-content">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="cedula_ps" class="form-label required-field">Cédula</label>
+                                <input type="text" class="form-control" id="cedula_ps" name="cedula_ps" 
+                                       required maxlength="10" pattern="[0-9]{7,10}"
+                                       placeholder="Ej: 1234567890">
+                                <div class="form-text">Solo números, máximo 10 dígitos</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="expedida" class="form-label required-field">Expedida en</label>
+                                <input type="text" class="form-control" id="expedida" name="expedida" 
+                                       required placeholder="Ej: CALI (VAL)">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="sexo" class="form-label required-field">Sexo</label>
+                                <select class="form-select" id="sexo" name="sexo" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <label for="nombre_1" class="form-label required-field">Primer Nombre</label>
+                                <input type="text" class="form-control" id="nombre_1" name="nombre_1" 
+                                       required maxlength="50" placeholder="Ej: Juan">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="nombre_2" class="form-label">Segundo Nombre</label>
+                                <input type="text" class="form-control" id="nombre_2" name="nombre_2" 
+                                       maxlength="50" placeholder="Ej: Carlos">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="apellido_1" class="form-label required-field">Primer Apellido</label>
+                                <input type="text" class="form-control" id="apellido_1" name="apellido_1" 
+                                       required maxlength="50" placeholder="Ej: Pérez">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="apellido_2" class="form-label">Segundo Apellido</label>
+                                <input type="text" class="form-control" id="apellido_2" name="apellido_2" 
+                                       maxlength="50" placeholder="Ej: López">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GRUPO 2: NACIMIENTO -->
+                    <div class="form-group-header">
+                        <i class="fas fa-birthday-cake me-2"></i>Información de Nacimiento
+                    </div>
+                    <div class="form-group-content">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="fecha_nacimiento" class="form-label required-field">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="ciudad_nacimiento" class="form-label required-field">Ciudad de Nacimiento</label>
+                                <input type="text" class="form-control" id="ciudad_nacimiento" name="ciudad_nacimiento" 
+                                       required placeholder="Ej: CALI (VAL)">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="pais_nacimiento" class="form-label required-field">País de Nacimiento</label>
+                                <select class="form-select" id="pais_nacimiento" name="pais_nacimiento" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="CO" selected>COLOMBIA</option>
+                                    <option value="VE">VENEZUELA</option>
+                                    <option value="EC">ECUADOR</option>
+                                    <option value="PE">PERÚ</option>
+                                    <option value="BR">BRASIL</option>
+                                    <option value="AR">ARGENTINA</option>
+                                    <option value="US">ESTADOS UNIDOS</option>
+                                    <option value="ES">ESPAÑA</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GRUPO 3: CONTACTO Y RESIDENCIA -->
+                    <div class="form-group-header">
+                        <i class="fas fa-map-marker-alt me-2"></i>Información de Contacto y Residencia
+                    </div>
+                    <div class="form-group-content">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="direccion" class="form-label required-field">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" name="direccion" 
+                                       required maxlength="200" placeholder="Ej: CL. 24 A # 16 -47">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="municipio_residencia" class="form-label required-field">Municipio de Residencia</label>
+                                <input type="text" class="form-control" id="municipio_residencia" name="municipio_residencia" 
+                                       required placeholder="Ej: JAMUNDI (VAL)">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="pais_residencia" class="form-label required-field">País de Residencia</label>
+                                <select class="form-select" id="pais_residencia" name="pais_residencia" required>
+                                    <option value="CO" selected>COLOMBIA</option>
+                                    <option value="VE">VENEZUELA</option>
+                                    <option value="EC">ECUADOR</option>
+                                    <option value="PE">PERÚ</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="telefono" class="form-label required-field">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono" 
+                                       required placeholder="Ej: 3174299552 - 6022681220">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="mail" class="form-label required-field">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="mail" name="mail" 
+                                       required placeholder="Ej: usuario@ejemplo.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GRUPO 4: INFORMACIÓN PERSONAL -->
+                    <div class="form-group-header">
+                        <i class="fas fa-user me-2"></i>Información Personal
+                    </div>
+                    <div class="form-group-content">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="profesion" class="form-label required-field">Profesión</label>
+                                <input type="text" class="form-control" id="profesion" name="profesion" 
+                                       required placeholder="Ej: CONTADOR PÚBLICO">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="estado_civil" class="form-label required-field">Estado Civil</label>
+                                <select class="form-select" id="estado_civil" name="estado_civil" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="Soltero">Soltero</option>
+                                    <option value="Casado">Casado</option>
+                                    <option value="Unión Libre">Unión Libre</option>
+                                    <option value="Divorciado">Divorciado</option>
+                                    <option value="Viudo">Viudo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="no_hijos" class="form-label required-field">Número de Hijos</label>
+                                <input type="number" class="form-control" id="no_hijos" name="no_hijos" 
+                                       required min="0" max="20" value="0">
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <label for="rh" class="form-label required-field">Tipo de Sangre (RH)</label>
+                                <select class="form-select" id="rh" name="rh" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="discapacidad" class="form-label required-field">Discapacidad</label>
+                                <input type="text" class="form-control" id="discapacidad" name="discapacidad" 
+                                       value="NINGUNA" placeholder="Especificar o NINGUNA">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="identidad_genero" class="form-label required-field">Identidad de Género</label>
+                                <select class="form-select" id="identidad_genero" name="identidad_genero" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="MASCULINO">MASCULINO</option>
+                                    <option value="FEMENINO">FEMENINO</option>
+                                    <option value="NO BINARIO">NO BINARIO</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="raza" class="form-label required-field">Raza/Etnia</label>
+                                <select class="form-select" id="raza" name="raza" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="MESTIZO">MESTIZO</option>
+                                    <option value="AFRODESCENDIENTE">AFRODESCENDIENTE</option>
+                                    <option value="INDÍGENA">INDÍGENA</option>
+                                    <option value="BLANCO">BLANCO</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GRUPO 5: INFORMACIÓN BANCARIA -->
+                    <div class="form-group-header">
+                        <i class="fas fa-university me-2"></i>Información Bancaria
+                    </div>
+                    <div class="form-group-content">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="banco" class="form-label required-field">Banco</label>
+                                <select class="form-select" id="banco" name="banco" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="BANCO AV VILLAS">BANCO AV VILLAS</option>
+                                    <option value="BANCOLOMBIA">BANCOLOMBIA</option>
+                                    <option value="BANCO DE BOGOTÁ">BANCO DE BOGOTÁ</option>
+                                    <option value="BANCO POPULAR">BANCO POPULAR</option>
+                                    <option value="BBVA">BBVA</option>
+                                    <option value="BANCO CAJA SOCIAL">BANCO CAJA SOCIAL</option>
+                                    <option value="BANCO DAVIVIENDA">BANCO DAVIVIENDA</option>
+                                    <option value="BANCO FALABELLA">BANCO FALABELLA</option>
+                                    <option value="BANCO GNB SUDAMERIS">BANCO GNB SUDAMERIS</option>
+                                    <option value="NEQUI">NEQUI</option>
+                                    <option value="DAVIPLATA">DAVIPLATA</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="cuenta_bancaria" class="form-label required-field">Número de Cuenta</label>
+                                <input type="text" class="form-control" id="cuenta_bancaria" name="cuenta_bancaria" 
+                                       required placeholder="Ej: 131-90620-3">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="tipo_cuenta" class="form-label required-field">Tipo de Cuenta</label>
+                                <select class="form-select" id="tipo_cuenta" name="tipo_cuenta" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="02 Cuenta de Ahorros">02 Cuenta de Ahorros</option>
+                                    <option value="01 Cuenta Corriente">01 Cuenta Corriente</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GRUPO 6: SEGURIDAD SOCIAL -->
+                    <div class="form-group-header">
+                        <i class="fas fa-shield-alt me-2"></i>Seguridad Social y Tributaria
+                    </div>
+                    <div class="form-group-content">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="regimen_iva" class="form-label required-field">Régimen de IVA</label>
+                                <select class="form-select" id="regimen_iva" name="regimen_iva" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="98 RUT Régimen Simplificado">98 RUT Régimen Simplificado</option>
+                                    <option value="97 RUT Régimen Común">97 RUT Régimen Común</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="eps" class="form-label required-field">EPS</label>
+                                <select class="form-select" id="eps" name="eps" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="SUSALUD - SURA - SURAMERICANA E.P.S.">SUSALUD - SURA - SURAMERICANA E.P.S.</option>
+                                    <option value="NUEVA EPS">NUEVA EPS</option>
+                                    <option value="COMPENSAR">COMPENSAR</option>
+                                    <option value="FAMISANAR">FAMISANAR</option>
+                                    <option value="SANITAS">SANITAS</option>
+                                    <option value="SALUD TOTAL">SALUD TOTAL</option>
+                                    <option value="MEDIMAS">MEDIMAS</option>
+                                    <option value="COMFENALCO VALLE">COMFENALCO VALLE</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <label for="afp" class="form-label required-field">AFP (Fondo de Pensiones)</label>
+                                <select class="form-select" id="afp" name="afp" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="PORVENIR">PORVENIR</option>
+                                    <option value="PROTECCIÓN">PROTECCIÓN</option>
+                                    <option value="COLFONDOS">COLFONDOS</option>
+                                    <option value="OLD MUTUAL">OLD MUTUAL</option>
+                                    <option value="COLPENSIONES">COLPENSIONES</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="arl" class="form-label required-field">ARL</label>
+                                <select class="form-select" id="arl" name="arl" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="POSITIVA ARL">POSITIVA ARL</option>
+                                    <option value="SURA ARL">SURA ARL</option>
+                                    <option value="COLMENA ARL">COLMENA ARL</option>
+                                    <option value="LIBERTY ARL">LIBERTY ARL</option>
+                                    <option value="MAPFRE ARL">MAPFRE ARL</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="tipo_riesgo" class="form-label required-field">Tipo de Riesgo</label>
+                                <select class="form-select" id="tipo_riesgo" name="tipo_riesgo" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="001 Labores administrativas Clase I">001 Labores administrativas Clase I</option>
+                                    <option value="002 Labores operativas Clase II">002 Labores operativas Clase II</option>
+                                    <option value="003 Labores de riesgo medio Clase III">003 Labores de riesgo medio Clase III</option>
+                                    <option value="004 Labores de alto riesgo Clase IV">004 Labores de alto riesgo Clase IV</option>
+                                    <option value="005 Labores de máximo riesgo Clase V">005 Labores de máximo riesgo Clase V</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="caja" class="form-label">Caja de Compensación</label>
+                                <input type="text" class="form-control" id="caja" name="caja" 
+                                       placeholder="Ej: COMFENALCO, COMPENSAR (Opcional)">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="operador_ss" class="form-label required-field">Operador Seguridad Social</label>
+                                <select class="form-select" id="operador_ss" name="operador_ss" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="APORTES EN LINEA">APORTES EN LINEA</option>
+                                    <option value="MI PLANILLA">MI PLANILLA</option>
+                                    <option value="PLANILLA ASISTIDA">PLANILLA ASISTIDA</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GRUPO 7: INFORMACIÓN DEL SISTEMA -->
+                    <div class="form-group-header">
+                        <i class="fas fa-cog me-2"></i>Información del Sistema
+                    </div>
+                    <div class="form-group-content">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="codigo_sap" class="form-label required-field">Código SAP</label>
+                                <input type="text" class="form-control" id="codigo_sap" name="codigo_sap" 
+                                       required maxlength="20" placeholder="Ej: 1000698">
+                                <div class="form-text">Código único en el sistema SAP</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="nuevo_viejo" class="form-label required-field">Nuevo/Viejo</label>
+                                <select class="form-select" id="nuevo_viejo" name="nuevo_viejo" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="N">Nuevo (N)</option>
+                                    <option value="V">Viejo (V)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="area_personal" class="form-label required-field">Área Personal</label>
+                                <select class="form-select" id="area_personal" name="area_personal" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="PH">Personal de Planta (PH)</option>
+                                    <option value="PS">Prestación de Servicios (PS)</option>
+                                    <option value="CT">Contratista (CT)</option>
+                                    <option value="PR">Practicante (PR)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <!-- BOTONES DE ACCIÓN -->
+                    <div class="d-flex justify-content-between btn-group-custom">
+                        <a href="{{ url_for('milotalent.dashboard') }}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Registrar Prestador de Servicios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validación del formulario
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registroForm');
+    
+    // Validación en tiempo real de cédula
+    const cedulaInput = document.getElementById('cedula_ps');
+    cedulaInput.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+        if (this.value.length > 10) {
+            this.value = this.value.slice(0, 10);
+        }
+    });
+    
+    // Validación antes del envío
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        const requiredFields = form.querySelectorAll('[required]');
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Por favor complete todos los campos obligatorios marcados con *');
+            return false;
+        }
+        
+        // Validación específica de cédula
+        const cedula = cedulaInput.value;
+        if (cedula.length < 7 || cedula.length > 10) {
+            e.preventDefault();
+            alert('La cédula debe tener entre 7 y 10 dígitos');
+            cedulaInput.focus();
+            return false;
+        }
+    });
+    
+    // Tooltips para ayuda
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

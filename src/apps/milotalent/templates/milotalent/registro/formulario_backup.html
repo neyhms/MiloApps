@@ -1,0 +1,279 @@
+{% extends "MiloAuth/base_auth.html" %}
+
+{% block title %}Registro de Prestador de Servicios - MiloTalent{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #007bff;
+    }
+    
+    .form-section h6 {
+        color: #007bff;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+    }
+    
+    .btn-cancel {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('milotalent.dashboard') }}">MiloTalent</a></li>
+        <li class="breadcrumb-item active">Registro de PS</li>
+    </ol>
+</nav>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-user-plus me-2 text-primary"></i>
+                Registro de Prestador de Servicios
+            </h1>
+            <p class="text-muted">Complete la información básica del PS para iniciar el proceso de contratación</p>
+        </div>
+        <div>
+            <a href="{{ url_for('milotalent.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Volver al Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Información del Proceso -->
+    <div class="info-card">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle fa-2x text-primary me-3"></i>
+            <div>
+                <h6 class="mb-1">Proceso de Registro - Paso 1 de 9</h6>
+                <p class="mb-0 small">Después del registro, el PS pasará por validación de documentos y diagnóstico de idoneidad.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <form method="POST" action="{{ url_for('milotalent.crear_ps') }}" class="needs-validation" novalidate>
+        
+        <!-- Información Personal -->
+        <div class="form-section">
+            <h6><i class="fas fa-user me-2"></i>Información Personal</h6>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="cedula" class="form-label required-field">Número de Cédula</label>
+                    <input type="text" class="form-control" id="cedula" name="cedula" required 
+                           pattern="[0-9]+" minlength="6" maxlength="12"
+                           placeholder="Ej: 1234567890">
+                    <div class="invalid-feedback">
+                        Ingrese un número de cédula válido (6-12 dígitos)
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <label for="nombre_completo" class="form-label required-field">Nombre Completo</label>
+                    <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" required
+                           maxlength="255" placeholder="Nombres y apellidos completos">
+                    <div class="invalid-feedback">
+                        El nombre completo es obligatorio
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="correo" class="form-label required-field">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="correo" name="correo" required
+                           maxlength="255" placeholder="ejemplo@correo.com">
+                    <div class="invalid-feedback">
+                        Ingrese un correo electrónico válido
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="telefono" name="telefono"
+                           minlength="7" maxlength="20"
+                           placeholder="Ej: +57 300 123 4567">
+                    <div class="invalid-feedback">
+                        Formato de teléfono no válido
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información Profesional -->
+        <div class="form-section">
+            <h6><i class="fas fa-briefcase me-2"></i>Información Profesional</h6>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="perfil_profesional" class="form-label required-field">Perfil Profesional</label>
+                    <select class="form-select" id="perfil_profesional" name="perfil_profesional" required>
+                        <option value="">Seleccione un perfil...</option>
+                        <option value="TECNICO">Técnico</option>
+                        <option value="TECNOLOGO">Tecnólogo</option>
+                        <option value="PROFESIONAL">Profesional</option>
+                        <option value="ESPECIALISTA">Especialista</option>
+                        <option value="MAGISTER">Magíster</option>
+                        <option value="DOCTOR">Doctor</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Seleccione el perfil profesional
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="experiencia_meses" class="form-label required-field">Experiencia Total (Meses)</label>
+                    <input type="number" class="form-control" id="experiencia_meses" name="experiencia_meses" 
+                           required min="0" max="600" placeholder="Ej: 36">
+                    <div class="invalid-feedback">
+                        Ingrese la experiencia en meses (0-600)
+                    </div>
+                    <small class="form-text text-muted">Experiencia profesional general en meses</small>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="sector" class="form-label required-field">Sector de Experiencia</label>
+                    <select class="form-select" id="sector" name="sector" required>
+                        <option value="">Seleccione un sector...</option>
+                        <option value="PUBLICO">Sector Público</option>
+                        <option value="PRIVADO">Sector Privado</option>
+                        <option value="MIXTO">Sector Mixto</option>
+                        <option value="ACADEMICO">Sector Académico</option>
+                        <option value="ONG">ONG/Sin Ánimo de Lucro</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Seleccione el sector de experiencia
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="modalidad" class="form-label required-field">Modalidad de Contrato</label>
+                    <select class="form-select" id="modalidad" name="modalidad" required>
+                        <option value="">Seleccione modalidad...</option>
+                        <option value="PRESTACION_SERVICIOS">Prestación de Servicios</option>
+                        <option value="OBRA_LABOR">Obra o Labor</option>
+                        <option value="CONSULTOR">Consultor</option>
+                        <option value="APOYO_GESTION">Apoyo a la Gestión</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Seleccione la modalidad de contrato
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <a href="{{ url_for('milotalent.dashboard') }}" class="btn btn-cancel text-white">
+                <i class="fas fa-times me-1"></i>Cancelar
+            </a>
+            
+            <div>
+                <button type="button" class="btn btn-outline-primary me-2" onclick="limpiarFormulario()">
+                    <i class="fas fa-eraser me-1"></i>Limpiar
+                </button>
+                <button type="submit" class="btn btn-save text-white">
+                    <i class="fas fa-save me-1"></i>Registrar PS
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validación del formulario Bootstrap
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Validar cédula en tiempo real
+document.getElementById('cedula').addEventListener('input', function(e) {
+    var regexNumeros = new RegExp('[^0-9]', 'g');
+    let cedula = e.target.value.replace(regexNumeros, ''); // Solo números
+    e.target.value = cedula;
+    
+    if (cedula.length >= 6) {
+        // Aquí se podría agregar validación con API externa
+        e.target.classList.remove('is-invalid');
+        e.target.classList.add('is-valid');
+    } else {
+        e.target.classList.remove('is-valid');
+    }
+});
+
+// Formatear teléfono
+document.getElementById('telefono').addEventListener('input', function(e) {
+    let telefono = e.target.value;
+    // Permitir números, espacios, paréntesis, guiones y signo +
+    var regexTelefono = new RegExp('[^0-9\\s\\(\\)\\-\\+]', 'g');
+    telefono = telefono.replace(regexTelefono, '');
+    e.target.value = telefono;
+});
+
+// Limpiar formulario
+function limpiarFormulario() {
+    if (confirm('¿Está seguro de que desea limpiar todos los campos?')) {
+        document.querySelector('form').reset();
+        document.querySelectorAll('.form-control, .form-select').forEach(function(element) {
+            element.classList.remove('is-valid', 'is-invalid');
+        });
+        document.querySelector('form').classList.remove('was-validated');
+    }
+}
+
+// Auto-focus en el primer campo
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('cedula').focus();
+});
+</script>
+{% endblock %}

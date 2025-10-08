@@ -1,0 +1,71 @@
+{% extends "MiloAuth/base_auth.html" %}
+
+{% block title %}Registro PS - MiloTalent{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Registro de Prestador de Servicios</h1>
+    
+    <form method="POST" action="{{ url_for('milotalent.crear_ps') }}">
+        <div class="mb-3">
+            <label for="cedula" class="form-label">Cédula *</label>
+            <input type="text" class="form-control" id="cedula" name="cedula" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="nombre_completo" class="form-label">Nombre Completo *</label>
+            <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" required maxlength="255">
+        </div>
+        
+        <div class="mb-3">
+            <label for="correo" class="form-label">Correo *</label>
+            <input type="email" class="form-control" id="correo" name="correo" required maxlength="255">
+        </div>
+        
+        <div class="mb-3">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <input type="tel" class="form-control" id="telefono" name="telefono" maxlength="20">
+        </div>
+        
+        <div class="mb-3">
+            <label for="perfil_profesional" class="form-label">Perfil *</label>
+            <select class="form-select" id="perfil_profesional" name="perfil_profesional" required>
+                <option value="">Seleccione...</option>
+                <option value="TECNICO">Técnico</option>
+                <option value="PROFESIONAL">Profesional</option>
+                <option value="ESPECIALISTA">Especialista</option>
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="experiencia_meses" class="form-label">Experiencia (meses) *</label>
+            <input type="number" class="form-control" id="experiencia_meses" name="experiencia_meses" required min="0" max="600">
+        </div>
+        
+        <div class="mb-3">
+            <label for="sector" class="form-label">Sector *</label>
+            <select class="form-select" id="sector" name="sector" required>
+                <option value="">Seleccione...</option>
+                <option value="PUBLICO">Público</option>
+                <option value="PRIVADO">Privado</option>
+                <option value="MIXTO">Mixto</option>
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="modalidad" class="form-label">Modalidad *</label>
+            <select class="form-select" id="modalidad" name="modalidad" required>
+                <option value="">Seleccione...</option>
+                <option value="PRESTACION_SERVICIOS">Prestación de Servicios</option>
+                <option value="OBRA_LABOR">Obra o Labor</option>
+                <option value="CONSULTOR">Consultor</option>
+            </select>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('milotalent.dashboard') }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Registrar PS</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

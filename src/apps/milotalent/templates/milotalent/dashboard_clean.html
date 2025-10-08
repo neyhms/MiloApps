@@ -1,0 +1,105 @@
+{% extends "MiloAuth/base_auth.html" %}
+
+{% block title %}MiloTalent{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">MiloTalent - Dashboard</h1>
+            <p class="text-muted">Sistema de Contratación de Prestadores de Servicios</p>
+        </div>
+        <div>
+            <a href="/talent/registro" class="btn btn-primary">+ Nuevo PS</a>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h3>{{ total_ps or 0 }}</h3>
+                    <p>Total PS Registrados</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h3>{{ ps_activos or 0 }}</h3>
+                    <p>Contratos Activos</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h3>{{ ps_en_proceso or 0 }}</h3>
+                    <p>En Proceso</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h3>${{ "%.2f"|format(cdp_disponible or 0) }}</h3>
+                    <p>CDP Disponible</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <h4>Módulos del Sistema</h4>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                    <h6>Registro y Validación</h6>
+                    <p class="text-muted small">Capturar datos del PS</p>
+                    <a href="/talent/registro" class="btn btn-outline-primary btn-sm">Acceder</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-search-dollar fa-3x text-success mb-3"></i>
+                    <h6>Diagnóstico</h6>
+                    <p class="text-muted small">Evaluar idoneidad</p>
+                    <a href="#" class="btn btn-outline-success btn-sm">Acceder</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave fa-3x text-warning mb-3"></i>
+                    <h6>Presupuesto</h6>
+                    <p class="text-muted small">Gestión CDP</p>
+                    <a href="#" class="btn btn-outline-warning btn-sm">Acceder</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-folder-open fa-3x text-info mb-3"></i>
+                    <h6>Expedientes</h6>
+                    <p class="text-muted small">Documentación</p>
+                    <a href="#" class="btn btn-outline-info btn-sm">Acceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
