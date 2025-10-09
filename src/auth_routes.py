@@ -212,11 +212,8 @@ def login():
 
             flash(f"¡Bienvenido, {user.first_name}!", "success")
 
-            # Redireccionar a página solicitada o dashboard
-            next_page = request.args.get("next")
-            if not next_page or urlparse(next_page).netloc != "":
-                next_page = url_for("dashboard")
-
+            # Redireccionar siempre al dashboard principal
+            next_page = url_for("dashboard")
             return redirect(next_page)
 
         else:
@@ -421,53 +418,58 @@ def upload_profile_picture():
     import secrets
     from werkzeug.utils import secure_filename
     from PIL import Image
-    
-    if 'profile_picture' not in request.files:
-        return jsonify({'success': False, 'message': 'No se seleccionó archivo'})
-    
-    file = request.files['profile_picture']
-    if file.filename == '':
-        return jsonify({'success': False, 'message': 'No se seleccionó archivo'})
-    
+
+    if "profile_picture" not in request.files:
+        return jsonify({"success": False, "message": "No se seleccionó archivo"})
+
+    file = request.files["profile_picture"]
+    if file.filename == "":
+        return jsonify({"success": False, "message": "No se seleccionó archivo"})
+
     # Validar tipo de archivo
-    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
-        return jsonify({'success': False, 'message': 'Tipo de archivo no permitido'})
-    
+    allowed_extensions = {"png", "jpg", "jpeg", "gif"}
+    if (
+        "." not in file.filename
+        or file.filename.rsplit(".", 1)[1].lower() not in allowed_extensions
+    ):
+        return jsonify({"success": False, "message": "Tipo de archivo no permitido"})
+
     # Validar tamaño (max 5MB)
     if len(file.read()) > 5 * 1024 * 1024:
-        return jsonify({'success': False, 'message': 'Archivo muy grande (max 5MB)'})
+        return jsonify({"success": False, "message": "Archivo muy grande (max 5MB)"})
     file.seek(0)
-    
+
     try:
         # Generar nombre único
-        filename = secrets.token_hex(16) + '.' + file.filename.rsplit('.', 1)[1].lower()
-        
+        filename = secrets.token_hex(16) + "." + file.filename.rsplit(".", 1)[1].lower()
+
         # Crear directorio si no existe
-        upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'profiles')
+        upload_dir = os.path.join(
+            current_app.root_path, "static", "uploads", "profiles"
+        )
         os.makedirs(upload_dir, exist_ok=True)
-        
+
         # Guardar archivo temporal
         filepath = os.path.join(upload_dir, filename)
         file.save(filepath)
-        
+
         # Redimensionar imagen
         with Image.open(filepath) as img:
-            img = img.convert('RGB')
+            img = img.convert("RGB")
             # Redimensionar manteniendo proporción, max 300x300
             img.thumbnail((300, 300), Image.Resampling.LANCZOS)
-            img.save(filepath, 'JPEG', quality=90)
-        
+            img.save(filepath, "JPEG", quality=90)
+
         # Eliminar foto anterior si existe
         if current_user.profile_picture:
             old_path = os.path.join(upload_dir, current_user.profile_picture)
             if os.path.exists(old_path):
                 os.remove(old_path)
-        
+
         # Actualizar usuario
         current_user.profile_picture = filename
         db.session.commit()
-        
+
         # Log de auditoría
         log_audit_event(
             current_user.id,
@@ -475,16 +477,18 @@ def upload_profile_picture():
             "Foto de perfil actualizada",
             request=request,
         )
-        
-        return jsonify({
-            'success': True, 
-            'message': 'Foto de perfil actualizada exitosamente',
-            'profile_picture_url': current_user.get_profile_picture_url()
-        })
-        
+
+        return jsonify(
+            {
+                "success": True,
+                "message": "Foto de perfil actualizada exitosamente",
+                "profile_picture_url": current_user.get_profile_picture_url(),
+            }
+        )
+
     except Exception as e:
         current_app.logger.error(f"Error subiendo foto: {e}")
-        return jsonify({'success': False, 'message': 'Error al subir la foto'})
+        return jsonify({"success": False, "message": "Error al subir la foto"})
 
 
 @auth.route("/profile", methods=["GET", "POST"])
@@ -745,10 +749,14 @@ def admin_user_detail(user_id):
         try:
             db.session.commit()
 
-            log_audit_event(current_user.id, AuditEvents.USER_UPDATED,
-                            f"Usuario {user.email} actualizado por admin",
-                            request=request, resource_type="user",
-                            resource_id=str(user.id))
+            log_audit_event(
+                current_user.id,
+                AuditEvents.USER_UPDATED,
+                f"Usuario {user.email} actualizado por admin",
+                request=request,
+                resource_type="user",
+                resource_id=str(user.id),
+            )
 
             flash("Usuario actualizado exitosamente.", "success")
             return redirect(url_for("auth.admin_user_detail", user_id=user.id))

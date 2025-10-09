@@ -541,28 +541,41 @@ document.addEventListener('DOMContentLoaded', function() {
     cargarTodasEntidades();
 });
 
-// Función principal para cargar todas las entidades
+// Función principal para cargar todas las entidades y restaurar selección si aplica
 async function cargarTodasEntidades() {
     console.log('🚀 Cargando todas las entidades...');
-    
     try {
         const response = await fetch('/admin/entidades/api/all');
         const data = await response.json();
-        
         if (data.success) {
             console.log('✅ Entidades cargadas:', data.data);
-            
-            // Cargar cada tipo de entidad
+            // Restaurar valores previos si existen (por recarga tras error)
+            const restoreSelect = (id) => {
+                const el = document.getElementById(id);
+                if (el && el.dataset.selected) {
+                    el.value = el.dataset.selected;
+                }
+            };
             cargarMunicipios(data.data.municipio || []);
+            restoreSelect('expedida_id');
+            restoreSelect('ciudad_nacimiento_id');
+            restoreSelect('municipio_residencia_id');
             cargarProfesiones(data.data.profesion || []);
+            restoreSelect('profesion_id');
             cargarBancos(data.data.banco || []);
+            restoreSelect('banco_id');
             cargarEPS(data.data.eps || []);
+            restoreSelect('eps_id');
             cargarAFP(data.data.afp || []);
+            restoreSelect('afp_id');
             cargarARL(data.data.arl || []);
+            restoreSelect('arl_id');
             cargarCajasCompensacion(data.data.caja_compensacion || []);
+            restoreSelect('caja_compensacion_id');
             cargarOperadoresSS(data.data.operador_ss || []);
+            restoreSelect('operador_ss_id');
             cargarAreasPersonal(data.data.area_personal || []);
-            
+            restoreSelect('area_personal_id');
         } else {
             console.error('Error cargando entidades:', data.error);
             mostrarError('Error cargando los datos del formulario');
@@ -726,6 +739,10 @@ function cargarAreasPersonal(areas) {
 
 // Función utilitaria para limpiar un select
 function limpiarSelect(select) {
+    // Si hay un valor seleccionado, guárdalo temporalmente
+    if (select.value) {
+        select.dataset.selected = select.value;
+    }
     while (select.children.length > 1) {
         select.removeChild(select.lastChild);
     }

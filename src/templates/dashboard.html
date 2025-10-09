@@ -60,9 +60,12 @@
                         </div>
                         <small class="text-muted">
                             Última actividad:<br>
-                            <span id="last-activity-time" data-time="{{ user.get_last_activity().isoformat() }}">
-                                Cargando...
-                            </span>
+                            {% set last_activity = user.get_last_activity() %}
+                            {% if last_activity %}
+                                <span id="last-activity-time" data-time="{{ last_activity.isoformat() }}">Cargando...</span>
+                            {% else %}
+                                <span id="last-activity-time">Sin actividad</span>
+                            {% endif %}
                             <!-- Debug RAW: {{ user.get_last_activity() }} -->
                             <!-- Debug LOGIN: {{ user.last_login }} -->
                         </small>
@@ -211,33 +214,57 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Profile Section -->
-            <div id="profile-section" class="content-section d-none">
-                <div class="row mb-4">
-                    <div class="col">
-                        <h2><i class="fas fa-user"></i> Mi Perfil</h2>
-                        <p class="text-muted">Gestiona tu información personal</p>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-id-badge fa-3x text-info mb-3"></i>
+                                <h5>Roles</h5>
+                                <p class="text-muted">Crear y administrar roles</p>
+                                <a href="{{ url_for('auth.admin_roles') }}" class="btn btn-info">
+                                    <i class="fas fa-key"></i> Gestionar Roles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-th-large fa-3x text-success mb-3"></i>
+                                <h5>Aplicaciones</h5>
+                                <p class="text-muted">Registrar aplicaciones del sistema</p>
+                                <a href="{{ url_for('auth.admin_apps') }}" class="btn btn-success">
+                                    <i class="fas fa-plus-square"></i> Gestionar Apps
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-database fa-3x text-success mb-3"></i>
+                                <h5>Entidades Administrativas</h5>
+                                <p class="text-muted">Crear y administrar municipios, bancos, EPS, AFP, ARL, etc.</p>
+                                <a href="/admin/entidades/" class="btn btn-success">
+                                    <i class="fas fa-th-list"></i> Gestionar Entidades
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tools fa-3x text-warning mb-3"></i>
+                                <h5>Funcionalidades</h5>
+                                <p class="text-muted">Definir funcionalidades por app</p>
+                                <a href="{{ url_for('auth.admin_functionalities') }}" class="btn btn-warning">
+                                    <i class="fas fa-wrench"></i> Gestionar Funcionalidades
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 text-center">
-                                <div class="mb-3">
-                                    {% if user.has_profile_picture() %}
-                                        <img src="{{ user.get_profile_picture_url() }}" 
-                                             alt="Foto de perfil" 
-                                             class="rounded-circle" 
-                                             style="width: 120px; height: 120px; object-fit: cover;">
-                                    {% else %}
-                                        <i class="fas fa-user-circle fa-5x text-muted"></i>
-                                    {% endif %}
-                                </div>
-                                <h4>{{ user.username }}</h4>
-                                <p class="text-muted">{{ user.role.name.title() if user.role else 'Usuario' }}</p>
                             </div>
                             <div class="col-md-8">
                                 <form>
@@ -463,6 +490,8 @@
                         </div>
                     </div>
 
+
+
                     <div class="col-md-4 mb-4">
                         <div class="card">
                             <div class="card-body text-center">
@@ -471,6 +500,19 @@
                                 <p class="text-muted">Registrar aplicaciones del sistema</p>
                                 <a href="{{ url_for('auth.admin_apps') }}" class="btn btn-success">
                                     <i class="fas fa-plus-square"></i> Gestionar Apps
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-database fa-3x text-success mb-3"></i>
+                                <h5>Entidades Administrativas</h5>
+                                <p class="text-muted">Crear y administrar municipios, bancos, EPS, AFP, ARL, etc.</p>
+                                <a href="/admin/entidades/" class="btn btn-success">
+                                    <i class="fas fa-th-list"></i> Gestionar Entidades
                                 </a>
                             </div>
                         </div>
@@ -498,44 +540,70 @@
 
 {% block extra_js %}
 <script>
+    // Helper function to format relative time
+    function formatRelativeTime(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        if (diffInSeconds < 60) return 'hace unos segundos';
+        if (diffInSeconds < 3600) return `hace ${Math.floor(diffInSeconds / 60)} minutos`;
+        if (diffInSeconds < 86400) return `hace ${Math.floor(diffInSeconds / 3600)} horas`;
+        if (diffInSeconds < 2592000) return `hace ${Math.floor(diffInSeconds / 86400)} días`;
+        return date.toLocaleDateString();
+    }
+
+    // Helper function to get event icon
+    function getEventIcon(eventType) {
+        const icons = {
+            'login': 'fas fa-sign-in-alt',
+            'logout': 'fas fa-sign-out-alt',
+            'password_change': 'fas fa-key',
+            'profile_update': 'fas fa-user-edit',
+            'role_change': 'fas fa-user-tag',
+            'permission_granted': 'fas fa-unlock',
+            'permission_denied': 'fas fa-lock',
+            'data_access': 'fas fa-database',
+            'admin_action': 'fas fa-user-shield',
+            'system_access': 'fas fa-desktop'
+        };
+        return icons[eventType] || 'fas fa-info-circle';
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        // Actualizar todos los campos con data-time (incluyendo el sidebar)
+        updateRelativeTimes();
+        setInterval(updateRelativeTimes, 60000);
+
+        // Mostrar solo la sección activa al cargar
+        var navLinks = document.querySelectorAll('.sidebar .nav-link');
+        var sections = document.querySelectorAll('.content-section');
+        var activeLink = document.querySelector('.sidebar .nav-link.active');
+        var activeSectionId = activeLink ? activeLink.getAttribute('data-section') + '-section' : null;
+        sections.forEach(function(section) {
+            if (activeSectionId && section.id === activeSectionId) {
+                section.classList.remove('d-none');
+            } else {
+                section.classList.add('d-none');
+            }
+        });
         // Update relative times
         updateRelativeTimes();
         // Update every minute
         setInterval(updateRelativeTimes, 60000);
-        
-        // Navigation between sections
-        const navLinks = document.querySelectorAll('.sidebar .nav-link');
-        const sections = document.querySelectorAll('.content-section');
 
-        navLinks.forEach(link => {
+        // Navigation between sections
+        navLinks.forEach(function(link) {
             link.addEventListener('click', function (e) {
                 e.preventDefault();
-
-                // Remove active class from all links
-                navLinks.forEach(l => l.classList.remove('active'));
-
-                // Add active class to clicked link
+                navLinks.forEach(function(l) { l.classList.remove('active'); });
                 this.classList.add('active');
-
-                // Hide all sections
-                sections.forEach(section => section.classList.add('d-none'));
-
-                // Show target section
-                const targetSection = this.getAttribute('data-section') + '-section';
-                const section = document.getElementById(targetSection);
+                sections.forEach(function(section) { section.classList.add('d-none'); });
+                var targetSection = this.getAttribute('data-section') + '-section';
+                var section = document.getElementById(targetSection);
                 if (section) {
                     section.classList.remove('d-none');
-                    
-                    // Load system status when admin section is shown
-                    if (targetSection === 'admin-section') {
-                        loadSystemStatus();
-                    }
-                    
-                    // Load user activity when activity section is shown
-                    if (targetSection === 'activity-section') {
-                        loadUserActivity();
-                    }
+                    if (targetSection === 'admin-section') { loadSystemStatus(); }
+                    if (targetSection === 'activity-section') { loadUserActivity(); }
                 }
             });
         });
@@ -630,9 +698,7 @@
             const statusBadge = activity.success ? 
                 '<span class="badge bg-success ms-2">Exitoso</span>' : 
                 '<span class="badge bg-danger ms-2">Fallido</span>';
-            
             const relativeTime = formatRelativeTime(activity.created_at);
-            
             return `
                 <div class="d-flex align-items-start mb-3 p-3 border rounded">
                     <div class="me-3">
@@ -641,16 +707,14 @@
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="mb-1">${activity.event_description || activity.event_type}</h6>
+                                <h6 class="mb-1">${activity.event_description ? activity.event_description : (activity.event_type ? activity.event_type : 'Actividad')}</h6>
                                 <small class="text-muted">
                                     <i class="fas fa-clock"></i> ${relativeTime}
-                                    ${activity.browser ? `<i class="fas fa-browser ms-2"></i> ${activity.browser}` : ''}
-                                    ${activity.ip_address ? `<i class="fas fa-globe-americas ms-2"></i> ${activity.ip_address}` : ''}
+                                    ${activity.browser ? `<i class='fab fa-internet-explorer ms-2'></i> ${activity.browser}` : ''}
+                                    ${activity.ip_address ? `<i class='fas fa-globe-americas ms-2'></i> ${activity.ip_address}` : ''}
                                 </small>
                             </div>
-                            <div class="text-end">
-                                ${statusBadge}
-                            </div>
+                            ${statusBadge}
                         </div>
                     </div>
                 </div>
@@ -658,40 +722,10 @@
         }).join('');
     }
 
-    // Helper function to get icon for event types
-    function getEventIcon(eventType) {
-        const icons = {
-            'login': 'fas fa-sign-in-alt',
-            'logout': 'fas fa-sign-out-alt',
-            'password_change': 'fas fa-key',
-            'profile_update': 'fas fa-user-edit',
-            'role_change': 'fas fa-user-tag',
-            'permission_granted': 'fas fa-unlock',
-            'permission_denied': 'fas fa-lock',
-            'data_access': 'fas fa-database',
-            'admin_action': 'fas fa-user-shield',
-            'system_access': 'fas fa-desktop'
-        };
-        return icons[eventType] || 'fas fa-info-circle';
-    }
-    
-    // Helper function to format relative time
-    function formatRelativeTime(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInSeconds = Math.floor((now - date) / 1000);
-        
-        if (diffInSeconds < 60) return 'hace unos segundos';
-        if (diffInSeconds < 3600) return `hace ${Math.floor(diffInSeconds / 60)} minutos`;
-        if (diffInSeconds < 86400) return `hace ${Math.floor(diffInSeconds / 3600)} horas`;
-        if (diffInSeconds < 2592000) return `hace ${Math.floor(diffInSeconds / 86400)} días`;
-        
-        return date.toLocaleDateString();
-    }
-
     // Ejecutar siempre al cargar la página
     window.addEventListener('DOMContentLoaded', function() {
         loadUserActivity();
+        // Ya no es necesario llamar updateRelativeTimes aquí porque se llama arriba
     });
     // Load system status function
     function loadSystemStatus() {
@@ -756,6 +790,11 @@
                 }
             }
         });
+    }
+
+    // Función para mostrar mensaje de "Próximamente"
+    function showComingSoon(appName) {
+        alert(`🚀 ${appName} - Próximamente\n\nEsta aplicación está en desarrollo y estará disponible pronto.`);
     }
 </script>
 {% endblock %}

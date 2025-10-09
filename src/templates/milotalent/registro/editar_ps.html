@@ -1,0 +1,232 @@
+{% extends "MiloAuth/base_auth.html" %}
+
+{% block title %}Editar Prestador de Servicio{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-user-edit me-2"></i>Editar Prestador de Servicio
+            </h1>
+            <p class="text-muted">Modifica los datos agrupados profesionalmente</p>
+        </div>
+        <div>
+            <a href="{{ url_for('milotalent.ver_ps', ps_id=ps.id) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Detalle
+            </a>
+            <a href="{{ url_for('milotalent.listado') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-list me-1"></i>Listado
+            </a>
+        </div>
+    </div>
+    <form method="POST" autocomplete="off">
+        <div class="row">
+            <!-- Identificación -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">Identificación</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Cédula</label>
+                            <input type="text" name="cedula_ps" class="form-control" value="{{ ps.cedula_ps }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Expedida en</label>
+                            <input type="text" name="expedida" class="form-control" value="{{ ps.expedida.nombre if ps.expedida else '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Código SAP</label>
+                            <input type="text" name="codigo_sap" class="form-control" value="{{ ps.codigo_sap }}" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Nombres y contacto -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">Datos Personales</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre 1</label>
+                            <input type="text" name="nombre_1" class="form-control" value="{{ ps.nombre_1 }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre 2</label>
+                            <input type="text" name="nombre_2" class="form-control" value="{{ ps.nombre_2 }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Apellido 1</label>
+                            <input type="text" name="apellido_1" class="form-control" value="{{ ps.apellido_1 }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Apellido 2</label>
+                            <input type="text" name="apellido_2" class="form-control" value="{{ ps.apellido_2 }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sexo</label>
+                            <select name="sexo" class="form-select">
+                                <option value="M" {% if ps.sexo == 'M' %}selected{% endif %}>Masculino</option>
+                                <option value="F" {% if ps.sexo == 'F' %}selected{% endif %}>Femenino</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha Nacimiento</label>
+                            <input type="date" name="fecha_nacimiento" class="form-control" value="{{ ps.fecha_nacimiento.strftime('%Y-%m-%d') if ps.fecha_nacimiento else '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correo</label>
+                            <input type="email" name="mail" class="form-control" value="{{ ps.mail }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control" value="{{ ps.telefono }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Residencia -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">Residencia</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" name="direccion" class="form-control" value="{{ ps.direccion }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Municipio</label>
+                            <input type="text" name="municipio" class="form-control" value="{{ ps.municipio_residencia.nombre if ps.municipio_residencia else '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">País</label>
+                            <input type="text" name="pais_residencia" class="form-control" value="{{ ps.pais_residencia }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Profesión y área -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-warning text-white">Profesión y Área</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Profesión</label>
+                            <input type="text" name="profesion" class="form-control" value="{{ ps.profesion.nombre if ps.profesion else '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Área Personal</label>
+                            <input type="text" name="area_personal" class="form-control" value="{{ ps.area_personal.nombre if ps.area_personal else '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select name="nuevo_viejo" class="form-select">
+                                <option value="N" {% if ps.nuevo_viejo == 'N' %}selected{% endif %}>Nuevo</option>
+                                <option value="V" {% if ps.nuevo_viejo == 'V' %}selected{% endif %}>Viejo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Seguridad social y bancaria -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">Seguridad Social</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">EPS</label>
+                            <input type="text" name="eps" class="form-control" value="{{ ps.eps.nombre if ps.eps else '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">AFP</label>
+                            <input type="text" name="afp" class="form-control" value="{{ ps.afp.nombre if ps.afp else '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ARL</label>
+                            <input type="text" name="arl" class="form-control" value="{{ ps.arl.nombre if ps.arl else '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Caja Compensación</label>
+                            <input type="text" name="caja_compensacion" class="form-control" value="{{ ps.caja_compensacion.nombre if ps.caja_compensacion else '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Operador SS</label>
+                            <input type="text" name="operador_ss" class="form-control" value="{{ ps.operador_ss.nombre if ps.operador_ss else '' }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">Datos Bancarios</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Banco</label>
+                            <input type="text" name="banco" class="form-control" value="{{ ps.banco.nombre if ps.banco else '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cuenta Bancaria</label>
+                            <input type="text" name="cuenta_bancaria" class="form-control" value="{{ ps.cuenta_bancaria }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Cuenta</label>
+                            <input type="text" name="tipo_cuenta" class="form-control" value="{{ ps.tipo_cuenta }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Otros datos -->
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header bg-light">Otros Datos</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Estado Civil</label>
+                                <input type="text" name="estado_civil" class="form-control" value="{{ ps.estado_civil }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">RH</label>
+                                <input type="text" name="rh" class="form-control" value="{{ ps.rh }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Discapacidad</label>
+                                <input type="text" name="discapacidad" class="form-control" value="{{ ps.discapacidad }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Identidad Género</label>
+                                <input type="text" name="identidad_genero" class="form-control" value="{{ ps.identidad_genero }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Raza</label>
+                                <input type="text" name="raza" class="form-control" value="{{ ps.raza }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">No. Hijos</label>
+                                <input type="number" name="no_hijos" class="form-control" value="{{ ps.no_hijos }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Tipo Riesgo</label>
+                                <input type="text" name="tipo_riesgo" class="form-control" value="{{ ps.tipo_riesgo }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

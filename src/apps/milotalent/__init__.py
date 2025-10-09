@@ -16,4 +16,4 @@ milotalent_bp = Blueprint(
 
 # Importar rutas después de crear el blueprint para evitar imports circulares
 from . import routes_new
-from . import municipios
+

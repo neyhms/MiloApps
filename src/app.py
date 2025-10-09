@@ -231,19 +231,15 @@ class MiloAppsApp:
 
             self.app.register_blueprint(milotalent_bp)
             
-            # Registrar también el blueprint de municipios (con nombre diferente)
-            from apps.milotalent import milotalent_bp as municipios_bp
-            # Cambiar el nombre del blueprint para evitar conflicto
-            municipios_bp.name = "municipios"
-            self.app.register_blueprint(municipios_bp)
+
             
-            # Registrar blueprint de entidades administrativas
+            # Registrar blueprint de entidades administrativas (completo)
             try:
-                from entidades_simple import entidades_simple_bp
-                self.app.register_blueprint(entidades_simple_bp)
-                print("✅ Blueprint de entidades simple registrado")
+                from entidades_routes import entidades_bp
+                self.app.register_blueprint(entidades_bp)
+                print("✅ Blueprint de entidades administrativas registrado")
             except ImportError as e:
-                print(f"⚠️  Error importando entidades: {e}")
+                print(f"⚠️  Error importando entidades administrativas: {e}")
 
             # Deshabilitar CSRF específicamente para MiloTalent
             @self.app.before_request
@@ -323,48 +319,54 @@ class MiloAppsApp:
         @login_required
         def get_user_activity():
             """API para obtener actividad reciente del usuario"""
-            # MOCK DATA PARA PRUEBA DE FRONTEND
-            print("⚡ Enviando datos de prueba de actividad reciente (mock)")
-            activities = [
-                {
-                    "id": 1,
-                    "event_type": "login",
-                    "event_description": "Inicio de sesión exitoso",
-                    "success": True,
-                    "ip_address": "192.168.1.10",
-                    "browser": "Chrome",
-                    "created_at": "2025-10-05T10:00:00",
-                    "relative_time": "2025-10-05T10:00:00",
-                },
-                {
-                    "id": 2,
-                    "event_type": "profile_update",
-                    "event_description": "Actualización de perfil",
-                    "success": True,
-                    "ip_address": "192.168.1.10",
-                    "browser": "Firefox",
-                    "created_at": "2025-10-04T18:30:00",
-                    "relative_time": "2025-10-04T18:30:00",
-                },
-                {
-                    "id": 3,
-                    "event_type": "password_change",
-                    "event_description": "Cambio de contraseña",
-                    "success": True,
-                    "ip_address": "192.168.1.10",
-                    "browser": "Edge",
-                    "created_at": "2025-10-03T09:15:00",
-                    "relative_time": "2025-10-03T09:15:00",
-                },
-            ]
-            return jsonify(
-                {
-                    "activities": activities,
-                    "total": len(activities),
-                    "user_id": current_user.id,
-                    "mock": True,
-                }
-            )
+            # Consultar actividad real del usuario
+            from models import AuditLog
+            logs = AuditLog.query.filter_by(user_id=current_user.id).order_by(AuditLog.created_at.desc()).limit(20).all()
+            activities = [log.to_dict() for log in logs]
+            if not activities:
+                # Si no hay actividad, usar mock
+                print("⚡ No hay actividad real, enviando datos de prueba (mock)")
+                activities = [
+                    {
+                        "id": 1,
+                        "event_type": "login",
+                        "event_description": "Inicio de sesión exitoso",
+                        "success": True,
+                        "ip_address": "192.168.1.10",
+                        "browser": "Chrome",
+                        "created_at": "2025-10-05T10:00:00",
+                        "relative_time": "2025-10-05T10:00:00",
+                    },
+                    {
+                        "id": 2,
+                        "event_type": "profile_update",
+                        "event_description": "Actualización de perfil",
+                        "success": True,
+                        "ip_address": "192.168.1.10",
+                        "browser": "Firefox",
+                        "created_at": "2025-10-04T18:30:00",
+                        "relative_time": "2025-10-04T18:30:00",
+                    },
+                    {
+                        "id": 3,
+                        "event_type": "password_change",
+                        "event_description": "Cambio de contraseña",
+                        "success": True,
+                        "ip_address": "192.168.1.10",
+                        "browser": "Edge",
+                        "created_at": "2025-10-03T09:15:00",
+                        "relative_time": "2025-10-03T09:15:00",
+                    },
+                ]
+                mock = True
+            else:
+                mock = False
+            return jsonify({
+                "activities": activities,
+                "total": len(activities),
+                "user_id": current_user.id,
+                "mock": mock,
+            })
 
         @self.app.route("/api/switch-env", methods=["POST"])
         @login_required

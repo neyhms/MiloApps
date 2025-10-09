@@ -1,3 +1,4 @@
+
 """
 MiloTalent - Rutas actualizadas para nueva estructura
 Sistema de Registro de Prestadores de Servicios
@@ -12,12 +13,71 @@ from models import db
 from .models import (
     PrestadorServicio, 
     AuditoriaPS,
-    Municipio
+
 )
+
 
 # Blueprint
 milotalent_bp = Blueprint('milotalent', __name__, 
                           url_prefix='/milotalent')
+
+# ========================================
+# DETALLE, EDICIÓN Y EXPORTACIÓN DE PS
+# ========================================
+
+@milotalent_bp.route('/ps/<int:ps_id>')
+@login_required
+def ver_ps(ps_id):
+    ps = PrestadorServicio.query.get_or_404(ps_id)
+    return render_template('milotalent/registro/ver_ps.html', ps=ps)
+
+@milotalent_bp.route('/ps/<int:ps_id>/editar', methods=['GET', 'POST'])
+@login_required
+def editar_ps(ps_id):
+    ps = PrestadorServicio.query.get_or_404(ps_id)
+    if request.method == 'POST':
+        data = request.form
+        ps.cedula_ps = data.get('cedula_ps', ps.cedula_ps)
+        ps.nombre_1 = data.get('nombre_1', ps.nombre_1)
+        ps.nombre_2 = data.get('nombre_2', ps.nombre_2)
+        ps.apellido_1 = data.get('apellido_1', ps.apellido_1)
+        ps.apellido_2 = data.get('apellido_2', ps.apellido_2)
+        ps.sexo = data.get('sexo', ps.sexo)
+        fecha_nacimiento_str = data.get('fecha_nacimiento', None)
+        if fecha_nacimiento_str:
+            from datetime import datetime
+            try:
+                ps.fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, '%Y-%m-%d').date()
+            except Exception:
+                pass
+        ps.mail = data.get('mail', ps.mail)
+        ps.telefono = data.get('telefono', ps.telefono)
+        ps.direccion = data.get('direccion', ps.direccion)
+        ps.pais_residencia = data.get('pais_residencia', ps.pais_residencia)
+        ps.codigo_sap = data.get('codigo_sap', ps.codigo_sap)
+        ps.estado_civil = data.get('estado_civil', ps.estado_civil)
+        ps.rh = data.get('rh', ps.rh)
+        ps.discapacidad = data.get('discapacidad', ps.discapacidad)
+        ps.identidad_genero = data.get('identidad_genero', ps.identidad_genero)
+        ps.raza = data.get('raza', ps.raza)
+        ps.no_hijos = data.get('no_hijos', ps.no_hijos)
+        ps.tipo_riesgo = data.get('tipo_riesgo', ps.tipo_riesgo)
+        ps.cuenta_bancaria = data.get('cuenta_bancaria', ps.cuenta_bancaria)
+        ps.tipo_cuenta = data.get('tipo_cuenta', ps.tipo_cuenta)
+        ps.nuevo_viejo = data.get('nuevo_viejo', ps.nuevo_viejo)
+        # Guardar cambios
+        from models import db
+        db.session.commit()
+        flash('Cambios guardados correctamente.', 'success')
+        return redirect(url_for('milotalent.ver_ps', ps_id=ps.id))
+    return render_template('milotalent/registro/editar_ps.html', ps=ps)
+
+@milotalent_bp.route('/ps/<int:ps_id>/exportar')
+@login_required
+def exportar_ps(ps_id):
+    ps = PrestadorServicio.query.get_or_404(ps_id)
+    # Exportar como JSON simple
+    return jsonify(ps.to_dict())
 
 
 # ========================================
@@ -78,212 +138,154 @@ def crear_ps():
     """Crear nuevo PS con nueva estructura"""
     # Usar app.logger en lugar de print
     from flask import current_app
-    current_app.logger.info(f"=== RUTA CREAR_PS LLAMADA ===")
-    current_app.logger.info(f"Método: {request.method}")
-    current_app.logger.info(f"Content-Type: {request.content_type}")
-    current_app.logger.info(f"Form data keys: {list(request.form.keys())}")
-    current_app.logger.info("=" * 40)
-    
-    if request.method == 'GET':
-        return render_template('milotalent/registro/formulario_new.html')
-        
     try:
-        # Obtener datos del formulario
-        data = request.form.to_dict()
-        
-        # DEBUG: Imprimir datos recibidos
-        print("=== DEBUG: Datos recibidos del formulario ===")
-        for key, value in data.items():
-            print(f"{key}: {value}")
-        print("=" * 50)
-        
-        # VALIDACIÓN DE UNICIDAD DE CÉDULA
-        cedula_existente = PrestadorServicio.query.filter_by(
-            cedula_ps=data.get('cedula_ps', '').strip()
-        ).first()
-        
-        if cedula_existente:
-            flash(
-                f'Ya existe un prestador registrado con la cédula {data.get("cedula_ps")}. '
-                f'Nombre: {cedula_existente.nombre_1} {cedula_existente.apellido_1}',
-                'error'
-            )
+        if request.method == 'POST':
+            # Obtener datos del formulario
+            data = request.form.to_dict()
+            print("=== DEBUG: Datos recibidos del formulario ===")
+            for key, value in data.items():
+                print(f"{key}: {value}")
+            print("=" * 50)
+
+            # VALIDACIÓN DE CAMPOS OBLIGATORIOS
+            campos_requeridos = [
+                'cedula_ps', 'expedida_id', 'nombre_1', 'apellido_1', 'sexo',
+                'codigo_sap', 'fecha_nacimiento', 'ciudad_nacimiento_id', 'direccion',
+                'municipio_residencia_id', 'telefono', 'mail', 'profesion_id',
+                'estado_civil', 'rh', 'identidad_genero', 'raza', 'banco_id',
+                'cuenta_bancaria', 'tipo_cuenta', 'regimen_iva', 'eps_id', 'afp_id',
+                'arl_id', 'tipo_riesgo', 'operador_ss_id', 'nuevo_viejo', 'area_personal_id'
+            ]
+            campos_faltantes = [campo for campo in campos_requeridos if not data.get(campo)]
+            if campos_faltantes:
+                flash(f"Faltan campos obligatorios: {', '.join(campos_faltantes)}", "error")
+                return render_template('milotalent/registro/formulario_new.html')
+
+            # VALIDACIÓN DE UNICIDAD DE CÉDULA Y CÓDIGO SAP
+            if PrestadorServicio.query.filter_by(cedula_ps=data['cedula_ps']).first():
+                flash("Ya existe un PS registrado con esta cédula", "error")
+                return render_template('milotalent/registro/formulario_new.html')
+            if PrestadorServicio.query.filter_by(codigo_sap=data['codigo_sap']).first():
+                flash("Ya existe un PS registrado con este código SAP", "error")
+                return render_template('milotalent/registro/formulario_new.html')
+
+            # Función para convertir campos a int
+            def parse_int_field(field, required=True):
+                value = data.get(field)
+                if value is None or value == '':
+                    if required:
+                        raise ValueError(f"Campo obligatorio faltante o vacío: {field}")
+                    return None
+                try:
+                    return int(value)
+                except Exception:
+                    flash(f"Error al convertir el campo {field} a entero", "error")
+                    return None
+            # ...existing code...
+        else:
+            # Si es GET, solo mostrar el formulario sin validar
             return render_template('milotalent/registro/formulario_new.html')
-        
-        # VALIDACIÓN DE UNICIDAD DE CÓDIGO SAP
-        sap_existente = PrestadorServicio.query.filter_by(
-            codigo_sap=data.get('codigo_sap', '').strip()
-        ).first()
-        
-        if sap_existente:
-            flash(
-                f'Ya existe un prestador registrado con el código SAP {data.get("codigo_sap")}. '
-                f'Cédula: {sap_existente.cedula_ps}',
-                'error'
-            )
-            return render_template('milotalent/registro/formulario_new.html')
-        
-        # Validaciones básicas
-        campos_requeridos = [
-            'cedula_ps', 'expedida', 'nombre_1', 'apellido_1', 'sexo',
-            'codigo_sap', 'fecha_nacimiento', 'ciudad_nacimiento', 'direccion',
-            'municipio_residencia', 'telefono', 'mail', 'profesion', 
-            'estado_civil', 'rh', 'identidad_genero', 'raza', 'banco',
-            'cuenta_bancaria', 'tipo_cuenta', 'regimen_iva', 'eps', 'afp',
-            'arl', 'tipo_riesgo', 'operador_ss', 'nuevo_viejo', 'area_personal'
-        ]
-        
-        campos_faltantes = [campo for campo in campos_requeridos if not data.get(campo)]
-        if campos_faltantes:
-            flash(f"Faltan campos obligatorios: {', '.join(campos_faltantes)}", "error")
-            return render_template('milotalent/registro/formulario_new.html')
-        
-        # Verificar que la cédula no exista
-        if PrestadorServicio.query.filter_by(cedula_ps=data['cedula_ps']).first():
-            flash("Ya existe un PS registrado con esta cédula", "error")
-            return render_template('milotalent/registro/formulario_new.html')
-        
-        # Verificar que el código SAP no exista
-        if PrestadorServicio.query.filter_by(codigo_sap=data['codigo_sap']).first():
-            flash("Ya existe un PS registrado con este código SAP", "error")
-            return render_template('milotalent/registro/formulario_new.html')
-        
-        # Crear nuevo PS con validación de enums
-        try:
-            nuevo_ps = PrestadorServicio(
-                cedula_ps=data['cedula_ps'],
-                expedida_id=int(data['expedida_id']),
-                nombre_1=data['nombre_1'],
-                nombre_2=data.get('nombre_2', ''),
-                apellido_1=data['apellido_1'],
-                apellido_2=data.get('apellido_2', ''),
-                sexo=data['sexo'],
-                codigo_sap=data['codigo_sap'],
-                fecha_nacimiento=datetime.strptime(data['fecha_nacimiento'], '%Y-%m-%d').date(),
-                ciudad_nacimiento_id=int(data['ciudad_nacimiento_id']),
-                pais_nacimiento=data.get('pais_nacimiento', 'CO'),
-                direccion=data['direccion'],
-                pais_residencia=data.get('pais_residencia', 'CO'),
-                municipio_residencia_id=int(data['municipio_residencia_id']),
-                telefono=data['telefono'],
-                mail=data['mail'],
-                profesion=data['profesion'],
-                estado_civil=data['estado_civil'],
-                no_hijos=int(data.get('no_hijos', 0)),
-                rh=data['rh'],
-                discapacidad=data.get('discapacidad', 'NINGUNA'),
-                identidad_genero=data['identidad_genero'],
-                raza=data['raza'],
-                banco=data['banco'],
-                cuenta_bancaria=data['cuenta_bancaria'],
-                tipo_cuenta=data['tipo_cuenta'],
-                regimen_iva=data['regimen_iva'],
-                eps=data['eps'],
-                afp=data['afp'],
-                arl=data['arl'],
-                tipo_riesgo=data['tipo_riesgo'],
-                caja=data.get('caja', ''),
-                operador_ss=data['operador_ss'],
-                nuevo_viejo=data['nuevo_viejo'],
-                area_personal=data['area_personal'],
-                usuario_registro=str(current_user.id) if current_user.is_authenticated else 'SYSTEM'
-            )
-        except ValueError as enum_error:
-            print(f"Error al convertir Enum: {enum_error}")
-            flash(f'Error en los datos del formulario: {str(enum_error)}', 'error')
-            return render_template('milotalent/registro/formulario_new.html')
-        
+
+        # Crear nuevo PS
+        nuevo_ps = PrestadorServicio(
+            cedula_ps=data['cedula_ps'],
+            expedida_id=parse_int_field('expedida_id'),
+            nombre_1=data['nombre_1'],
+            nombre_2=data.get('nombre_2', ''),
+            apellido_1=data['apellido_1'],
+            apellido_2=data.get('apellido_2', ''),
+            sexo=data['sexo'],
+            codigo_sap=data['codigo_sap'],
+            fecha_nacimiento=datetime.strptime(data['fecha_nacimiento'], '%Y-%m-%d').date(),
+            ciudad_nacimiento_id=parse_int_field('ciudad_nacimiento_id'),
+            pais_nacimiento=data.get('pais_nacimiento', 'CO'),
+            direccion=data['direccion'],
+            pais_residencia=data.get('pais_residencia', 'CO'),
+            municipio_residencia_id=parse_int_field('municipio_residencia_id'),
+            telefono=data['telefono'],
+            mail=data['mail'],
+            profesion_id=parse_int_field('profesion_id'),
+            estado_civil=data['estado_civil'],
+            no_hijos=parse_int_field('no_hijos', required=False) or 0,
+            rh=data['rh'],
+            discapacidad=data.get('discapacidad', 'NINGUNA'),
+            identidad_genero=data['identidad_genero'],
+            raza=data['raza'],
+            banco_id=parse_int_field('banco_id'),
+            cuenta_bancaria=data['cuenta_bancaria'],
+            tipo_cuenta=data['tipo_cuenta'],
+            regimen_iva=data['regimen_iva'],
+            eps_id=parse_int_field('eps_id'),
+            afp_id=parse_int_field('afp_id'),
+            arl_id=parse_int_field('arl_id'),
+            tipo_riesgo=data['tipo_riesgo'],
+            caja_compensacion_id=parse_int_field('caja_compensacion_id', required=False),
+            operador_ss_id=parse_int_field('operador_ss_id'),
+            nuevo_viejo=data['nuevo_viejo'],
+            area_personal_id=parse_int_field('area_personal_id'),
+            usuario_registro=str(current_user.id) if current_user.is_authenticated else 'SYSTEM'
+        )
+
         # Guardar en base de datos
+        cedula_ps_val = nuevo_ps.cedula_ps
         db.session.add(nuevo_ps)
         db.session.commit()
-        
+        # Recuperar el objeto recién insertado
+        nuevo_ps_db = PrestadorServicio.query.filter_by(cedula_ps=cedula_ps_val).first()
         # Registrar auditoría
         auditoria = AuditoriaPS(
-            ps_id=nuevo_ps.id,
+            ps_id=nuevo_ps_db.id if nuevo_ps_db else None,
             usuario_id=str(current_user.id) if current_user.is_authenticated else 'SYSTEM',
             accion='registro_ps',
             modulo='registro',
-            descripcion=f'Registro de nuevo PS: {nuevo_ps.nombre_completo}',
-            valores_nuevos=json.dumps(nuevo_ps.to_dict()),
+            descripcion=f'Registro de nuevo PS: {nuevo_ps_db.nombre_completo if nuevo_ps_db else cedula_ps_val}',
+            valores_nuevos=json.dumps(nuevo_ps_db.to_dict() if nuevo_ps_db else {}),
             ip_usuario=request.remote_addr,
             user_agent=request.headers.get('User-Agent')
         )
-        
         db.session.add(auditoria)
         db.session.commit()
-        
-        flash(f'PS {nuevo_ps.nombre_completo} registrado exitosamente', 'success')
+        flash(f'PS {nuevo_ps_db.nombre_completo if nuevo_ps_db else cedula_ps_val} registrado exitosamente', 'success')
         return redirect(url_for('milotalent.dashboard'))
-        
     except Exception as e:
         db.session.rollback()
-        print(f"=== DEBUG: Error al registrar PS ===")
-        print(f"Error: {str(e)}")
-        print(f"Tipo de error: {type(e)}")
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
-        print("=" * 50)
-        flash(f'Error al registrar PS: {str(e)}', 'error')
+        print(f"Error al registrar PS: {e}")
+        flash(f"Error al registrar PS: {e}", 'error')
         return render_template('milotalent/registro/formulario_new.html')
+    # ...existing code...
 
 
-# ========================================
-# LISTADO DE PS
-# ========================================
-
-@milotalent_bp.route('/listado')
+@login_required
+@milotalent_bp.route('/listado', endpoint='listado')
 @login_required
 def listado():
-    """Mostrar listado de todos los PS"""
-    
-    # Paginación
+    """Listado de PS registrados (paginado)"""
     page = request.args.get('page', 1, type=int)
-    per_page = 20
-    
-    # Filtros
     filtro_cedula = request.args.get('cedula', '').strip()
     filtro_nombre = request.args.get('nombre', '').strip()
     filtro_sexo = request.args.get('sexo', '')
     filtro_estado = request.args.get('estado', '')
     filtro_area = request.args.get('area', '')
-    
-    # Query base
+
     query = PrestadorServicio.query
-    
-    # Aplicar filtros
     if filtro_cedula:
         query = query.filter(PrestadorServicio.cedula_ps.like(f'%{filtro_cedula}%'))
-    
     if filtro_nombre:
-        # Buscar en nombre_1, nombre_2, apellido_1, apellido_2
-        nombre_filter = (
-            PrestadorServicio.nombre_1.like(f'%{filtro_nombre}%') |
-            PrestadorServicio.nombre_2.like(f'%{filtro_nombre}%') |
-            PrestadorServicio.apellido_1.like(f'%{filtro_nombre}%') |
-            PrestadorServicio.apellido_2.like(f'%{filtro_nombre}%')
+        query = query.filter(
+            (PrestadorServicio.nombre_1.like(f'%{filtro_nombre}%')) |
+            (PrestadorServicio.apellido_1.like(f'%{filtro_nombre}%'))
         )
-        query = query.filter(nombre_filter)
-    
     if filtro_sexo:
         query = query.filter_by(sexo=filtro_sexo)
-    
     if filtro_estado:
         query = query.filter_by(nuevo_viejo=filtro_estado)
-    
     if filtro_area:
-        query = query.filter_by(area_personal=filtro_area)
-    
-    # Ordenar por fecha de registro descendente
-    query = query.order_by(PrestadorServicio.fecha_registro.desc())
-    
-    prestadores = query.paginate(
-        page=page, 
-        per_page=per_page, 
-        error_out=False
-    )
-    
+        query = query.filter_by(area_personal_id=filtro_area)
+
+    prestadores = query.order_by(PrestadorServicio.fecha_registro.desc()).paginate(page=page, per_page=20)
+
     return render_template(
-        'milotalent/listado/prestadores.html',
+        'milotalent/listado/prestadores_nuevo.html',
         prestadores=prestadores,
         filtro_cedula=filtro_cedula,
         filtro_nombre=filtro_nombre,
@@ -291,7 +293,6 @@ def listado():
         filtro_estado=filtro_estado,
         filtro_area=filtro_area
     )
-
 
 # ========================================
 # API ENDPOINTS

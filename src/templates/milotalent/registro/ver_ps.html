@@ -1,0 +1,164 @@
+{% extends "MiloAuth/base_auth.html" %}
+
+{% block title %}Detalle de Prestador de Servicio{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-user me-2"></i>Detalle de Prestador de Servicio
+            </h1>
+            <p class="text-muted">Consulta profesional y agrupada de datos</p>
+        </div>
+        <div>
+            <a href="{{ url_for('milotalent.listado') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Listado
+            </a>
+            <a href="{{ url_for('milotalent.editar_ps', ps_id=ps.id) }}" class="btn btn-warning">
+                <i class="fas fa-edit me-1"></i>Editar
+            </a>
+            <a href="{{ url_for('milotalent.exportar_ps', ps_id=ps.id) }}" class="btn btn-info">
+                <i class="fas fa-download me-1"></i>Exportar
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Identificación -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">Identificación</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Cédula</dt>
+                        <dd class="col-sm-8">{{ ps.cedula_ps }}</dd>
+                        <dt class="col-sm-4">Expedida en</dt>
+                        <dd class="col-sm-8">{{ ps.expedida.nombre if ps.expedida else 'N/A' }}</dd>
+                        <dt class="col-sm-4">Código SAP</dt>
+                        <dd class="col-sm-8">{{ ps.codigo_sap }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <!-- Nombres y contacto -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">Datos Personales</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Nombre Completo</dt>
+                        <dd class="col-sm-8">{{ ps.nombre_1 }} {% if ps.nombre_2 %}{{ ps.nombre_2 }}{% endif %} {{ ps.apellido_1 }} {% if ps.apellido_2 %}{{ ps.apellido_2 }}{% endif %}</dd>
+                        <dt class="col-sm-4">Sexo</dt>
+                        <dd class="col-sm-8">{% if ps.sexo == 'M' %}Masculino{% elif ps.sexo == 'F' %}Femenino{% else %}N/A{% endif %}</dd>
+                        <dt class="col-sm-4">Fecha Nacimiento</dt>
+                        <dd class="col-sm-8">{{ ps.fecha_nacimiento.strftime('%d/%m/%Y') if ps.fecha_nacimiento else 'N/A' }}</dd>
+                        <dt class="col-sm-4">Correo</dt>
+                        <dd class="col-sm-8">{{ ps.mail }}</dd>
+                        <dt class="col-sm-4">Teléfono</dt>
+                        <dd class="col-sm-8">{{ ps.telefono }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Residencia -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">Residencia</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Dirección</dt>
+                        <dd class="col-sm-8">{{ ps.direccion }}</dd>
+                        <dt class="col-sm-4">Municipio</dt>
+                        <dd class="col-sm-8">{{ ps.municipio_residencia.nombre if ps.municipio_residencia else 'N/A' }}</dd>
+                        <dt class="col-sm-4">País</dt>
+                        <dd class="col-sm-8">{{ ps.pais_residencia }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <!-- Profesión y área -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-white">Profesión y Área</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Profesión</dt>
+                        <dd class="col-sm-8">{{ ps.profesion.nombre if ps.profesion else 'N/A' }}</dd>
+                        <dt class="col-sm-4">Área Personal</dt>
+                        <dd class="col-sm-8">{{ ps.area_personal.nombre if ps.area_personal else 'N/A' }}</dd>
+                        <dt class="col-sm-4">Estado</dt>
+                        <dd class="col-sm-8">{% if ps.nuevo_viejo == 'N' %}Nuevo{% elif ps.nuevo_viejo == 'V' %}Viejo{% else %}N/A{% endif %}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Seguridad social y bancaria -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">Seguridad Social</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">EPS</dt>
+                        <dd class="col-sm-8">{{ ps.eps.nombre if ps.eps else 'N/A' }}</dd>
+                        <dt class="col-sm-4">AFP</dt>
+                        <dd class="col-sm-8">{{ ps.afp.nombre if ps.afp else 'N/A' }}</dd>
+                        <dt class="col-sm-4">ARL</dt>
+                        <dd class="col-sm-8">{{ ps.arl.nombre if ps.arl else 'N/A' }}</dd>
+                        <dt class="col-sm-4">Caja Compensación</dt>
+                        <dd class="col-sm-8">{{ ps.caja_compensacion.nombre if ps.caja_compensacion else 'N/A' }}</dd>
+                        <dt class="col-sm-4">Operador SS</dt>
+                        <dd class="col-sm-8">{{ ps.operador_ss.nombre if ps.operador_ss else 'N/A' }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">Datos Bancarios</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Banco</dt>
+                        <dd class="col-sm-8">{{ ps.banco.nombre if ps.banco else 'N/A' }}</dd>
+                        <dt class="col-sm-4">Cuenta Bancaria</dt>
+                        <dd class="col-sm-8">{{ ps.cuenta_bancaria }}</dd>
+                        <dt class="col-sm-4">Tipo de Cuenta</dt>
+                        <dd class="col-sm-8">{{ ps.tipo_cuenta }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Otros datos -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-light">Otros Datos</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-2">Estado Civil</dt>
+                        <dd class="col-sm-4">{{ ps.estado_civil }}</dd>
+                        <dt class="col-sm-2">RH</dt>
+                        <dd class="col-sm-4">{{ ps.rh }}</dd>
+                        <dt class="col-sm-2">Discapacidad</dt>
+                        <dd class="col-sm-4">{{ ps.discapacidad }}</dd>
+                        <dt class="col-sm-2">Identidad Género</dt>
+                        <dd class="col-sm-4">{{ ps.identidad_genero }}</dd>
+                        <dt class="col-sm-2">Raza</dt>
+                        <dd class="col-sm-4">{{ ps.raza }}</dd>
+                        <dt class="col-sm-2">No. Hijos</dt>
+                        <dd class="col-sm-4">{{ ps.no_hijos }}</dd>
+                        <dt class="col-sm-2">Tipo Riesgo</dt>
+                        <dd class="col-sm-4">{{ ps.tipo_riesgo }}</dd>
+                        <dt class="col-sm-2">Fecha Registro</dt>
+                        <dd class="col-sm-4">{{ ps.fecha_registro.strftime('%d/%m/%Y %H:%M') if ps.fecha_registro else 'N/A' }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

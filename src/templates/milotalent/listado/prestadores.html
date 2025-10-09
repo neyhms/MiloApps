@@ -1,83 +1,83 @@
 {% extends "MiloAuth/base_auth.html" %}
-
-{% block title %}Listado de PS - MiloTalent{% endblock %}
-
-{% block content %}
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0">
-                <i class="fas fa-list me-2"></i>Listado de Prestadores de Servicios
-            </h1>
-            <p class="text-muted">Gestión y consulta de PS registrados</p>
-        </div>
-        <div>
-            <a href="{{ url_for('milotalent.crear_ps') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>Nuevo PS
-            </a>
-            <a href="{{ url_for('milotalent.dashboard') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i>Dashboard
-            </a>
-        </div>
-    </div>
-
-    <!-- Filtros -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" class="row g-3">
-                <div class="col-md-2">
-                    <label class="form-label">Cédula</label>
-                    <input type="text" name="cedula" class="form-control" placeholder="Buscar cédula" value="{{ filtro_cedula }}">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Nombre Completo</label>
-                    <input type="text" name="nombre" class="form-control" placeholder="Buscar nombre" value="{{ filtro_nombre }}">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Sexo</label>
-                    <select name="sexo" class="form-select">
-                        <option value="">Todos</option>
-                        <option value="M" {% if filtro_sexo == 'M' %}selected{% endif %}>Masculino</option>
-                        <option value="F" {% if filtro_sexo == 'F' %}selected{% endif %}>Femenino</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Estado</label>
-                    <select name="estado" class="form-select">
-                        <option value="">Todos</option>
-                        <option value="N" {% if filtro_estado == 'N' %}selected{% endif %}>Nuevo</option>
-                        <option value="V" {% if filtro_estado == 'V' %}selected{% endif %}>Viejo</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Área Personal</label>
-                    <select name="area" class="form-select">
-                        <option value="">Todas</option>
-                        <option value="PH" {% if filtro_area == 'PH' %}selected{% endif %}>PH</option>
-                        <option value="PS" {% if filtro_area == 'PS' %}selected{% endif %}>PS</option>
-                        <option value="CT" {% if filtro_area == 'CT' %}selected{% endif %}>CT</option>
-                        <option value="PR" {% if filtro_area == 'PR' %}selected{% endif %}>PR</option>
-                    </select>
-                </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="submit" class="btn btn-outline-primary me-1" data-bs-toggle="tooltip" title="Filtrar">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <a href="{{ url_for('milotalent.listado') }}" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Limpiar filtros">
-                        <i class="fas fa-times"></i>
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Estadísticas -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h4>{{ prestadores.total }}</h4>
+            {% if prestadores.items and prestadores.items|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre Completo</th>
+                            <th>Sexo</th>
+                            <th>Profesión</th>
+                            <th>Área Personal</th>
+                            <th>Código SAP</th>
+                            <th>Estado</th>
+                            <th>Fecha Registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ps in prestadores.items %}
+                        <tr>
+                            <td>
+                                <strong>{{ ps.cedula_ps }}</strong>
+                                <br><small class="text-muted">{{ ps.expedida.nombre if ps.expedida else 'N/A' }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ ps.nombre_1 }} {% if ps.nombre_2 %}{{ ps.nombre_2 }}{% endif %} {{ ps.apellido_1 }} {% if ps.apellido_2 %}{{ ps.apellido_2 }}{% endif %}</strong>
+                                <br><small class="text-muted">{{ ps.mail }}</small>
+                            </td>
+                            <td>
+                                {% if ps and ps.sexo %}
+                                    <span class="badge {% if ps.sexo == 'M' or (ps.sexo.value if ps.sexo is not string else ps.sexo) == 'M' %}bg-primary{% else %}bg-pink{% endif %}">
+                                        {% if ps.sexo == 'M' or (ps.sexo.value if ps.sexo is not string else ps.sexo) == 'M' %}Masculino{% else %}Femenino{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ps.profesion.nombre if ps.profesion else 'N/A' }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ ps.area_personal.nombre if ps.area_personal else 'N/A' }}</span>
+                            </td>
+                            <td>
+                                <code>{{ ps.codigo_sap }}</code>
+                            </td>
+                            <td>
+                                {% if ps and ps.nuevo_viejo %}
+                                    <span class="badge {% if ps.nuevo_viejo == 'N' or (ps.nuevo_viejo.value if ps.nuevo_viejo is not string else ps.nuevo_viejo) == 'N' %}bg-success{% else %}bg-warning{% endif %}">
+                                        {% if ps.nuevo_viejo == 'N' or (ps.nuevo_viejo.value if ps.nuevo_viejo is not string else ps.nuevo_viejo) == 'N' %}Nuevo{% else %}Viejo{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ ps.fecha_registro.strftime('%d/%m/%Y') if ps.fecha_registro else 'N/A' }}
+                                <br><small class="text-muted">{{ ps.fecha_registro.strftime('%H:%M') if ps.fecha_registro else '' }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Ver Detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-warning" data-bs-toggle="tooltip" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info" data-bs-toggle="tooltip" title="Exportar">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center">
+                No hay prestadores registrados en la base de datos.
+            </div>
+            {% endif %}
                     <p class="mb-0">Total de PS</p>
                 </div>
             </div>
@@ -131,9 +131,13 @@
                                 <br><small class="text-muted">{{ ps.mail }}</small>
                             </td>
                             <td>
-                                <span class="badge {% if ps.sexo.value == 'M' %}bg-primary{% else %}bg-pink{% endif %}">
-                                    {% if ps.sexo.value == 'M' %}Masculino{% else %}Femenino{% endif %}
-                                </span>
+                                {% if ps and ps.sexo %}
+                                    <span class="badge {% if ps.sexo == 'M' or (ps.sexo.value if ps.sexo is not string else ps.sexo) == 'M' %}bg-primary{% else %}bg-pink{% endif %}">
+                                        {% if ps.sexo == 'M' or (ps.sexo.value if ps.sexo is not string else ps.sexo) == 'M' %}Masculino{% else %}Femenino{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">N/A</span>
+                                {% endif %}
                             </td>
                             <td>{{ ps.profesion }}</td>
                             <td>
@@ -143,9 +147,13 @@
                                 <code>{{ ps.codigo_sap }}</code>
                             </td>
                             <td>
-                                <span class="badge {% if ps.nuevo_viejo.value == 'N' %}bg-success{% else %}bg-warning{% endif %}">
-                                    {% if ps.nuevo_viejo.value == 'N' %}Nuevo{% else %}Viejo{% endif %}
-                                </span>
+                                {% if ps and ps.nuevo_viejo %}
+                                    <span class="badge {% if ps.nuevo_viejo == 'N' or (ps.nuevo_viejo.value if ps.nuevo_viejo is not string else ps.nuevo_viejo) == 'N' %}bg-success{% else %}bg-warning{% endif %}">
+                                        {% if ps.nuevo_viejo == 'N' or (ps.nuevo_viejo.value if ps.nuevo_viejo is not string else ps.nuevo_viejo) == 'N' %}Nuevo{% else %}Viejo{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">N/A</span>
+                                {% endif %}
                             </td>
                             <td>
                                 {{ ps.fecha_registro.strftime('%d/%m/%Y') if ps.fecha_registro else 'N/A' }}
@@ -226,20 +234,25 @@
     </div>
 </div>
 
+
 <style>
-.bg-pink {
-    background-color: #e91e63 !important;
-}
+    .bg-pink {
+        background-color: #e91e63 !important;
+    }
 </style>
 
 <script>
-// Inicializar tooltips
-document.addEventListener('DOMContentLoaded', function() {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
-});
 </script>
+
+
+
+
 
 {% endblock %}

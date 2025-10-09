@@ -1,3 +1,6 @@
+# ========================================
+# MODELOS DE CONFIGURACIÓN
+# ========================================
 """
 MiloTalent - Modelos de Base de Datos
 Sistema de Registro de Prestadores de Servicios
@@ -12,45 +15,8 @@ import uuid
 from models import db
 
 
-# ========================================
-# MODELOS DE CONFIGURACIÓN
-# ========================================
 
 
-class Municipio(db.Model):
-    """
-    Tabla de municipios de Colombia con departamentos
-    """
-    __tablename__ = "talent_municipios"
-    __table_args__ = {'extend_existing': True}
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nombre = db.Column(db.String(100), nullable=False)
-    departamento = db.Column(db.String(100), nullable=False)
-    codigo_dane = db.Column(db.String(10), nullable=True, unique=True)
-    nombre_completo = db.Column(db.String(200), nullable=False)  # "Municipio - Departamento"
-    activo = db.Column(db.Boolean, default=True, nullable=False)
-    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
-    usuario_creacion = db.Column(db.String(36), nullable=True)
-
-    def __repr__(self):
-        return f"<Municipio {self.nombre_completo}>"
-    
-    @property
-    def display_name(self):
-        """Nombre para mostrar en dropdowns"""
-        return self.nombre_completo
-    
-    def to_dict(self):
-        """Convierte a diccionario para API"""
-        return {
-            'id': self.id,
-            'nombre': self.nombre,
-            'departamento': self.departamento,
-            'codigo_dane': self.codigo_dane,
-            'nombre_completo': self.nombre_completo,
-            'activo': self.activo
-        }
 
 
 # ========================================
@@ -145,58 +111,92 @@ class PrestadorServicio(db.Model):
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
+
+
     # IDENTIFICACIÓN
     cedula_ps = db.Column(db.String(10), nullable=False, unique=True, index=True)
-    expedida_id = db.Column(db.Integer, db.ForeignKey('talent_municipios.id'), nullable=False)
-    
+    expedida_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
+
+
     # NOMBRES COMPLETOS
     nombre_1 = db.Column(db.String(50), nullable=False)
     nombre_2 = db.Column(db.String(50), nullable=True)
     apellido_1 = db.Column(db.String(50), nullable=False)
     apellido_2 = db.Column(db.String(50), nullable=True)
-    
+
+
     # INFORMACIÓN BÁSICA
     sexo = db.Column(db.String(1), nullable=False)
     codigo_sap = db.Column(db.String(20), nullable=False, unique=True)
-    
-    # NACIMIENTO  
+
+
+    # NACIMIENTO
     fecha_nacimiento = db.Column(db.Date, nullable=False)
-    ciudad_nacimiento_id = db.Column(db.Integer, db.ForeignKey('talent_municipios.id'), nullable=False)
+    ciudad_nacimiento_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
     pais_nacimiento = db.Column(db.String(100), nullable=False, default='CO')
-    
+
+
     # CONTACTO Y RESIDENCIA
     direccion = db.Column(db.String(200), nullable=False)
     pais_residencia = db.Column(db.String(100), nullable=False, default='CO')
-    municipio_residencia_id = db.Column(db.Integer, db.ForeignKey('talent_municipios.id'), nullable=False)
+    municipio_residencia_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
     telefono = db.Column(db.String(50), nullable=False)
     mail = db.Column(db.String(120), nullable=False)
-    
-    # INFORMACIÓN PERSONAL
-    profesion = db.Column(db.String(100), nullable=False)
+
+
+    # INFORMACIÓN PERSONAL (FK a TalentEntidad)
+    profesion_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
     estado_civil = db.Column(db.String(15), nullable=False)
     no_hijos = db.Column(db.Integer, nullable=False, default=0)
     rh = db.Column(db.String(11), nullable=False)
     discapacidad = db.Column(db.String(100), nullable=False, default='NINGUNA')
     identidad_genero = db.Column(db.String(15), nullable=False)
     raza = db.Column(db.String(20), nullable=False)
-    
-    # INFORMACIÓN BANCARIA
-    banco = db.Column(db.String(100), nullable=False)
+
+
+    # INFORMACIÓN BANCARIA (FK a TalentEntidad)
+    banco_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
     cuenta_bancaria = db.Column(db.String(50), nullable=False)
     tipo_cuenta = db.Column(db.String(15), nullable=False)
-    
-    # SEGURIDAD SOCIAL Y TRIBUTARIA
+
+
+    # SEGURIDAD SOCIAL Y TRIBUTARIA (FK a TalentEntidad)
     regimen_iva = db.Column(db.String(15), nullable=False)
-    eps = db.Column(db.String(100), nullable=False)
-    afp = db.Column(db.String(100), nullable=False)
-    arl = db.Column(db.String(100), nullable=False)
+    eps_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
+    afp_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
+    arl_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
     tipo_riesgo = db.Column(db.String(10), nullable=False)
-    caja = db.Column(db.String(100), nullable=True)
-    operador_ss = db.Column(db.String(100), nullable=False)
-    
-    # SISTEMA
+    caja_compensacion_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=True
+    )
+    operador_ss_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
+
+
+    # SISTEMA (FK a TalentEntidad)
     nuevo_viejo = db.Column(db.String(5), nullable=False)
-    area_personal = db.Column(db.String(50), nullable=False)
+    area_personal_id = db.Column(
+        db.Integer, db.ForeignKey('talent_entidades.id'), nullable=False
+    )
+
+    # METADATA DEL SISTEMA
     
     # METADATA DEL SISTEMA
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
@@ -205,10 +205,42 @@ class PrestadorServicio(db.Model):
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
     
-    # RELACIONES CON MUNICIPIOS
-    expedida_municipio = db.relationship('Municipio', foreign_keys=[expedida_id], lazy='select')
-    ciudad_nacimiento_municipio = db.relationship('Municipio', foreign_keys=[ciudad_nacimiento_id], lazy='select')
-    municipio_residencia_municipio = db.relationship('Municipio', foreign_keys=[municipio_residencia_id], lazy='select')
+
+
+    # RELACIONES CON ENTIDADES ADMINISTRATIVAS Y MUNICIPIOS
+    expedida = db.relationship(
+        'TalentEntidad', foreign_keys=[expedida_id], lazy='select'
+    )
+    ciudad_nacimiento = db.relationship(
+        'TalentEntidad', foreign_keys=[ciudad_nacimiento_id], lazy='select'
+    )
+    municipio_residencia = db.relationship(
+        'TalentEntidad', foreign_keys=[municipio_residencia_id], lazy='select'
+    )
+    profesion = db.relationship(
+        'TalentEntidad', foreign_keys=[profesion_id], lazy='select'
+    )
+    banco = db.relationship(
+        'TalentEntidad', foreign_keys=[banco_id], lazy='select'
+    )
+    eps = db.relationship(
+        'TalentEntidad', foreign_keys=[eps_id], lazy='select'
+    )
+    afp = db.relationship(
+        'TalentEntidad', foreign_keys=[afp_id], lazy='select'
+    )
+    arl = db.relationship(
+        'TalentEntidad', foreign_keys=[arl_id], lazy='select'
+    )
+    caja_compensacion = db.relationship(
+        'TalentEntidad', foreign_keys=[caja_compensacion_id], lazy='select'
+    )
+    operador_ss = db.relationship(
+        'TalentEntidad', foreign_keys=[operador_ss_id], lazy='select'
+    )
+    area_personal = db.relationship(
+        'TalentEntidad', foreign_keys=[area_personal_id], lazy='select'
+    )
 
     def __repr__(self):
         return f"<PrestadorServicio {self.nombre_completo} - {self.cedula_ps}>"
@@ -230,21 +262,54 @@ class PrestadorServicio(db.Model):
         if self.fecha_nacimiento:
             today = date.today()
             return today.year - self.fecha_nacimiento.year - (
-                (today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+                (today.month, today.day) < (
+                    self.fecha_nacimiento.month, self.fecha_nacimiento.day
+                )
             )
         return 0
 
     def to_dict(self):
-        """Convierte el objeto a diccionario para serialización"""
+        """Convierte el objeto a diccionario para serialización, solo IDs y datos simples"""
         return {
             'id': self.id,
             'cedula_ps': self.cedula_ps,
-            'nombre_completo': self.nombre_completo,
-            'mail': self.mail,
+            'expedida_id': self.expedida_id,
+            'nombre_1': self.nombre_1,
+            'nombre_2': self.nombre_2,
+            'apellido_1': self.apellido_1,
+            'apellido_2': self.apellido_2,
+            'sexo': self.sexo,
+            'codigo_sap': self.codigo_sap,
+            'fecha_nacimiento': self.fecha_nacimiento.isoformat() if self.fecha_nacimiento else None,
+            'ciudad_nacimiento_id': self.ciudad_nacimiento_id,
+            'pais_nacimiento': self.pais_nacimiento,
+            'direccion': self.direccion,
+            'pais_residencia': self.pais_residencia,
+            'municipio_residencia_id': self.municipio_residencia_id,
             'telefono': self.telefono,
-            'profesion': self.profesion,
-            'edad': self.edad,
-            'codigo_sap': self.codigo_sap
+            'mail': self.mail,
+            'profesion_id': self.profesion_id,
+            'estado_civil': self.estado_civil,
+            'no_hijos': self.no_hijos,
+            'rh': self.rh,
+            'discapacidad': self.discapacidad,
+            'identidad_genero': self.identidad_genero,
+            'raza': self.raza,
+            'banco_id': self.banco_id,
+            'cuenta_bancaria': self.cuenta_bancaria,
+            'tipo_cuenta': self.tipo_cuenta,
+            'regimen_iva': self.regimen_iva,
+            'eps_id': self.eps_id,
+            'afp_id': self.afp_id,
+            'arl_id': self.arl_id,
+            'tipo_riesgo': self.tipo_riesgo,
+            'caja_compensacion_id': self.caja_compensacion_id,
+            'operador_ss_id': self.operador_ss_id,
+            'nuevo_viejo': self.nuevo_viejo,
+            'area_personal_id': self.area_personal_id,
+            'usuario_registro': self.usuario_registro,
+            'fecha_registro': self.fecha_registro.isoformat() if self.fecha_registro else None,
+            'fecha_actualizacion': self.fecha_actualizacion.isoformat() if self.fecha_actualizacion else None
         }
 
 
@@ -257,6 +322,7 @@ class AuditoriaPS(db.Model):
     """
     Tabla de auditoría para el sistema de PS
     """
+
     __tablename__ = "talent_auditoria"
 
     id = db.Column(db.Integer, primary_key=True)

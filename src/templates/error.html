@@ -204,13 +204,12 @@
 <script>
     function reportError() {
         const errorInfo = {
-            code: {{error_code}
-    },
-    message: '{{ error_message or "No message" }}',
-        url: window.location.href,
+            code: {{ error_code or 500 }},
+            message: '{{ error_message or "No message" }}',
+            url: window.location.href,
             userAgent: navigator.userAgent,
-                timestamp: new Date().toISOString()
-    };
+            timestamp: new Date().toISOString()
+        };
 
     // In a real application, you would send this to your error reporting service
     console.log('Error Report:', errorInfo);
