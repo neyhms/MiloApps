@@ -87,7 +87,7 @@
                 <!-- Stats Cards -->
                 <div class="row mb-4">
                     <div class="col-md-3 mb-3">
-                        <div class="card bg-primary text-white">
+                        <div class="card bg-primary text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -103,7 +103,7 @@
                     </div>
 
                     <div class="col-md-3 mb-3">
-                        <div class="card bg-success text-white">
+                        <div class="card bg-success text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -119,7 +119,7 @@
                     </div>
 
                     <div class="col-md-3 mb-3">
-                        <div class="card bg-info text-white">
+                        <div class="card bg-info text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -135,7 +135,7 @@
                     </div>
 
                     <div class="col-md-3 mb-3">
-                        <div class="card bg-warning text-white">
+                        <div class="card bg-warning text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -264,45 +264,19 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-cat fa-3x text-primary mb-3"></i>
+                                <h5>MiloTalent</h5>
+                                <p class="text-muted">Gestión de Prestadores de Servicio</p>
+                                <a href="/milotalent/dashboard" class="btn btn-primary">
+                                    <i class="fas fa-users-cog"></i> Ir a MiloTalent
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                            </div>
-                            <div class="col-md-8">
-                                <form>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Nombre de Usuario</label>
-                                            <input type="text" class="form-control" value="{{ user.username }}"
-                                                readonly>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Email</label>
-                                            <input type="email" class="form-control" value="{{ user.email }}" readonly>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Fecha de Registro</label>
-                                            <input type="text" class="form-control"
-                                                value="{{ user.created_at|datetime('%d/%m/%Y %H:%M') }}" readonly>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Última Actividad</label>
-                                            <input type="text" class="form-control" id="profile-last-activity"
-                                                data-time="{{ user.get_last_activity().isoformat() }}"
-                                                value="Cargando..." readonly>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <a href="{{ url_for('auth.profile') }}" class="btn btn-primary">
-                                            <i class="fas fa-edit"></i> Editar Perfil
-                                        </a>
-                                        <a href="{{ url_for('auth.change_password') }}"
-                                            class="btn btn-outline-secondary">
-                                            <i class="fas fa-key"></i> Cambiar Contraseña
-                                        </a>
-                                    </div>
-                                </form>
-                            </div>
                         </div>
                     </div>
                 </div>
